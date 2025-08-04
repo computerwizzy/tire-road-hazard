@@ -50,6 +50,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { TIRE_BRANDS, VEHICLE_MAKES, VEHICLE_MODELS, COMMON_TIRE_SIZES } from "@/lib/constants";
+import { Invoice } from "./invoice";
 
 
 const FormSchema = z.object({
@@ -91,6 +92,8 @@ type PolicyData = {
   policyDocument: string;
   customerName: string;
   customerEmail: string;
+  policyNumber: string;
+  formData: z.infer<typeof FormSchema>;
 };
 
 export default function WarrantyForm() {
@@ -135,7 +138,7 @@ export default function WarrantyForm() {
     setError(null);
     const response = await handleWarrantyClaim(values);
     if (response.success && response.data) {
-      setResult(response.data);
+      setResult({...response.data, formData: values});
     } else {
       setError(response.error || "An unknown error occurred.");
     }
@@ -172,42 +175,44 @@ export default function WarrantyForm() {
 
   if (result) {
     return (
-      <Card className="w-full shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl flex items-center gap-2">
-            <FileText className="text-primary" />
-            Your Warranty Policy is Ready
-          </CardTitle>
-          <CardDescription>
-            Thank you for registering, {result.customerName}. Please save a copy of your policy
-            document below.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <pre className="bg-muted p-4 rounded-lg whitespace-pre-wrap font-body text-sm leading-relaxed">
-            {result.policyDocument}
-          </pre>
-        </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-            <div className="flex gap-4">
-                <Button onClick={onSendEmail} disabled={isSendingEmail}>
-                    {isSendingEmail ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Sending...
-                        </>
-                    ) : (
-                        <>
-                            <Mail className="mr-2 h-4 w-4" />
-                            Email to Customer
-                        </>
-                    )}
-                </Button>
-                <Button variant="outline" onClick={() => window.print()}>Print Policy</Button>
-            </div>
-          <Button variant="secondary" onClick={resetForm}>Create New Warranty</Button>
-        </CardFooter>
-      </Card>
+      <div className="space-y-8">
+        <Invoice data={result} />
+        <Card className="w-full shadow-lg print-hidden">
+          <CardHeader>
+            <CardTitle className="font-headline text-2xl flex items-center gap-2">
+              <FileText className="text-primary" />
+              Your Warranty Policy is Ready
+            </CardTitle>
+            <CardDescription>
+              Thank you for registering, {result.customerName}. You can email or print the policy document.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <pre className="bg-muted p-4 rounded-lg whitespace-pre-wrap font-body text-sm leading-relaxed">
+              {result.policyDocument}
+            </pre>
+          </CardContent>
+          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
+              <div className="flex gap-4">
+                  <Button onClick={onSendEmail} disabled={isSendingEmail}>
+                      {isSendingEmail ? (
+                          <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Sending...
+                          </>
+                      ) : (
+                          <>
+                              <Mail className="mr-2 h-4 w-4" />
+                              Email to Customer
+                          </>
+                      )}
+                  </Button>
+                  <Button variant="outline" onClick={() => window.print()}>Print Invoice & Policy</Button>
+              </div>
+            <Button variant="secondary" onClick={resetForm}>Create New Warranty</Button>
+          </CardFooter>
+        </Card>
+      </div>
     );
   }
 

@@ -101,3 +101,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  .print-hidden {
+    display: none;
+  }
+  .printable-area {
+    display: block;
+  }
+  body {
+    background-color: white;
+  }
+}
