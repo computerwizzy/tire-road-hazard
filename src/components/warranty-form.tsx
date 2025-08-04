@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -49,6 +49,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { TIRE_BRANDS, VEHICLE_MAKES, VEHICLE_MODELS, COMMON_TIRE_SIZES } from "@/lib/constants";
 
 
 const FormSchema = z.object({
@@ -116,6 +117,18 @@ export default function WarrantyForm() {
       vehicleYear: new Date().getFullYear(),
     },
   });
+
+  const selectedMake = form.watch("vehicleMake");
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (selectedMake && VEHICLE_MODELS[selectedMake]) {
+      setAvailableModels(VEHICLE_MODELS[selectedMake]);
+      form.setValue('vehicleModel', ''); // Reset model when make changes
+    } else {
+      setAvailableModels([]);
+    }
+  }, [selectedMake, form]);
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -304,9 +317,18 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Make</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Toyota" {...field} />
-                      </FormControl>
+                       <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a make" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {VEHICLE_MAKES.map((make) => (
+                            <SelectItem key={make} value={make}>{make}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -317,9 +339,22 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Model</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Camry" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMake}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a model" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {availableModels.length > 0 ? (
+                            availableModels.map((model) => (
+                              <SelectItem key={model} value={model}>{model}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>First select a make</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -350,16 +385,9 @@ export default function WarrantyForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Michelin">Michelin</SelectItem>
-                          <SelectItem value="Goodyear">Goodyear</SelectItem>
-                          <SelectItem value="Bridgestone">
-                            Bridgestone
-                          </SelectItem>
-                          <SelectItem value="Pirelli">Pirelli</SelectItem>
-                          <SelectItem value="Continental">
-                            Continental
-                          </SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
+                          {TIRE_BRANDS.map((brand) => (
+                             <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -385,9 +413,18 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Size</FormLabel>
-                      <FormControl>
-                        <Input placeholder="225/45R17" {...field} />
-                      </FormControl>
+                       <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a size" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                           {COMMON_TIRE_SIZES.map((size) => (
+                             <SelectItem key={size} value={size}>{size}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
