@@ -16,12 +16,14 @@ const GeneratePolicyDocumentInputSchema = z.object({
   customerName: z.string().describe('The name of the customer.'),
   customerPhone: z.string().describe('The phone number of the customer.'),
   customerEmail: z.string().describe('The email address of the customer.'),
+  customerAddress: z.string().describe('The full address of the customer.'),
   vehicleYear: z.number().describe('The year the vehicle was manufactured.'),
   vehicleMake: z.string().describe('The make of the vehicle.'),
   vehicleModel: z.string().describe('The model of the vehicle.'),
   tireBrand: z.string().describe('The brand of the tire.'),
   tireModel: z.string().describe('The model of the tire.'),
   tireSize: z.string().describe('The size of the tire.'),
+  tireDot: z.string().describe('The DOT number of the tire.'),
   purchaseDate: z.string().describe('The date the tire was purchased.'),
   dealerName: z.string().describe('The name of the dealer.'),
   warrantyStartDate: z.string().describe('The start date of the warranty.'),
@@ -52,12 +54,14 @@ Policy Number: {{policyNumber}}
 Customer Name: {{customerName}}
 Customer Phone: {{customerPhone}}
 Customer Email: {{customerEmail}}
+Customer Address: {{customerAddress}}
 Vehicle Year: {{vehicleYear}}
 Vehicle Make: {{vehicleMake}}
 Vehicle Model: {{vehicleModel}}
 Tire Brand: {{tireBrand}}
 Tire Model: {{tireModel}}
 Tire Size: {{tireSize}}
+Tire DOT: {{tireDot}}
 Purchase Date: {{purchaseDate}}
 Dealer Name: {{dealerName}}
 Warranty Start Date: {{warrantyStartDate}}

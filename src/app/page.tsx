@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import WarrantyForm from '@/components/warranty-form';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   return (
@@ -15,6 +17,14 @@ export default function Home() {
           <p className="text-muted-foreground mt-2 text-lg">
             Register your tire road hazard warranty and secure your peace of mind.
           </p>
+          <div className="mt-6">
+            <Button asChild>
+                <Link href="/search">
+                    <Search className="mr-2 h-4 w-4" />
+                    Search for a Warranty
+                </Link>
+            </Button>
+          </div>
         </header>
         <WarrantyForm />
       </div>

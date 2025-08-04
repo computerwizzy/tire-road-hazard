@@ -13,6 +13,7 @@ import {
   Loader2,
   Calendar as CalendarIcon,
   Disc3,
+  Home as HomeIcon,
 } from "lucide-react";
 
 import { handleWarrantyClaim } from "@/app/actions";
@@ -55,6 +56,9 @@ const FormSchema = z.object({
   customerPhone: z
     .string()
     .min(10, { message: "A valid phone number is required." }),
+  customerAddress: z
+    .string()
+    .min(10, { message: "A complete address is required." }),
   vehicleYear: z.coerce
     .number()
     .min(1980, { message: "Vehicle year must be 1980 or newer." })
@@ -68,6 +72,10 @@ const FormSchema = z.object({
   tireSize: z.string().min(5, {
     message: "Please enter a valid tire size (e.g., 225/45R17).",
   }),
+  tireDot: z
+    .string()
+    .min(7, { message: "Please enter a valid DOT number (7-13 characters)." })
+    .max(13, { message: "Please enter a valid DOT number (7-13 characters)." }),
   purchaseDate: z.date({
     required_error: "A purchase date is required.",
   }),
@@ -90,13 +98,15 @@ export default function WarrantyForm() {
       customerName: "",
       customerEmail: "",
       customerPhone: "",
+      customerAddress: "",
       vehicleMake: "",
       vehicleModel: "",
       tireBrand: "",
       tireModel: "",
       tireSize: "",
+      tireDot: "",
       dealerName: "",
-      vehicleYear: undefined,
+      vehicleYear: new Date().getFullYear(),
     },
   });
 
@@ -130,8 +140,9 @@ export default function WarrantyForm() {
             {result.policyDocument}
           </pre>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex justify-between">
           <Button onClick={() => window.print()}>Print Policy</Button>
+          <Button variant="outline" onClick={() => setResult(null)}>Create New Warranty</Button>
         </CardFooter>
       </Card>
     );
@@ -183,7 +194,7 @@ export default function WarrantyForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
+                 <FormField
                   control={form.control}
                   name="customerPhone"
                   render={({ field }) => (
@@ -191,6 +202,19 @@ export default function WarrantyForm() {
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
                         <Input placeholder="(123) 456-7890" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="customerAddress"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Full Address</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="123 Main St, Anytown, USA 12345" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -259,7 +283,7 @@ export default function WarrantyForm() {
                 <Disc3 className="text-primary" />
                 Tire Information
               </legend>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="tireBrand"
@@ -313,6 +337,19 @@ export default function WarrantyForm() {
                       <FormLabel>Size</FormLabel>
                       <FormControl>
                         <Input placeholder="225/45R17" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="tireDot"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DOT Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="DOT B3RV Y8C 4223" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -387,7 +424,7 @@ export default function WarrantyForm() {
                   name="receipt"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Upload Receipt</FormLabel>
+                      <FormLabel>Upload Receipt (Optional)</FormLabel>
                       <FormControl>
                         <Input type="file" {...field} />
                       </FormControl>
