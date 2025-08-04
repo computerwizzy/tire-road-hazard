@@ -96,6 +96,7 @@ export default function WarrantyForm() {
       tireModel: "",
       tireSize: "",
       dealerName: "",
+      vehicleYear: undefined,
     },
   });
 
@@ -212,7 +213,12 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Year</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="2023" {...field} />
+                        <Input
+                          type="number"
+                          placeholder="2023"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
