@@ -13,10 +13,11 @@ import {
   Loader2,
   Calendar as CalendarIcon,
   Disc3,
-  Home as HomeIcon,
+  Mail,
+  Send,
 } from "lucide-react";
 
-import { handleWarrantyClaim } from "@/app/actions";
+import { handleWarrantyClaim, handleSendEmail } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -47,6 +48,8 @@ import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+
 
 const FormSchema = z.object({
   customerName: z
@@ -83,14 +86,18 @@ const FormSchema = z.object({
   receipt: z.any().optional(),
 });
 
-type PolicyDocument = {
+type PolicyData = {
   policyDocument: string;
+  customerName: string;
+  customerEmail: string;
 };
 
 export default function WarrantyForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<PolicyDocument | null>(null);
+  const [result, setResult] = useState<PolicyData | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -122,6 +129,34 @@ export default function WarrantyForm() {
     setIsLoading(false);
   }
 
+  async function onSendEmail() {
+    if (!result) return;
+    setIsSendingEmail(true);
+    const response = await handleSendEmail({
+        customerName: result.customerName,
+        customerEmail: result.customerEmail,
+        policyDocument: result.policyDocument,
+    });
+    if (response.success) {
+        toast({
+            title: "Email Sent",
+            description: `The warranty policy has been sent to ${result.customerEmail}.`,
+        });
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: response.error || "Failed to send email.",
+        });
+    }
+    setIsSendingEmail(false);
+  }
+
+  const resetForm = () => {
+    setResult(null);
+    form.reset();
+  }
+
   if (result) {
     return (
       <Card className="w-full shadow-lg">
@@ -131,7 +166,7 @@ export default function WarrantyForm() {
             Your Warranty Policy is Ready
           </CardTitle>
           <CardDescription>
-            Thank you for registering. Please save a copy of your policy
+            Thank you for registering, {result.customerName}. Please save a copy of your policy
             document below.
           </CardDescription>
         </CardHeader>
@@ -140,9 +175,24 @@ export default function WarrantyForm() {
             {result.policyDocument}
           </pre>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button onClick={() => window.print()}>Print Policy</Button>
-          <Button variant="outline" onClick={() => setResult(null)}>Create New Warranty</Button>
+        <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
+            <div className="flex gap-4">
+                <Button onClick={onSendEmail} disabled={isSendingEmail}>
+                    {isSendingEmail ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Sending...
+                        </>
+                    ) : (
+                        <>
+                            <Mail className="mr-2 h-4 w-4" />
+                            Email to Customer
+                        </>
+                    )}
+                </Button>
+                <Button variant="outline" onClick={() => window.print()}>Print Policy</Button>
+            </div>
+          <Button variant="secondary" onClick={resetForm}>Create New Warranty</Button>
         </CardFooter>
       </Card>
     );
@@ -241,7 +291,7 @@ export default function WarrantyForm() {
                           type="number"
                           placeholder="2023"
                           {...field}
-                          value={field.value ?? ""}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />

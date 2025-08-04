@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
 import { searchPolicies, type SearchPoliciesInput, type SearchPoliciesOutput } from "@/ai/flows/search-policies";
+import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 
 const WarrantyClaimSchema = z.object({
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -43,7 +44,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     };
 
     const result = await generatePolicyDocument(input);
-    return { success: true, data: result };
+    return { success: true, data: {...result, customerName: values.customerName, customerEmail: values.customerEmail} };
 
   } catch (error) {
     console.error("Error generating policy document:", error);
@@ -67,5 +68,29 @@ export async function handleSearch(values: z.infer<typeof SearchSchema>): Promis
   } catch (error) {
     console.error("Error searching policies:", error);
     return { success: false, error: "Failed to search policies. Please try again." };
+  }
+}
+
+const EmailSchema = z.object({
+  customerName: z.string(),
+  customerEmail: z.string().email(),
+  policyDocument: z.string(),
+});
+
+export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const input: SendPolicyEmailInput = {
+      customerName: values.customerName,
+      customerEmail: values.customerEmail,
+      policyDocument: values.policyDocument,
+    };
+    const result = await sendPolicyEmail(input);
+    return { success: result.success };
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return { success: false, error: "Failed to send email. Please try again." };
   }
 }
