@@ -3,8 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { format, parseISO, isAfter } from 'date-fns';
-import { FileText, Loader2, AlertCircle, Users, ShieldCheck, ShieldX } from 'lucide-react';
+import { FileText, Loader2, AlertCircle, Users, ShieldCheck, ShieldX, PlusCircle } from 'lucide-react';
 import { getAllPolicies } from '@/app/actions';
 import type { Policy } from '@/ai/flows/search-policies';
 import AdminLayout from '@/components/admin-layout';
@@ -18,6 +19,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function AdminPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
@@ -79,6 +81,12 @@ export default function AdminPage() {
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+           <Button asChild>
+                <Link href="/">
+                    <PlusCircle className="mr-2" />
+                    New Warranty
+                </Link>
+            </Button>
         </div>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
