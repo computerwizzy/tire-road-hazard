@@ -58,9 +58,9 @@ export default function AdminPage() {
         } else {
           setError(response.error || 'An unknown error occurred while fetching policies.');
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Failed to load policies:", e);
-        setError("A critical error occurred while trying to load policies. Please check the console for details.");
+        setError(e.message || "A critical error occurred while trying to load policies. Please check the console for details.");
       } finally {
         setIsLoading(false);
       }
@@ -158,10 +158,11 @@ export default function AdminPage() {
             </CardHeader>
             <CardContent>
                 {error && (
-                     <div className="flex flex-col items-center justify-center h-40 text-destructive">
+                     <div className="flex flex-col items-center justify-center h-40 text-destructive text-center p-4">
                         <AlertCircle className="h-8 w-8 mb-2" />
-                        <p className="font-semibold">Error</p>
-                        <p>{error}</p>
+                        <p className="font-semibold">Error Fetching Data</p>
+                        <p className="text-sm">{error}</p>
+                        <p className="text-xs mt-2 text-muted-foreground">This might be because the 'policies' table doesn't exist or RLS policies are preventing access. Please check your Supabase dashboard.</p>
                     </div>
                 )}
                 {!isLoading && !error && (
