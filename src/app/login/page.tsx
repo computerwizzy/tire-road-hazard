@@ -21,7 +21,6 @@ const LoginSchema = z.object({
 });
 
 export default function LoginPage() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,11 +38,10 @@ export default function LoginPage() {
     
     const result = await handleLogin(values);
 
-    if (result.success) {
-      router.push('/admin');
-    } else {
-      setError(result.error || 'An unknown error occurred.');
+    if (result?.error) {
+      setError(result.error);
     }
+    
     setIsLoading(false);
   }
 

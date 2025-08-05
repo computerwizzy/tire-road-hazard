@@ -187,7 +187,7 @@ export async function handleLogin(values: z.infer<typeof LoginSchema>) {
     return { success: false, error: error.message };
   }
   
-  return { success: true };
+  redirect('/admin');
 }
 
 
