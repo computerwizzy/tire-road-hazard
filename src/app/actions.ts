@@ -87,7 +87,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     });
 
 
-    return { success: true, data: {...result, customerName: values.customerName, customerEmail: values.customerEmail, policyNumber} };
+    return { success: true, data: {...result, customerName: values.customerName, customerEmail: values.customerEmail, policyNumber, formData: values} };
 
   } catch (error) {
     console.error("Error generating policy document:", error);
