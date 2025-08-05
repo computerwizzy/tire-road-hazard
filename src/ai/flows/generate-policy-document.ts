@@ -27,7 +27,7 @@ const GeneratePolicyDocumentInputSchema = z.object({
   tireBrand: z.string().describe('The brand of the tire.'),
   tireModel: z.string().describe('The model of the tire.'),
   tireSize: z.string().describe('The size of the tire.'),
-  tireDot: z.string().describe('The DOT number of the tire.'),
+  tireDot: z.array(z.string()).describe('The DOT numbers of the tires.'),
   purchaseDate: z.string().describe('The date the tire was purchased.'),
   dealerName: z.string().describe('The name of the dealer.'),
   roadHazardPrice: z.number().describe('The price of the road hazard warranty.'),
@@ -63,7 +63,7 @@ const prompt = ai.definePrompt({
 | **Invoice:** {{invoiceNumber}} | **Covered Tires** | **Plan ID:** TMX1392090 | **Road Hazard** S_______ |
 | **Issuing Dealer:** | {{tireBrand}} {{tireModel}} | **Date:** {{purchaseDate}} | **Purchase Price** |
 | {{dealerName}} | **Comfort Size:** {{tireSize}} | **Name:** {{customerName}} | \${{roadHazardPrice}} |
-| 3031 Pelham PKWY | | **Phone:** {{customerPhone}} | |
+| 3031 Pelham PKWY | {{#each tireDot}}**DOT:** {{this}}<br>{{/each}} | **Phone:** {{customerPhone}} | |
 | Pelham, AL 35124 | | **Vehicle:** {{vehicleYear}} {{vehicleMake}} {{vehicleModel}} | |
 | (205) 620-3311 | | **Mileage:** {{vehicleMileage}} | |
 

@@ -74,7 +74,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     }
 
     const fullAddress = `${values.customerStreet}, ${values.customerCity}, ${values.customerState} ${values.customerZip}`;
-    const allDots = [values.tireDot1, values.tireDot2, values.tireDot3, values.tireDot4, values.tireDot5, values.tireDot6].filter(Boolean).join(', ');
+    const allDots = [values.tireDot1, values.tireDot2, values.tireDot3, values.tireDot4, values.tireDot5, values.tireDot6].filter((dot): dot is string => !!dot);
 
 
     const input: GeneratePolicyDocumentInput = {
