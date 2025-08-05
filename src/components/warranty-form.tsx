@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -51,9 +51,10 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Invoice } from "./invoice";
 import { AddItemDialog } from "./add-item-dialog";
 import type { DataForForm } from "@/data/db-actions";
+
+const Invoice = lazy(() => import("./invoice").then(module => ({ default: module.Invoice })));
 
 
 const FormSchema = z.object({
@@ -256,7 +257,9 @@ export default function WarrantyForm() {
   if (result) {
     return (
       <div className="space-y-8">
-        <Invoice data={result} />
+        <Suspense fallback={<div className="flex justify-center items-center h-96"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <Invoice data={result} />
+        </Suspense>
         <Card className="w-full shadow-lg print-hidden">
           <CardHeader>
             <CardTitle className="font-headline text-2xl flex items-center gap-2">
