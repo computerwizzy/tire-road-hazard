@@ -146,7 +146,11 @@ export default function WarrantyForm() {
 
   useEffect(() => {
     if (selectedMake && VEHICLE_MODELS[selectedMake]) {
-      setAvailableModels([...Object.keys(VEHICLE_MODELS[selectedMake]), "Other"]);
+      const models = Object.keys(VEHICLE_MODELS[selectedMake]);
+      if (!models.includes("Other")) {
+        models.push("Other");
+      }
+      setAvailableModels(models);
       if (selectedMake !== 'Other') {
         form.setValue('vehicleModel', ''); 
       }
@@ -159,7 +163,11 @@ export default function WarrantyForm() {
   
   useEffect(() => {
     if (selectedMake && selectedModel && VEHICLE_MODELS[selectedMake]?.[selectedModel]) {
-        setAvailableSubmodels([...VEHICLE_MODELS[selectedMake][selectedModel], "Other"]);
+        const submodels = VEHICLE_MODELS[selectedMake][selectedModel];
+        if (!submodels.includes("Other")) {
+            submodels.push("Other");
+        }
+        setAvailableSubmodels(submodels);
         if (selectedModel !== 'Other') {
             form.setValue('vehicleSubmodel', '');
         }
@@ -398,7 +406,7 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Model</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMake || selectedMake === 'Other'}>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedMake || selectedMake === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={!selectedMake || selectedMake === 'Other' ? "First select a make" : "Select a model"} />
@@ -429,7 +437,7 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Submodel</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ''} disabled={availableSubmodels.length === 0 || selectedModel === 'Other'}>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={availableSubmodels.length === 0 || selectedModel === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={!selectedModel || selectedModel === 'Other' ? "First select a model" : "Select a submodel"} />
