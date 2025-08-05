@@ -75,15 +75,6 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
 
     const fullAddress = `${values.customerStreet}, ${values.customerCity}, ${values.customerState} ${values.customerZip}`;
     
-    const allDots: string[] = [];
-    if (values.tireDot1) allDots.push(values.tireDot1);
-    if (values.tireDot2) allDots.push(values.tireDot2);
-    if (values.tireDot3) allDots.push(values.tireDot3);
-    if (values.tireDot4) allDots.push(values.tireDot4);
-    if (values.tireDot5) allDots.push(values.tireDot5);
-    if (values.tireDot6) allDots.push(values.tireDot6);
-
-
     const input: GeneratePolicyDocumentInput = {
       invoiceNumber: policyNumber,
       customerName: values.customerName,
@@ -99,7 +90,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       tireBrand: values.tireBrand,
       tireModel: values.tireModel,
       tireSize: values.tireSize,
-      tireDot: allDots,
+      tireDot: values.tireDot1,
       dealerName: values.dealerName,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       roadHazardPrice: values.roadHazardPrice,
