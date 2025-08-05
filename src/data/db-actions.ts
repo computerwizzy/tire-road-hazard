@@ -1,8 +1,32 @@
 
 'use server';
 
-import { getDb } from '@/lib/firebase-admin';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+// In-memory data store to simulate Firestore
+let inMemoryData = {
+    vehicles: {
+        makes: ['Honda', 'Toyota', 'Ford', 'Tesla'],
+        models: {
+            'Honda': { 'Accord': ['EX', 'LX'], 'Civic': ['Sport', 'Touring'] },
+            'Toyota': { 'Camry': ['LE', 'XSE'], 'Corolla': ['L', 'SE'] },
+            'Ford': { 'F-150': ['XL', 'XLT'], 'Mustang': ['GT', 'EcoBoost'] },
+            'Tesla': { 'Model 3': ['Standard Range', 'Long Range'], 'Model Y': ['Long Range', 'Performance'] },
+        }
+    },
+    tires: {
+        brands: ['Michelin', 'Goodyear', 'Bridgestone'],
+        sizes: ['225/45R17', '235/40R18', '205/55R16']
+    },
+    policies: [
+        {
+            policyNumber: 'WP-2023-ABC123',
+            customerName: 'John Doe',
+            customerEmail: 'john.doe@example.com',
+            tireDot: 'DOTB3RVY8C',
+            purchaseDate: '2023-01-15',
+            warrantyEndDate: '2026-01-15'
+        }
+    ]
+};
 
 export type DataForForm = {
     vehicleMakes: string[];
@@ -11,69 +35,59 @@ export type DataForForm = {
     vehicleModels: { [make: string]: { [model: string]: string[] } };
 }
 
-async function getDocument(collectionName: string, docName: string): Promise<any> {
-    const db = await getDb();
-    const docRef = doc(db, collectionName, docName);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
-}
-
-async function updateDocument(collectionName: string, docName: string, data: any): Promise<void> {
-    const db = await getDb();
-    const docRef = doc(db, collectionName, docName);
-    await setDoc(docRef, data, { merge: true });
-}
-
-
 export async function getDataForForm(): Promise<DataForForm> {
-    const vehicleData = await getDocument('appData', 'vehicles');
-    const tireData = await getDocument('appData', 'tires');
-
     return {
-        vehicleMakes: vehicleData?.makes || [],
-        vehicleModels: vehicleData?.models || {},
-        tireBrands: tireData?.brands || [],
-        commonTireSizes: tireData?.sizes || [],
+        vehicleMakes: inMemoryData.vehicles.makes,
+        vehicleModels: inMemoryData.vehicles.models,
+        tireBrands: inMemoryData.tires.brands,
+        commonTireSizes: inMemoryData.tires.sizes,
     }
 }
 
 export async function addDropdownOption(list: 'vehicleMakes' | 'tireBrands' | 'commonTireSizes', value: string): Promise<void> {
     if (list === 'vehicleMakes') {
-        const vehicleData = await getDocument('appData', 'vehicles') || { makes: [] };
-        if (!vehicleData.makes.includes(value)) {
-            vehicleData.makes.push(value);
-            vehicleData.makes.sort();
-            await updateDocument('appData', 'vehicles', { makes: vehicleData.makes });
+        const makes = inMemoryData.vehicles.makes;
+        if (!makes.includes(value)) {
+            makes.push(value);
+            makes.sort();
         }
     } else {
-        const tireData = await getDocument('appData', 'tires') || { brands: [], sizes: [] };
         const key = list === 'tireBrands' ? 'brands' : 'sizes';
-        if (!tireData[key].includes(value)) {
-            tireData[key].push(value);
-            tireData[key].sort();
-            await updateDocument('appData', 'tires', { [key]: tireData[key] });
+        const collection = inMemoryData.tires[key];
+        if (!collection.includes(value)) {
+            collection.push(value);
+            collection.sort();
         }
     }
 }
 
 export async function addVehicleModel(make: string, model: string): Promise<void> {
-    const vehicleData = await getDocument('appData', 'vehicles') || { models: {} };
-    if (!vehicleData.models[make]) {
-        vehicleData.models[make] = {};
+    const models = inMemoryData.vehicles.models;
+    if (!models[make]) {
+        models[make] = {};
     }
-    if (!vehicleData.models[make][model]) {
-        vehicleData.models[make][model] = [];
-        await updateDocument('appData', 'vehicles', { models: vehicleData.models });
+    if (!models[make][model]) {
+        models[make][model] = [];
     }
 }
 
 export async function addVehicleSubmodel(make: string, model: string, submodel: string): Promise<void> {
-    const vehicleData = await getDocument('appData', 'vehicles') || { models: {} };
-    if (vehicleData.models[make] && vehicleData.models[make][model]) {
-        if (!vehicleData.models[make][model].includes(submodel)) {
-            vehicleData.models[make][model].push(submodel);
-            vehicleData.models[make][model].sort();
-            await updateDocument('appData', 'vehicles', { models: vehicleData.models });
+    const models = inMemoryData.vehicles.models;
+    if (models[make] && models[make][model]) {
+        if (!models[make][model].includes(submodel)) {
+            models[make][model].push(submodel);
+            models[make][model].sort();
         }
     }
+}
+
+// Re-exporting types from search-policies to avoid circular dependencies if any
+import type { Policy } from '@/ai/flows/search-policies';
+
+export async function getPolicies(): Promise<Policy[]> {
+    return inMemoryData.policies;
+}
+
+export async function savePolicy(policy: Policy): Promise<void> {
+    inMemoryData.policies.push(policy);
 }
