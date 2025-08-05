@@ -36,3 +36,5 @@ export default async function AdminPage() {
 
     return <AdminDashboard initialPolicies={initialPolicies} totalCount={totalCount} />;
 }
+
+    

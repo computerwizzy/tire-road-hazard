@@ -210,3 +210,5 @@ export async function handleLogout() {
   await supabase.auth.signOut();
   redirect('/login');
 }
+
+    
