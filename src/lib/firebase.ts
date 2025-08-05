@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getFirestore, connectFirestoreEmulator, type Firestore } from "firebase/firestore";
+import { getFirestore, type Firestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,12 +15,18 @@ const firebaseConfig = {
 let app: FirebaseApp;
 let db: Firestore;
 
-if (getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
+function initializeFirebase() {
+    if (getApps().length === 0) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApp();
+    }
+    db = getFirestore(app);
 }
 
-db = getFirestore(app);
-
-export { app, db };
+export function getDb(): Firestore {
+    if (!db) {
+        initializeFirebase();
+    }
+    return db;
+}

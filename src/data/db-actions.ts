@@ -1,8 +1,8 @@
 
 'use server';
 
-import { db } from '@/lib/firebase';
-import { collection, doc, getDoc, getDocs, setDoc, query, where } from 'firebase/firestore';
+import { getDb } from '@/lib/firebase';
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 
 export type DataForForm = {
     vehicleMakes: string[];
@@ -12,14 +12,14 @@ export type DataForForm = {
 }
 
 async function getDocument(collectionName: string, docName: string): Promise<any> {
-    if (!db) return null;
+    const db = getDb();
     const docRef = doc(db, collectionName, docName);
     const docSnap = await getDoc(docRef);
     return docSnap.exists() ? docSnap.data() : null;
 }
 
 async function updateDocument(collectionName: string, docName: string, data: any): Promise<void> {
-    if (!db) return;
+    const db = getDb();
     const docRef = doc(db, collectionName, docName);
     await setDoc(docRef, data, { merge: true });
 }
