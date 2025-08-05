@@ -38,7 +38,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Textarea } from "./ui/textarea";
 import { WarrantyResult, type PolicyData } from "./warranty-result";
 
 
@@ -50,9 +49,10 @@ const FormSchema = z.object({
   customerPhone: z
     .string()
     .min(10, { message: "A valid phone number is required." }),
-  customerAddress: z
-    .string()
-    .min(10, { message: "A complete address is required." }),
+  customerStreet: z.string().min(5, { message: "Street address is required." }),
+  customerCity: z.string().min(2, { message: "City is required." }),
+  customerState: z.string().min(2, { message: "State is required." }),
+  customerZip: z.string().min(5, { message: "Valid ZIP code is required." }),
   vehicleYear: z.coerce
     .number()
     .min(1900, { message: "Vehicle year must be 1900 or newer." })
@@ -100,7 +100,10 @@ export default function WarrantyForm() {
       customerName: "",
       customerEmail: "",
       customerPhone: "",
-      customerAddress: "",
+      customerStreet: "",
+      customerCity: "",
+      customerState: "",
+      customerZip: "",
       vehicleMake: "",
       vehicleModel: "",
       vehicleSubmodel: "",
@@ -209,17 +212,58 @@ export default function WarrantyForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="customerAddress"
+                  name="customerStreet"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Full Address</FormLabel>
+                      <FormLabel>Street Address</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="123 Main St, Anytown, USA 12345" {...field} />
+                        <Input placeholder="123 Main St" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:col-span-2">
+                    <FormField
+                    control={form.control}
+                    name="customerCity"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Anytown" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="customerState"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                            <Input placeholder="CA" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="customerZip"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Zip Code</FormLabel>
+                        <FormControl>
+                            <Input placeholder="12345" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
               </div>
             </fieldset>
 

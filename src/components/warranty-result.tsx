@@ -34,6 +34,9 @@ const InvoiceFormDataSchema = z.object({
   tireSize: z.string(),
   tireDot: z.string(),
   purchaseDate: z.date(),
+  // Address fields are no longer a single string.
+  // We can leave them out here as they are not directly used by the Invoice component,
+  // but they are part of the `formData` object passed in.
 });
 
 export type PolicyData = {
@@ -41,7 +44,7 @@ export type PolicyData = {
   customerName: string;
   customerEmail: string;
   policyNumber: string;
-  formData: z.infer<typeof InvoiceFormDataSchema>;
+  formData: z.infer<typeof InvoiceFormDataSchema> & { [key: string]: any }; // Allow extra fields
 };
 
 interface WarrantyResultProps {
@@ -117,3 +120,5 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         </div>
     );
 }
+
+    

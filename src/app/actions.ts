@@ -17,7 +17,10 @@ const WarrantyClaimSchema = z.object({
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   customerEmail: z.string().email({ message: "Invalid email address." }),
   customerPhone: z.string().min(10, { message: "Phone number is required." }),
-  customerAddress: z.string().min(10, { message: "A complete address is required."}),
+  customerStreet: z.string().min(5, { message: "Street address is required." }),
+  customerCity: z.string().min(2, { message: "City is required." }),
+  customerState: z.string().min(2, { message: "State is required." }),
+  customerZip: z.string().min(5, { message: "Valid ZIP code is required." }),
   vehicleYear: z.coerce.number().min(1900).max(new Date().getFullYear() + 1),
   vehicleMake: z.string().min(2, { message: "Vehicle make is required." }),
   vehicleModel: z.string().min(1, { message: "Vehicle model is required." }),
@@ -58,10 +61,24 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
         receiptUrl = urlData.publicUrl;
     }
 
+    const fullAddress = `${values.customerStreet}, ${values.customerCity}, ${values.customerState} ${values.customerZip}`;
 
     const input: GeneratePolicyDocumentInput = {
-      ...values,
       policyNumber,
+      customerName: values.customerName,
+      customerPhone: values.customerPhone,
+      customerEmail: values.customerEmail,
+      customerAddress: fullAddress,
+      vehicleYear: values.vehicleYear,
+      vehicleMake: values.vehicleMake,
+      vehicleModel: values.vehicleModel,
+      vehicleSubmodel: values.vehicleSubmodel,
+      vehicleMileage: values.vehicleMileage,
+      tireBrand: values.tireBrand,
+      tireModel: values.tireModel,
+      tireSize: values.tireSize,
+      tireDot: values.tireDot,
+      dealerName: values.dealerName,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       warrantyStartDate: warrantyStartDate.toISOString().split('T')[0],
       warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
@@ -260,4 +277,5 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 export { addUser, deleteUser, getUsers };
 export type { User } from "@/data/db-actions";
 
+    
     
