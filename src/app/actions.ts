@@ -209,6 +209,56 @@ export async function handleLogout() {
   redirect('/login');
 }
 
+export type DashboardStats = {
+    totalPolicies: number;
+    activePolicies: number;
+    expiredPolicies: number;
+    totalCustomers: number;
+}
+
+export async function getDashboardStats(): Promise<DashboardStats> {
+    const today = new Date().toISOString();
+
+    const { count: totalPolicies, error: totalError } = await supabase
+        .from('policies')
+        .select('*', { count: 'exact', head: true });
+
+    if (totalError) throw totalError;
+
+    const { count: activePolicies, error: activeError } = await supabase
+        .from('policies')
+        .select('*', { count: 'exact', head: true })
+        .gt('warrantyEndDate', today);
+    
+    if (activeError) throw activeError;
+
+    const { count: expiredPolicies, error: expiredError } = await supabase
+        .from('policies')
+        .select('*', { count: 'exact', head: true })
+        .lt('warrantyEndDate', today);
+
+    if (expiredError) throw expiredError;
+    
+    // Supabase doesn't have a direct distinct count, so we fetch the data and count in code.
+    // This is not ideal for very large datasets, but ok for thousands of records.
+    // For larger scale, a PostgREST function would be better.
+    const { data: customers, error: customerError } = await supabase
+        .from('policies')
+        .select('customerEmail');
+
+    if (customerError) throw customerError;
+
+    const totalCustomers = new Set(customers.map(c => c.customerEmail)).size;
+    
+    return {
+        totalPolicies: totalPolicies ?? 0,
+        activePolicies: activePolicies ?? 0,
+        expiredPolicies: expiredPolicies ?? 0,
+        totalCustomers: totalCustomers ?? 0,
+    }
+}
+
+
 export { addUser, deleteUser, getUsers };
 export type { DataForForm, User };
     

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { format, parseISO, isAfter } from 'date-fns';
 import { FileText, Users, ShieldCheck, ShieldX, PlusCircle, Loader2 } from 'lucide-react';
 import type { Policy } from '@/ai/flows/search-policies';
-import { getAllPolicies } from '@/app/actions';
+import { getAllPolicies, type DashboardStats } from '@/app/actions';
 import {
   Table,
   TableBody,
@@ -23,40 +23,19 @@ import { Button } from '@/components/ui/button';
 interface AdminDashboardProps {
   initialPolicies: Policy[];
   totalCount: number;
+  initialStats: DashboardStats;
 }
 
 const POLICIES_PER_PAGE = 10;
 
-export default function AdminDashboard({ initialPolicies, totalCount }: AdminDashboardProps) {
+export default function AdminDashboard({ initialPolicies, totalCount, initialStats }: AdminDashboardProps) {
   const router = useRouter();
 
   const [policies, setPolicies] = useState<Policy[]>(initialPolicies);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState(initialStats);
 
-  const [stats, setStats] = useState({
-    totalPolicies: totalCount,
-    activePolicies: 0,
-    expiredPolicies: 0,
-    totalCustomers: 0
-  });
-
-  // This effect runs once to calculate stats based on ALL policies (which we don't have now)
-  // This would need a separate query to be accurate. For now, we'll estimate based on the first page
-  // A more robust solution would be another server action to get just the stats.
-  useEffect(() => {
-    const today = new Date();
-    const active = policies.filter(p => isAfter(parseISO(p.warrantyEndDate), today)).length;
-    const expired = policies.length - active;
-    const customers = new Set(policies.map(p => p.customerEmail)).size;
-    
-    setStats({
-      totalPolicies: totalCount,
-      activePolicies: active, // Note: This is only for the current page
-      expiredPolicies: expired, // Note: This is only for the current page
-      totalCustomers: customers, // Note: This is only for the current page
-    });
-  }, [policies, totalCount]);
 
   const totalPages = Math.ceil(totalCount / POLICIES_PER_PAGE);
 
@@ -117,8 +96,8 @@ export default function AdminDashboard({ initialPolicies, totalCount }: AdminDas
                     <ShieldCheck className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">~</div>
-                    <p className="text-xs text-muted-foreground">Count requires full data scan</p>
+                    <div className="text-2xl font-bold">{stats.activePolicies}</div>
+                    <p className="text-xs text-muted-foreground">Warranties currently active</p>
                 </CardContent>
             </Card>
              <Card>
@@ -127,8 +106,8 @@ export default function AdminDashboard({ initialPolicies, totalCount }: AdminDas
                     <ShieldX className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">~</div>
-                    <p className="text-xs text-muted-foreground">Count requires full data scan</p>
+                    <div className="text-2xl font-bold">{stats.expiredPolicies}</div>
+                    <p className="text-xs text-muted-foreground">Warranties that have expired</p>
                 </CardContent>
             </Card>
              <Card>
@@ -137,8 +116,8 @@ export default function AdminDashboard({ initialPolicies, totalCount }: AdminDas
                     <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">~</div>
-                    <p className="text-xs text-muted-foreground">Count requires full data scan</p>
+                    <div className="text-2xl font-bold">{stats.totalCustomers}</div>
+                    <p className="text-xs text-muted-foreground">Unique customers registered</p>
                 </CardContent>
             </Card>
         </div>
