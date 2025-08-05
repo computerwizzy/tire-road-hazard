@@ -43,16 +43,38 @@ let formStore: DataForForm = {
         'Chevrolet': {
             'Malibu': ['L', 'LS', 'RS', 'LT'],
             'Equinox': ['L', 'LS', 'LT', 'Premier'],
-            'Silverado': ['WT', 'Custom', 'LT', 'RST', 'LTZ', 'High Country'],
-            'Tahoe': ['LS', 'LT', 'RST', 'Z71', 'Premier', 'High Country']
+            'Silverado 1500': ['WT', 'Custom', 'LT', 'RST', 'LTZ', 'High Country'],
+            'Silverado 2500HD': ['WT', 'Custom', 'LT', 'LTZ', 'High Country'],
+            'Silverado 3500HD': ['WT', 'LT', 'LTZ', 'High Country'],
+            'Tahoe': ['LS', 'LT', 'RST', 'Z71', 'Premier', 'High Country'],
+            'Suburban': ['LS', 'LT', 'RST', 'Z71', 'Premier', 'High Country'],
+            'Traverse': ['L', 'LS', 'LT', 'RS', 'Premier', 'High Country'],
+        },
+        'Dodge': {
+            'Charger': ['SXT', 'GT', 'R/T', 'Scat Pack', 'SRT Hellcat'],
+            'Challenger': ['SXT', 'GT', 'R/T', 'Scat Pack', 'SRT Hellcat'],
+            'Durango': ['SXT', 'GT', 'R/T', 'Citadel', 'SRT'],
         },
         'Ford': {
             'Focus': ['S', 'SE', 'SEL', 'Titanium'],
             'Fusion': ['S', 'SE', 'SEL', 'Titanium'],
             'Escape': ['S', 'SE', 'SEL', 'Titanium'],
             'Explorer': ['Base', 'XLT', 'Limited', 'ST', 'Platinum'],
-            'F-150': ['XL', 'XLT', 'Lariat', 'King Ranch', 'Platinum', 'Limited'],
-            'Mustang': ['EcoBoost', 'EcoBoost Premium', 'GT', 'GT Premium', 'Mach 1']
+            'F-150': ['XL', 'XLT', 'Lariat', 'King Ranch', 'Platinum', 'Limited', 'Raptor'],
+            'F-250 Super Duty': ['XL', 'XLT', 'Lariat', 'King Ranch', 'Platinum'],
+            'F-350 Super Duty': ['XL', 'XLT', 'Lariat', 'King Ranch', 'Platinum'],
+            'F-450 Super Duty': ['XL', 'XLT', 'Lariat', 'King Ranch', 'Platinum'],
+            'Mustang': ['EcoBoost', 'EcoBoost Premium', 'GT', 'GT Premium', 'Mach 1', 'Shelby GT500'],
+            'Bronco': ['Base', 'Big Bend', 'Black Diamond', 'Outer Banks', 'Badlands', 'Wildtrak'],
+        },
+        'GMC': {
+            'Sierra 1500': ['Pro', 'SLE', 'Elevation', 'SLT', 'AT4', 'Denali'],
+            'Sierra 2500HD': ['Pro', 'SLE', 'SLT', 'AT4', 'Denali'],
+            'Sierra 3500HD': ['Pro', 'SLE', 'SLT', 'AT4', 'Denali'],
+            'Yukon': ['SLE', 'SLT', 'AT4', 'Denali'],
+            'Yukon XL': ['SLE', 'SLT', 'AT4', 'Denali'],
+            'Acadia': ['SLE', 'SLT', 'AT4', 'Denali'],
+            'Terrain': ['SL', 'SLE', 'SLT', 'Denali'],
         },
         'Honda': {
             'Civic': ['LX', 'Sport', 'EX', 'Touring', 'Si'],
@@ -67,9 +89,10 @@ let formStore: DataForForm = {
             'Santa Fe': ['SE', 'SEL', 'Limited', 'Calligraphy']
         },
         'Jeep': {
-            'Wrangler': ['Sport', 'Sport S', 'Sahara', 'Rubicon'],
-            'Grand Cherokee': ['Laredo', 'Limited', 'Trailhawk', 'Overland', 'Summit'],
-            'Cherokee': ['Latitude', 'Latitude Plus', 'Limited', 'Trailhawk']
+            'Wrangler': ['Sport', 'Willys', 'Sport S', 'Sahara', 'Rubicon', '4xe', '392'],
+            'Grand Cherokee': ['Laredo', 'Altitude', 'Limited', 'Trailhawk', 'Overland', 'Summit', 'SRT'],
+            'Cherokee': ['Latitude', 'Latitude Plus', 'Limited', 'Trailhawk'],
+            'Gladiator': ['Sport', 'Willys', 'Overland', 'Rubicon', 'Mojave'],
         },
         'Kia': {
             'Forte': ['FE', 'LXS', 'GT-Line', 'EX'],
@@ -99,7 +122,13 @@ let formStore: DataForForm = {
             'Sentra': ['S', 'SV', 'SR'],
             'Altima': ['S', 'SV', 'SR', 'SL', 'Platinum'],
             'Rogue': ['S', 'SV', 'SL', 'Platinum'],
-            'Titan': ['S', 'SV', 'Pro-4X', 'SL', 'Platinum Reserve']
+            'Titan': ['S', 'SV', 'Pro-4X', 'SL', 'Platinum Reserve'],
+            'Frontier': ['S', 'SV', 'PRO-X', 'PRO-4X'],
+        },
+        'Ram': {
+            '1500': ['Tradesman', 'Big Horn', 'Laramie', 'Rebel', 'Limited', 'TRX'],
+            '2500': ['Tradesman', 'Big Horn', 'Laramie', 'Power Wagon', 'Limited'],
+            '3500': ['Tradesman', 'Big Horn', 'Laramie', 'Limited'],
         },
         'Subaru': {
             'Impreza': ['Base', 'Premium', 'Sport', 'Limited'],
@@ -118,7 +147,8 @@ let formStore: DataForForm = {
             'Camry': ['LE', 'SE', 'XLE', 'XSE', 'TRD'],
             'RAV4': ['LE', 'XLE', 'XLE Premium', 'Adventure', 'Limited', 'TRD Off-Road'],
             'Highlander': ['L', 'LE', 'XLE', 'Limited', 'Platinum'],
-            'Tacoma': ['SR', 'SR5', 'TRD Sport', 'TRD Off-Road', 'Limited', 'TRD Pro']
+            'Tacoma': ['SR', 'SR5', 'TRD Sport', 'TRD Off-Road', 'Limited', 'TRD Pro'],
+            'Tundra': ['SR', 'SR5', 'Limited', 'Platinum', '1794 Edition', 'TRD Pro', 'Capstone']
         },
         'Volkswagen': {
             'Jetta': ['S', 'SE', 'R-Line', 'SEL', 'SEL Premium'],
@@ -171,10 +201,11 @@ export async function addVehicleSubmodel(make: string, model: string, submodel: 
 }
 
 
-export async function savePolicy(policy: Policy): Promise<void> {
+export async function savePolicy(policy: Omit<Policy, 'id'>): Promise<void> {
     const { error } = await supabase.from('policies').insert(policy);
      if (error) {
          console.error('Error saving policy to Supabase:', error);
          throw new Error('Failed to save policy.');
      }
 }
+
