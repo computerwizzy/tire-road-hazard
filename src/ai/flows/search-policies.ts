@@ -13,6 +13,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { getPolicies, savePolicy } from '@/data/db-actions';
+import { supabase } from '@/lib/supabase';
 
 const SearchPoliciesInputSchema = z.object({
   query: z.string().describe('The search query, which could be a policy number or a tire DOT number.'),
@@ -54,15 +55,17 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
-        const allPolicies = await getPolicies();
-        const lowerCaseQuery = input.query.toLowerCase();
+        const { data, error } = await supabase
+            .from('policies')
+            .select()
+            .or(`policyNumber.ilike.%${input.query}%,tireDot.ilike.%${input.query}%`);
 
-        const results = allPolicies.filter(p => 
-            p.policyNumber.toLowerCase().includes(lowerCaseQuery) || 
-            p.tireDot.toLowerCase().includes(lowerCaseQuery)
-        );
+        if (error) {
+            console.error('Error searching policies in Supabase:', error);
+            throw new Error('Failed to search policies.');
+        }
 
-        return { results };
+        return { results: data || [] };
     }
 );
 

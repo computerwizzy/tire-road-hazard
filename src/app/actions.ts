@@ -6,6 +6,7 @@ import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/f
 import { searchPolicies, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm } from "@/data/db-actions";
+import { supabase } from "@/lib/supabase";
 
 const WarrantyClaimSchema = z.object({
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -32,8 +33,26 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const warrantyEndDate = new Date();
     warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3);
 
-    // Placeholder for receipt URL as we are not using a real file storage
-    const receiptUrl = null;
+    let receiptUrl = null;
+
+    if (receiptData) {
+        const filePath = `public/${policyNumber}-${receiptData.fileName}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('receipts')
+            .upload(filePath, Buffer.from(receiptData.buffer, 'base64'), {
+                contentType: receiptData.contentType,
+                upsert: true,
+            });
+
+        if (uploadError) {
+            console.error("Error uploading receipt to Supabase:", uploadError);
+            throw new Error("Failed to upload receipt.");
+        }
+
+        const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
+        receiptUrl = urlData.publicUrl;
+    }
+
 
     const input: GeneratePolicyDocumentInput = {
       ...values,
