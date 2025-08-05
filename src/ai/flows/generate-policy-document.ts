@@ -35,7 +35,7 @@ const GeneratePolicyDocumentInputSchema = z.object({
 export type GeneratePolicyDocumentInput = z.infer<typeof GeneratePolicyDocumentInputSchema>;
 
 const GeneratePolicyDocumentOutputSchema = z.object({
-  policyDocument: z.string().describe('The generated policy document.'),
+  policyDocument: z.string().describe('The generated policy document in Markdown format.'),
 });
 
 export type GeneratePolicyDocumentOutput = z.infer<typeof GeneratePolicyDocumentOutputSchema>;
@@ -48,26 +48,46 @@ const prompt = ai.definePrompt({
   name: 'generatePolicyDocumentPrompt',
   input: {schema: GeneratePolicyDocumentInputSchema},
   output: {schema: GeneratePolicyDocumentOutputSchema},
-  prompt: `You are an expert at writing warranty policy documents. Using the information provided, generate a well-written and easy-to-understand policy document.
+  prompt: `You are an expert at writing warranty policy documents. Using the information provided, generate a well-written and easy-to-understand policy document in Markdown format. The document should match the structure and content of the provided example.
 
-Policy Number: {{policyNumber}}
-Customer Name: {{customerName}}
-Customer Phone: {{customerPhone}}
-Customer Email: {{customerEmail}}
-Customer Address: {{customerAddress}}
-Vehicle Year: {{vehicleYear}}
-Vehicle Make: {{vehicleMake}}
-Vehicle Model: {{vehicleModel}}
-Tire Brand: {{tireBrand}}
-Tire Model: {{tireModel}}
-Tire Size: {{tireSize}}
-Tire DOT: {{tireDot}}
-Purchase Date: {{purchaseDate}}
-Dealer Name: {{dealerName}}
-Warranty Start Date: {{warrantyStartDate}}
-Warranty End Date: {{warrantyEndDate}}
-Terms and Conditions: {{termsAndConditions}}
-Coverage Details: {{#each coverageDetails}}- {{{this}}}\n{{/each}}`,
+# NATIONWIDE LIMITED ROAD HAZARD WARRANTY
+************************************************************************
+
+| Invoice: | Covered Tires: | Plan ID: | Road Hazard |
+| :--- | :--- | :--- | :--- |
+| {{policyNumber}} | {{tireBrand}} {{tireModel}} | TMX1394902 | |
+| **Issuing Dealer:** | **Size:** | **Date:** | **Purchase Price:** |
+| {{dealerName}} | {{tireSize}} | {{purchaseDate}} | $27.00 |
+| **Name:** | | **Phone:** | |
+| {{customerName}} | | {{customerPhone}} | |
+| **Vehicle:** | | **Mileage:** | |
+| {{vehicleYear}} {{vehicleMake}} {{vehicleModel}} | | 265105 | |
+
+
+This Road Hazard Plan ("Plan") is afforded to You with the purchase of Your tires provided by ABS Risk, LLC (also referred to herein as "Obligor", "We", "Us", and "Our"), Administrative Office: 10170 Church Ranch Way, Suite 320, Westminster, CO 80021, (888) 268-4888, and administered by Automotive Business Solutions ("Program Administrator") P.O. Box 33535, Denver, CO 80233. This Plan covers only the eligible tires You purchased and installed on the vehicle identified on the original purchase receipt. This Plan only applies to passenger and light truck tires, which become unserviceable because of a road hazard. A road hazard occurs when a tire fails due to a puncture, bruise or break incurred during the course of normal driving on a maintained road. Nails, glass, and potholes would be the most common examples of road hazard damage.
+
+### WHAT YOU MUST DO TO OBTAIN SERVICE
+If possible, you should return to the selling dealer where you originally purchased this Plan, for tire repair or replacement. If you are away from the original selling dealer, you must contact the Program Administrator by calling 866-830-4189 for assistance in locating the nearest participating facility. A prior authorization number must be obtained from the Program Administrator to replace a tire damaged by a road hazard. **YOU MUST PRESENT THE ORIGINAL INVOICE SHOWING THE PURCHASE OF THE TIRE(S).** The damaged tire must be made available for inspection by the repair facility and/or the Program Administrator. All claims and any required documentation must be submitted to the Program Administrator within sixty (60) days of the date of road hazard damage and/or service. This Plan does not have a deductible.
+
+### WHAT IS COVERED BY THE PLAN
+This Plan is valid for thirty-six (36) months from the purchase date of Your eligible tire(s), as stated on the original purchase receipt, or until any portion of the tire treadwear is worn 2/32 of an inch or less, whichever occurs first (the "Coverage Period"). **Tire Replacement:** If an eligible tire becomes unserviceable because of a road hazard, and cannot be safely repaired per the manufacturer's guidelines, during the Coverage Period, this Plan will cover the cost of the replacement as follows:
+- If the tire failure occurs within the first twelve (12) months following the Plan Purchase Date, an exact make and model replacement tire will be installed. If not available, this Plan will cover the cost, up to one hundred percent (100%) of the retail price paid (as stated on the original sales invoice) for the original tire, of a comparable quality tire.
+- If the tire failure occurs after the first twelve (12) months following the Plan Purchase Date, you will be charged for the consumed time (months) on the original tire, times the original selling price of the tire (as stated on the original sales invoice). This plan will cover the remainder of the retail price paid for the original tire (as stated on the original sales invoice) of a comparable quality tire. You will be responsible for any taxes, mounting, balancing, and any other miscellaneous fees. This Plan does not transfer to the replacement tire.
+
+**Tire Repair:** If your tire is damaged due to a road hazard and can be safely repaired, the tire will be repaired per manufacturer's guidelines at any participating facility. The Plan will cover up $20.00 to have the tire repaired. The Plan will remain in effect.
+
+### FLAT TIRE CHANGING ASSISTANCE
+For thirty-six (36) months from the Plan Purchase Date, you may receive flat tire changing assistance by calling the service provider of your choice. If you need assistance in locating a service provider in your area, you may call 866-830-4189. You will be reimbursed up to $75 for eligible expenses incurred for flat tire changing assistance. Flat tire changing assistance is strictly limited to the installation of your useable spare tire. If you require a tow or any other service you are solely responsible for those charges. This benefit applies only to motorized passenger vehicles and specifically excludes trailers or those vehicles listed under the exclusions and limitations. The following documentation must be submitted to the Program Administrator within 60 days of service to receive a reimbursement:
+1. A photocopy of the original invoice showing the purchase of the Plan and your complete name, address, and telephone number.
+2. A photocopy of the paid invoice for spare tire installation from a valid auto service provider. This paid invoice must detail the name, address, and telephone number of the service provider.
+
+Submit the above documentation to: Road Hazard Plan Roadside Assistance, P.O. Box 33535 Denver, CO 80233.
+
+### EXCLUSIONS AND LIMITATIONS
+The following vehicles are not eligible for Plan coverage: Vehicles with a manufacturer's load rating capacity of greater than one (1) ton. Vehicles used for farm or agricultural purpose. Any emergency service vehicle, any vehicle used for hire (including Lyft, Uber or similar type of service), towing, construction, postal service, off-road service or commercial purposes. Coverage excludes damage from off-road use, collision, fire, vandalism, theft, snow chains, manufacturer's defects, abuse and neglect (i.e., improper application, improper inflation, overloading, brake lock up, wheel spinning, torque snags, etc.), cosmetic damage, sidewall abrasions or other appearance items that do not affect the safety or performance of the tire. Tires with torn beads. Also excluded are damages or irregular wear caused by misalignment, mechanical failures or interference with vehicle components, tires that have been repaired in a manner other than per manufacturer's guidelines. This Plan covers only the eligible tires installed on the vehicle registered to the customer and listed on the original purchase receipt. **CONSEQUENTIAL AND INCIDENTAL DAMAGES ARE EXCLUDED.** Some states do not allow the exclusion or limitation of consequential and incidental damages; therefore, such limitations or exclusions may not apply to you. No expressed guarantees given other than that stated herein. This Plan gives You specific legal rights; You may have other rights, which vary from state to state.
+
+**THE PROGRAM ADMINISTRATOR RESERVES THE RIGHT TO DENY ANY CLAIM SUBMITTED WITH FALSE OR MISLEADING INFORMATION, OR IF THE DOCUMENTATION DOES NOT CLEARLY IDENTIFY THE ORIGINAL PURCHASER, VEHICLE OR TIRES. ANY PERSON WHO KNOWINGLY AND WITH INTENT TO INJURE, DEFRAUD, OR...**
+`,
 });
 
 const generatePolicyDocumentFlow = ai.defineFlow(

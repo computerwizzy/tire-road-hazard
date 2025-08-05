@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
+import ReactMarkdown from 'react-markdown';
 import {
   Car,
   User,
@@ -188,9 +189,9 @@ export default function WarrantyForm() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <pre className="bg-muted p-4 rounded-lg whitespace-pre-wrap font-body text-sm leading-relaxed">
-              {result.policyDocument}
-            </pre>
+            <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg">
+                <ReactMarkdown>{result.policyDocument}</ReactMarkdown>
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
               <div className="flex gap-4">
