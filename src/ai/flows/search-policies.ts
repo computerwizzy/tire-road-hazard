@@ -75,9 +75,17 @@ const searchPoliciesFlow = ai.defineFlow(
     name: 'searchPoliciesFlow',
     inputSchema: SearchPoliciesInputSchema,
     outputSchema: SearchPoliciesOutputSchema,
-    tools: [findPoliciesTool]
   },
   async (input) => {
-    return await findPoliciesTool(input);
+    const { data, error } = await supabase
+        .from('policies')
+        .select()
+        .or(`policyNumber.ilike.%${input.query}%,tireDot.ilike.%${input.query}%`);
+
+    if (error) {
+        console.error('Error searching policies:', error);
+        return { results: [] };
+    }
+    return { results: data };
   }
 );
