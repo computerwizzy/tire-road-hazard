@@ -1,10 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 228 9% 96%; /* Light Gray */
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,8 +14,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 357 71% 50%; /* Red from Image */
-    --primary-foreground: 0 0% 98%; /* Almost White */
+    --primary: 217.2 91.2% 59.8%; /* Blue */
+    --primary-foreground: 210 40% 98%;
  
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 215.4 16.3% 46.9%;
@@ -22,15 +23,15 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
  
-    --accent: 357 71% 50%; /* Red */
-    --accent-foreground: 0 0% 98%;
+    --accent: 35.5 91.7% 54.5%; /* Orange */
+    --accent-foreground: 210 40% 98%;
  
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 357 71% 50%; /* Red */
+    --ring: 217.2 91.2% 59.8%;
  
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
@@ -58,8 +59,8 @@
     --popover: 220 13% 22%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 357 71% 50%; /* Red from Image */
-    --primary-foreground: 0 0% 98%; /* Almost White */
+    --primary: 217.2 91.2% 59.8%; /* Blue */
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 220 13% 30%;
     --secondary-foreground: 0 0% 98%;
@@ -67,7 +68,7 @@
     --muted: 220 13% 30%;
     --muted-foreground: 220 9% 65%;
 
-    --accent: 357 71% 50%; /* Red */
+    --accent: 35.5 91.7% 54.5%; /* Orange */
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -75,7 +76,7 @@
 
     --border: 220 13% 30%;
     --input: 220 13% 25%;
-    --ring: 357 71% 50%; /* Red */
+    --ring: 217.2 91.2% 59.8%;
     
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;

@@ -48,7 +48,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
 import type { DataForForm } from "@/data/db-actions";
-import { WarrantyResult } from "./warranty-result";
+import { WarrantyResult, type PolicyData } from "./warranty-result";
 
 
 const FormSchema = z.object({
@@ -88,14 +88,6 @@ const FormSchema = z.object({
   }),
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
-
-export type PolicyData = {
-  policyDocument: string;
-  customerName: string;
-  customerEmail: string;
-  policyNumber: string;
-  formData: z.infer<typeof FormSchema>;
-};
 
 const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();

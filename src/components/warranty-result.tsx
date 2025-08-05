@@ -1,11 +1,12 @@
 
-'use client'
+'use client';
 
-import { useState, lazy, Suspense } from 'react';
+import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Mail, Loader2, FileText } from 'lucide-react';
 import { handleSendEmail } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
 
 import {
   Card,
@@ -16,9 +17,32 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from './ui/button';
-import type { PolicyData } from './warranty-form';
+import { Invoice } from "./invoice";
 
-const Invoice = lazy(() => import("./invoice").then(module => ({ default: module.Invoice })));
+// Re-defining the schema parts needed for the invoice for clarity
+// This could also be imported from a shared types file
+const InvoiceFormDataSchema = z.object({
+  customerName: z.string(),
+  customerPhone: z.string(),
+  vehicleYear: z.any(),
+  vehicleMake: z.string(),
+  vehicleModel: z.string(),
+  vehicleSubmodel: z.string().optional(),
+  vehicleMileage: z.any(),
+  tireBrand: z.string(),
+  tireModel: z.string(),
+  tireSize: z.string(),
+  tireDot: z.string(),
+  purchaseDate: z.date(),
+});
+
+export type PolicyData = {
+  policyDocument: string;
+  customerName: string;
+  customerEmail: string;
+  policyNumber: string;
+  formData: z.infer<typeof InvoiceFormDataSchema>;
+};
 
 interface WarrantyResultProps {
   result: PolicyData;
@@ -54,9 +78,7 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
   
     return (
         <div className="space-y-8">
-            <Suspense fallback={<div className="flex justify-center items-center h-96"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                <Invoice data={result} />
-            </Suspense>
+            <Invoice data={result} />
             <Card className="w-full shadow-lg print-hidden">
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl flex items-center gap-2">
@@ -95,4 +117,3 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         </div>
     );
 }
-    

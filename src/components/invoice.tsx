@@ -2,7 +2,7 @@
 'use client';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import type { z } from 'zod';
+import { z } from 'zod';
 
 // We can infer the schema from warranty-form.tsx, but to avoid circular dependencies,
 // it's better to define it here or in a shared types file.
