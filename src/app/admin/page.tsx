@@ -5,8 +5,11 @@ import type { Policy } from '@/ai/flows/search-policies';
 import { AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+export const revalidate = 0; // Disable caching for this page
+
 export default async function AdminPage() {
-    const response = await getAllPolicies();
+    
+    const response = await getAllPolicies(1, 10);
 
     if (!response.success) {
         return (
@@ -28,7 +31,8 @@ export default async function AdminPage() {
         )
     }
 
-    const policies: Policy[] = response.data || [];
+    const initialPolicies: Policy[] = response.data || [];
+    const totalCount = response.count || 0;
 
-    return <AdminDashboard policies={policies} />;
+    return <AdminDashboard initialPolicies={initialPolicies} totalCount={totalCount} />;
 }

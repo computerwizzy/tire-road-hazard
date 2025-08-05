@@ -143,22 +143,40 @@ export async function fetchFormData(): Promise<DataForForm> {
     return await getDataForForm();
 }
 
-export async function getAllPolicies(): Promise<{
+export async function getAllPolicies(page: number = 1, limit: number = 10): Promise<{
   success: boolean;
   data?: Policy[];
+  count?: number;
   error?: string;
 }> {
-    const { data, error } = await supabase
-        .from('policies')
-        .select()
-        .order('purchaseDate', { ascending: false });
+    try {
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
 
-    if (error) {
-        console.error('Error fetching all policies from Supabase:', error);
-        return { success: false, error: 'Failed to fetch policies. Please check database permissions and RLS policies.' };
+        const { data, error, count } = await supabase
+            .from('policies')
+            .select('*', { count: 'exact' })
+            .order('purchaseDate', { ascending: false })
+            .range(from, to);
+
+        if (error) {
+            console.error('Error fetching policies from Supabase:', error);
+            if (error.code === '42501') { // RLS error
+                 return { success: false, error: "Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard." };
+            }
+            throw error; // Re-throw other errors
+        }
+        
+        return { success: true, data: data || [], count: count || 0 };
+    } catch(e) {
+        const error = e as Error;
+        console.error('A critical error occurred while trying to load policies:', error.message);
+        let errorMessage = 'An unexpected error occurred. Please check the server console for more details.';
+         if (error.message.includes("relation \"policies\" does not exist")) {
+            errorMessage = "The 'policies' table does not exist. Please create it in your Supabase dashboard to continue.";
+        }
+        return { success: false, error: errorMessage, data: [], count: 0 };
     }
-    
-    return { success: true, data: data || [] };
 }
 
 
@@ -181,6 +199,7 @@ export async function handleLogin(values: z.infer<typeof LoginSchema>) {
     return { success: false, error: error.message };
   }
   
+  revalidatePath('/admin');
   redirect('/admin');
 }
 
