@@ -12,8 +12,23 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { db } from '@/lib/firebase';
-import { collection, doc, setDoc, getDocs } from 'firebase/firestore';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore, collection, doc, setDoc, getDocs } from 'firebase/firestore';
+
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  projectId: "tiresafe",
+  appId: "1:709228917008:web:2e583a3e30904fc942b595",
+  storageBucket: "tiresafe.firebasestorage.app",
+  apiKey: "AIzaSyCzuGa-CwhbN2E8RktVaBs1wom9D6FnDkY",
+  authDomain: "tiresafe.firebaseapp.com",
+  messagingSenderId: "709228917008",
+};
+
+// This ensures we initialize the app only once.
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
 
 
 const SearchPoliciesInputSchema = z.object({
