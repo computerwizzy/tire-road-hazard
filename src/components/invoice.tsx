@@ -19,7 +19,10 @@ const InvoiceFormDataSchema = z.object({
   vehicleSubmodel: z.string().optional(),
   vehicleMileage: z.any(),
   purchaseDate: z.date(),
-  tireDot: z.string(),
+  tireDot1: z.string(),
+  tireDot2: z.string().optional(),
+  tireDot3: z.string().optional(),
+  tireDot4: z.string().optional(),
 });
 
 type InvoiceData = {
@@ -40,6 +43,7 @@ export function Invoice({ data }: { data: InvoiceData }) {
   const laborTotal = 39.36;
   const taxes = 0.00;
   const total = partsTotal + laborTotal + taxes;
+  const allDots = [formData.tireDot1, formData.tireDot2, formData.tireDot3, formData.tireDot4].filter(Boolean);
 
   return (
     <div className="bg-white p-8 printable-area text-black">
@@ -140,10 +144,9 @@ export function Invoice({ data }: { data: InvoiceData }) {
                 days plan
             </p>
             <div className="mt-4">
-                <p className="font-bold">DOT 1# ${formData.tireDot}</p>
-                <p className="font-bold">DOT 2# ${formData.tireDot}</p>
-                <p className="font-bold">DOT 3# ${formData.tireDot}</p>
-                <p className="font-bold">DOT 4# ${formData.tireDot}</p>
+                {allDots.map((dot, index) => (
+                  <p key={index} className="font-bold">DOT {index + 1}# {dot}</p>
+                ))}
             </div>
         </div>
         <div className="w-1/3 text-right">

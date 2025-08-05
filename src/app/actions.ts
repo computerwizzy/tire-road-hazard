@@ -29,7 +29,12 @@ const WarrantyClaimSchema = z.object({
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
   tireSize: z.string().min(5, { message: "Tire size is required." }),
-  tireDot: z.string().min(7).max(13),
+  tireQuantity: z.coerce.number().min(1),
+  pricePerTire: z.coerce.number().min(0),
+  tireDot1: z.string().min(7).max(13),
+  tireDot2: z.string().optional(),
+  tireDot3: z.string().optional(),
+  tireDot4: z.string().optional(),
   purchaseDate: z.date(),
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
@@ -62,6 +67,8 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     }
 
     const fullAddress = `${values.customerStreet}, ${values.customerCity}, ${values.customerState} ${values.customerZip}`;
+    const allDots = [values.tireDot1, values.tireDot2, values.tireDot3, values.tireDot4].filter(Boolean).join(', ');
+
 
     const input: GeneratePolicyDocumentInput = {
       policyNumber,
@@ -77,7 +84,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       tireBrand: values.tireBrand,
       tireModel: values.tireModel,
       tireSize: values.tireSize,
-      tireDot: values.tireDot,
+      tireDot: allDots,
       dealerName: values.dealerName,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       warrantyStartDate: warrantyStartDate.toISOString().split('T')[0],
@@ -97,7 +104,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
         policyNumber,
         customerName: values.customerName,
         customerEmail: values.customerEmail,
-        tireDot: values.tireDot,
+        tireDot: values.tireDot1,
         purchaseDate: values.purchaseDate.toISOString().split('T')[0],
         warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
         receiptUrl: receiptUrl
@@ -276,6 +283,3 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 export { addUser, deleteUser, getUsers };
 export type { User } from "@/data/db-actions";
-
-    
-    

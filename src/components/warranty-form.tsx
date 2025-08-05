@@ -70,10 +70,12 @@ const FormSchema = z.object({
   tireSize: z.string().min(5, {
     message: "Please enter a valid tire size (e.g., 225/45R17).",
   }),
-  tireDot: z
-    .string()
-    .min(7, { message: "Please enter a valid DOT number (7-13 characters)." })
-    .max(13, { message: "Please enter a valid DOT number (7-13 characters)." }),
+  tireQuantity: z.coerce.number().min(1, { message: "Quantity must be at least 1."}),
+  pricePerTire: z.coerce.number().min(0, { message: "Price must be a positive number."}),
+  tireDot1: z.string().min(7, { message: "Please enter a valid DOT number (7-13 characters)." }).max(13, { message: "Please enter a valid DOT number (7-13 characters)." }),
+  tireDot2: z.string().optional(),
+  tireDot3: z.string().optional(),
+  tireDot4: z.string().optional(),
   purchaseDate: z.date({
     required_error: "A purchase date is required.",
   }),
@@ -111,7 +113,12 @@ export default function WarrantyForm() {
       tireBrand: "",
       tireModel: "",
       tireSize: "",
-      tireDot: "",
+      tireQuantity: 1,
+      pricePerTire: 0,
+      tireDot1: "",
+      tireDot2: "",
+      tireDot3: "",
+      tireDot4: "",
       dealerName: "",
       vehicleYear: new Date().getFullYear(),
     },
@@ -388,14 +395,81 @@ export default function WarrantyForm() {
                     </FormItem>
                   )}
                 />
-                 <FormField
+                <FormField
                   control={form.control}
-                  name="tireDot"
+                  name="tireQuantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>DOT Number</FormLabel>
+                      <FormLabel>Quantity</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g. 4" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="pricePerTire"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price Per Tire</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g. 250" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                 <FormField
+                  control={form.control}
+                  name="tireDot1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DOT Number 1</FormLabel>
                       <FormControl>
                         <Input placeholder="DOT B3RV Y8C 4223" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="tireDot2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DOT Number 2 (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Optional" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="tireDot3"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DOT Number 3 (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Optional" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="tireDot4"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DOT Number 4 (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Optional" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -511,5 +585,3 @@ export default function WarrantyForm() {
     </>
   );
 }
-
-    

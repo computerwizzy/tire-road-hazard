@@ -32,7 +32,7 @@ const InvoiceFormDataSchema = z.object({
   tireBrand: z.string(),
   tireModel: z.string(),
   tireSize: z.string(),
-  tireDot: z.string(),
+  tireDot1: z.string(),
   purchaseDate: z.date(),
   // Address fields are no longer a single string.
   // We can leave them out here as they are not directly used by the Invoice component,
@@ -120,5 +120,3 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         </div>
     );
 }
-
-    
