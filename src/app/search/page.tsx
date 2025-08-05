@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { SearchPoliciesOutput } from '@/ai/flows/search-policies';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { format, parseISO } from 'date-fns';
 
 const SearchSchema = z.object({
   searchTerm: z.string().min(1, { message: 'Please enter a search term.' }),
@@ -122,7 +123,7 @@ export default function SearchPage() {
                           <TableCell className="font-medium">{policy.policyNumber}</TableCell>
                           <TableCell>{policy.customerName}</TableCell>
                           <TableCell>{policy.tireDot}</TableCell>
-                          <TableCell>{policy.warrantyEndDate}</TableCell>
+                          <TableCell>{format(parseISO(policy.warrantyEndDate), 'PPP')}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
