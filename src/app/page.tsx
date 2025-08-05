@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import WarrantyForm from '@/components/warranty-form';
-import { ShieldCheck, Search } from 'lucide-react';
+import { Wrench, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
@@ -9,10 +9,10 @@ export default function Home() {
       <div className="w-full max-w-4xl">
         <header className="text-center mb-8">
           <div className="inline-flex items-center justify-center bg-primary text-primary-foreground p-3 rounded-full mb-4">
-            <ShieldCheck className="h-10 w-10" />
+            <Wrench className="h-10 w-10" />
           </div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">
-            TireSafe Warranty
+            Tires & Engine Performance
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
             Register your tire road hazard warranty and secure your peace of mind.
