@@ -2,8 +2,32 @@
 'use client';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import type { z } from 'zod';
 
-export function Invoice({ data }: { data: any }) {
+// We can infer the schema from warranty-form.tsx, but to avoid circular dependencies,
+// it's better to define it here or in a shared types file.
+// For now, let's define the parts we need.
+const InvoiceFormDataSchema = z.object({
+  tireSize: z.string(),
+  tireBrand: z.string(),
+  tireModel: z.string(),
+  customerName: z.string(),
+  customerPhone: z.string(),
+  vehicleYear: z.any(), // Keeping it simple as it's just for display
+  vehicleMake: z.string(),
+  vehicleModel: z.string(),
+  vehicleSubmodel: z.string().optional(),
+  vehicleMileage: z.any(),
+  purchaseDate: z.date(),
+  tireDot: z.string(),
+});
+
+type InvoiceData = {
+  formData: z.infer<typeof InvoiceFormDataSchema>;
+  policyNumber: string;
+}
+
+export function Invoice({ data }: { data: InvoiceData }) {
   const { formData, policyNumber } = data;
   const items = [
     { mfg: '13757', title: `[Part] ${formData.tireSize} - ${formData.tireBrand} ${formData.tireModel}`, qty: 4, unit: 263.16, fet: 0, total: 1052.64 },
@@ -50,9 +74,9 @@ export function Invoice({ data }: { data: any }) {
         </div>
         <div className="text-right">
           <h2 className="text-4xl font-bold">INVOICE</h2>
-          <p className="font-bold text-lg">#{policyNumber.replace('WP-', 'A-')}</p>
-          <p>WORK ORDER: #{Math.floor(Math.random() * 1000) + 9000}</p>
-          <p>CREATED DATE: {format(formData.purchaseDate, 'MM/dd/yyyy hh:mm:ss a')}</p>
+          <p className="font-bold text-lg">#${policyNumber.replace('WP-', 'A-')}</p>
+          <p>WORK ORDER: #${Math.floor(Math.random() * 1000) + 9000}</p>
+          <p>CREATED DATE: ${format(formData.purchaseDate, 'MM/dd/yyyy hh:mm:ss a')}</p>
           <p>STATUS: PAID</p>
         </div>
       </header>
@@ -94,9 +118,9 @@ export function Invoice({ data }: { data: any }) {
                 <td className="p-2">{item.mfg}</td>
                 <td className="p-2">{item.title}</td>
                 <td className="p-2 text-right">{item.qty}</td>
-                <td className="p-2 text-right">${item.unit.toFixed(2)}</td>
-                <td className="p-2 text-right">${item.fet.toFixed(2)}</td>
-                <td className="p-2 text-right">${item.total.toFixed(2)}</td>
+                <td className="p-2 text-right">$${item.unit.toFixed(2)}</td>
+                <td className="p-2 text-right">$${item.fet.toFixed(2)}</td>
+                <td className="p-2 text-right">$${item.total.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -108,7 +132,7 @@ export function Invoice({ data }: { data: any }) {
             <h3 className="font-bold mb-2">NOTES</h3>
             <p className="text-sm">KAFENE Phone# (855) 206-4040</p>
             <p className="text-sm">Lease ID# - LSE-J9GQU</p>
-            <p className="text-sm">Amount Use ${total.toFixed(2)}</p>
+            <p className="text-sm">Amount Use $${total.toFixed(2)}</p>
             <p className="text-sm">
                 I understand that the full amount being financed needs to be paid before 90
                 TO 120 days to avoid any interest charges. Please call the finance company
@@ -116,28 +140,28 @@ export function Invoice({ data }: { data: any }) {
                 days plan
             </p>
             <div className="mt-4">
-                <p className="font-bold">DOT 1# {formData.tireDot}</p>
-                <p className="font-bold">DOT 2# {formData.tireDot}</p>
-                <p className="font-bold">DOT 3# {formData.tireDot}</p>
-                <p className="font-bold">DOT 4# {formData.tireDot}</p>
+                <p className="font-bold">DOT 1# ${formData.tireDot}</p>
+                <p className="font-bold">DOT 2# ${formData.tireDot}</p>
+                <p className="font-bold">DOT 3# ${formData.tireDot}</p>
+                <p className="font-bold">DOT 4# ${formData.tireDot}</p>
             </div>
         </div>
         <div className="w-1/3 text-right">
             <div className="flex justify-between mb-2">
                 <span>Parts</span>
-                <span>${partsTotal.toFixed(2)}</span>
+                <span>$${partsTotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between mb-2">
                 <span>Labor</span>
-                <span>${laborTotal.toFixed(2)}</span>
+                <span>$${laborTotal.toFixed(2)}</span>
             </div>
              <div className="flex justify-between mb-4">
                 <span>Taxes</span>
-                <span>${taxes.toFixed(2)}</span>
+                <span>$${taxes.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold text-lg border-t-2 pt-2">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>$${total.toFixed(2)}</span>
             </div>
         </div>
       </div>
@@ -156,9 +180,9 @@ export function Invoice({ data }: { data: any }) {
           <tbody>
             <tr>
               <td className="p-2">LSE-J9GQU</td>
-              <td className="p-2 text-right">${total.toFixed(2)}</td>
+              <td className="p-2 text-right">$${total.toFixed(2)}</td>
               <td className="p-2 text-center">KAFENE</td>
-              <td className="p-2 text-right">{format(formData.purchaseDate, 'MM/dd/yyyy')}</td>
+              <td className="p-2 text-right">${format(formData.purchaseDate, 'MM/dd/yyyy')}</td>
             </tr>
           </tbody>
         </table>
@@ -177,7 +201,7 @@ export function Invoice({ data }: { data: any }) {
             </div>
         </div>
         <div className="text-center text-xs text-gray-500 mt-8">
-            <p>{format(new Date(), 'MM/dd/yyyy hh:mm:ss a')} #{policyNumber.replace('WP-', 'A-')} - Powered by Tirebase.io - Page 1</p>
+            <p>${format(new Date(), 'MM/dd/yyyy hh:mm:ss a')} #${policyNumber.replace('WP-', 'A-')} - Powered by Tirebase.io - Page 1</p>
         </div>
       </footer>
     </div>

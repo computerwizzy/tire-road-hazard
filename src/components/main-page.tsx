@@ -24,7 +24,6 @@ export default function MainPage() {
                 width={200}
                 height={200}
                 className="mx-auto rounded-lg shadow-md"
-                priority
             />
           </div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">
