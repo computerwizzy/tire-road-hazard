@@ -54,7 +54,7 @@ export default function AdminLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/policies')}>
+                <SidebarMenuButton asChild isActive={pathname === '/admin'}>
                    <Link href="/admin">
                     <FileText />
                     Policies
