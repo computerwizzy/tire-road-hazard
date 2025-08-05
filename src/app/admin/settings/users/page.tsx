@@ -233,7 +233,7 @@ export default function UserManagementPage() {
             <DialogDescription>
               Enter the user's email address and assign a role. They will be granted access immediately.
             </DialogDescription>
-          </Header>
+          </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onAddUser)} className="space-y-4">
               <FormField
