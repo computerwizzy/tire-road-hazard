@@ -67,7 +67,7 @@ const FormSchema = z.object({
     .min(10, { message: "A complete address is required." }),
   vehicleYear: z.coerce
     .number()
-    .min(1980, { message: "Vehicle year must be 1980 or newer." })
+    .min(1995, { message: "Vehicle year must be 1995 or newer." })
     .max(new Date().getFullYear() + 1, {
       message: "Vehicle year cannot be in the future.",
     }),
@@ -124,6 +124,16 @@ export default function WarrantyForm() {
 
   const selectedMake = form.watch("vehicleMake");
   const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [vehicleYears, setVehicleYears] = useState<number[]>([]);
+
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let year = currentYear; year >= 1995; year--) {
+      years.push(year);
+    }
+    setVehicleYears(years);
+  }, []);
 
   useEffect(() => {
     if (selectedMake && VEHICLE_MODELS[selectedMake]) {
@@ -305,14 +315,18 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Year</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="2023"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a year" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {vehicleYears.map((year) => (
+                            <SelectItem key={year} value={String(year)}>{year}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
