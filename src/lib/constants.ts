@@ -1,3 +1,4 @@
+
 export const TIRE_BRANDS = [
   "Michelin",
   "Goodyear",
@@ -103,7 +104,9 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Tahoe": ["LS", "LT", "RST", "Z71", "Premier", "High Country"],
         "Suburban": ["LS", "LT", "RST", "Z71", "Premier", "High Country"],
         "Colorado": ["WT", "LT", "Trail Boss", "Z71", "ZR2"],
-        "Silverado": ["WT", "Custom", "LT", "RST", "LTZ", "High Country", "ZR2"],
+        "Silverado 1500": ["WT", "Custom", "LT", "RST", "Trail Boss", "LTZ", "High Country", "ZR2"],
+        "Silverado 2500HD": ["WT", "Custom", "LT", "LTZ", "High Country"],
+        "Silverado 3500HD": ["WT", "LT", "LTZ", "High Country"],
         "Silverado EV": ["WT", "RST"]
     },
     "Chrysler": {
@@ -129,7 +132,9 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Ranger": ["XL", "XLT", "Lariat", "Raptor"],
         "F-150": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Tremor", "Raptor"],
         "F-150 Lightning": ["Pro", "XLT", "Flash", "Lariat", "Platinum"],
-        "Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"]
+        "F-250 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
+        "F-350 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
+        "F-450 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"]
     },
     "GMC": {
         "Terrain": ["SLE", "SLT", "AT4", "Denali"],
@@ -137,6 +142,8 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Yukon": ["SLE", "SLT", "AT4", "Denali", "Denali Ultimate"],
         "Canyon": ["Elevation", "AT4", "Denali", "AT4X"],
         "Sierra 1500": ["Pro", "SLE", "Elevation", "SLT", "AT4", "Denali", "AT4X", "Denali Ultimate"],
+        "Sierra 2500HD": ["Pro", "SLE", "SLT", "AT4", "Denali", "AT4X"],
+        "Sierra 3500HD": ["Pro", "SLE", "SLT", "AT4", "Denali", "AT4X"],
         "Hummer EV": ["EV2X", "EV3X"]
     },
     "Honda": {
