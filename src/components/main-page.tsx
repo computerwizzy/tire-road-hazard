@@ -21,8 +21,8 @@ export default function MainPage() {
             <Image 
                 src="https://evsportline.com/cdn/shop/files/t-sportline-tire-protection-program-02_c23e898f-b885-43bd-8415-21380b9ed17c_4000x.progressive.jpg"
                 alt="Tire Protection Program"
-                width={50}
-                height={50}
+                width={100}
+                height={100}
                 className="mx-auto rounded-lg shadow-md"
                 priority
             />
