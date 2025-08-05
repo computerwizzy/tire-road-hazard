@@ -14,15 +14,128 @@ export type DataForForm = {
 
 // In-memory store for dropdowns
 let formStore: DataForForm = {
-    vehicleMakes: ['Honda', 'Toyota', 'Ford', 'Tesla'],
+    vehicleMakes: [
+        'Acura', 'Alfa Romeo', 'Audi', 'BMW', 'Buick', 'Cadillac', 'Chevrolet', 
+        'Chrysler', 'Dodge', 'Fiat', 'Ford', 'GMC', 'Genesis', 'Honda', 'Hyundai', 
+        'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Land Rover', 'Lexus', 'Lincoln', 
+        'Maserati', 'Mazda', 'Mercedes-Benz', 'Mini', 'Mitsubishi', 'Nissan', 
+        'Porsche', 'Ram', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+    ],
     vehicleModels: {
-        'Honda': { 'Accord': ['EX', 'LX'], 'Civic': ['Sport', 'Touring'] },
-        'Toyota': { 'Camry': ['LE', 'XSE'], 'Corolla': ['L', 'SE'] },
-        'Ford': { 'F-150': ['XL', 'XLT'], 'Mustang': ['GT', 'EcoBoost'] },
-        'Tesla': { 'Model 3': ['Standard Range', 'Long Range'], 'Model Y': ['Long Range', 'Performance'] },
+        'Acura': {
+            'ILX': ['Base', 'Premium', 'A-Spec'],
+            'TLX': ['Base', 'Technology', 'A-Spec', 'Advance'],
+            'RDX': ['Base', 'Technology', 'A-Spec', 'Advance'],
+            'MDX': ['Base', 'Technology', 'A-Spec', 'Advance']
+        },
+        'Audi': {
+            'A3': ['Premium', 'Premium Plus', 'Prestige'],
+            'A4': ['Premium', 'Premium Plus', 'Prestige'],
+            'Q5': ['Premium', 'Premium Plus', 'Prestige'],
+            'Q7': ['Premium', 'Premium Plus', 'Prestige']
+        },
+        'BMW': {
+            '3 Series': ['330i', 'M340i'],
+            '5 Series': ['530i', '540i', 'M550i'],
+            'X3': ['sDrive30i', 'xDrive30i', 'M40i'],
+            'X5': ['sDrive40i', 'xDrive40i', 'M50i']
+        },
+        'Chevrolet': {
+            'Malibu': ['L', 'LS', 'RS', 'LT'],
+            'Equinox': ['L', 'LS', 'LT', 'Premier'],
+            'Silverado': ['WT', 'Custom', 'LT', 'RST', 'LTZ', 'High Country'],
+            'Tahoe': ['LS', 'LT', 'RST', 'Z71', 'Premier', 'High Country']
+        },
+        'Ford': {
+            'Focus': ['S', 'SE', 'SEL', 'Titanium'],
+            'Fusion': ['S', 'SE', 'SEL', 'Titanium'],
+            'Escape': ['S', 'SE', 'SEL', 'Titanium'],
+            'Explorer': ['Base', 'XLT', 'Limited', 'ST', 'Platinum'],
+            'F-150': ['XL', 'XLT', 'Lariat', 'King Ranch', 'Platinum', 'Limited'],
+            'Mustang': ['EcoBoost', 'EcoBoost Premium', 'GT', 'GT Premium', 'Mach 1']
+        },
+        'Honda': {
+            'Civic': ['LX', 'Sport', 'EX', 'Touring', 'Si'],
+            'Accord': ['LX', 'Sport', 'EX-L', 'Touring'],
+            'CR-V': ['LX', 'EX', 'EX-L', 'Touring'],
+            'Pilot': ['LX', 'EX', 'EX-L', 'Touring', 'Elite', 'Black Edition']
+        },
+        'Hyundai': {
+            'Elantra': ['SE', 'SEL', 'N Line', 'Limited'],
+            'Sonata': ['SE', 'SEL', 'SEL Plus', 'N Line', 'Limited'],
+            'Tucson': ['SE', 'Value', 'SEL', 'Sport', 'Limited', 'Ultimate'],
+            'Santa Fe': ['SE', 'SEL', 'Limited', 'Calligraphy']
+        },
+        'Jeep': {
+            'Wrangler': ['Sport', 'Sport S', 'Sahara', 'Rubicon'],
+            'Grand Cherokee': ['Laredo', 'Limited', 'Trailhawk', 'Overland', 'Summit'],
+            'Cherokee': ['Latitude', 'Latitude Plus', 'Limited', 'Trailhawk']
+        },
+        'Kia': {
+            'Forte': ['FE', 'LXS', 'GT-Line', 'EX'],
+            'Optima': ['LX', 'S', 'EX', 'SX'],
+            'Sorento': ['L', 'LX', 'S', 'EX', 'SX'],
+            'Telluride': ['LX', 'S', 'EX', 'SX']
+        },
+        'Lexus': {
+            'IS': ['IS 300', 'IS 350 F Sport'],
+            'ES': ['ES 250', 'ES 350', 'ES 300h'],
+            'RX': ['RX 350', 'RX 450h', 'RX 350 F Sport'],
+            'NX': ['NX 300', 'NX 300h', 'NX 300 F Sport']
+        },
+        'Mazda': {
+            'Mazda3': ['Select', 'Preferred', 'Premium', 'Turbo'],
+            'Mazda6': ['Sport', 'Touring', 'Grand Touring', 'Signature'],
+            'CX-5': ['Sport', 'Touring', 'Grand Touring', 'Signature'],
+            'CX-9': ['Sport', 'Touring', 'Grand Touring', 'Signature']
+        },
+        'Mercedes-Benz': {
+            'C-Class': ['C 300', 'AMG C 43', 'AMG C 63'],
+            'E-Class': ['E 350', 'E 450', 'AMG E 53'],
+            'GLC': ['GLC 300', 'AMG GLC 43'],
+            'GLE': ['GLE 350', 'GLE 450', 'AMG GLE 53']
+        },
+        'Nissan': {
+            'Sentra': ['S', 'SV', 'SR'],
+            'Altima': ['S', 'SV', 'SR', 'SL', 'Platinum'],
+            'Rogue': ['S', 'SV', 'SL', 'Platinum'],
+            'Titan': ['S', 'SV', 'Pro-4X', 'SL', 'Platinum Reserve']
+        },
+        'Subaru': {
+            'Impreza': ['Base', 'Premium', 'Sport', 'Limited'],
+            'Outback': ['Base', 'Premium', 'Limited', 'Touring', 'Onyx Edition XT'],
+            'Forester': ['Base', 'Premium', 'Sport', 'Limited', 'Touring'],
+            'Ascent': ['Base', 'Premium', 'Limited', 'Touring']
+        },
+        'Tesla': {
+            'Model 3': ['Standard Range Plus', 'Long Range', 'Performance'],
+            'Model Y': ['Long Range', 'Performance'],
+            'Model S': ['Long Range', 'Plaid'],
+            'Model X': ['Long Range', 'Plaid']
+        },
+        'Toyota': {
+            'Corolla': ['L', 'LE', 'SE', 'XLE', 'XSE'],
+            'Camry': ['LE', 'SE', 'XLE', 'XSE', 'TRD'],
+            'RAV4': ['LE', 'XLE', 'XLE Premium', 'Adventure', 'Limited', 'TRD Off-Road'],
+            'Highlander': ['L', 'LE', 'XLE', 'Limited', 'Platinum'],
+            'Tacoma': ['SR', 'SR5', 'TRD Sport', 'TRD Off-Road', 'Limited', 'TRD Pro']
+        },
+        'Volkswagen': {
+            'Jetta': ['S', 'SE', 'R-Line', 'SEL', 'SEL Premium'],
+            'Passat': ['S', 'SE', 'R-Line', 'SEL'],
+            'Tiguan': ['S', 'SE', 'SE R-Line Black', 'SEL', 'SEL Premium R-Line'],
+            'Atlas': ['S', 'SE', 'SEL', 'SEL Premium']
+        }
     },
-    tireBrands: ['Michelin', 'Goodyear', 'Bridgestone'],
-    commonTireSizes: ['225/45R17', '235/40R18', '205/55R16']
+    tireBrands: [
+        'BFGoodrich', 'Bridgestone', 'Continental', 'Cooper', 'Dunlop', 
+        'Falken', 'Firestone', 'General', 'Goodyear', 'Hankook', 'Kumho', 
+        'Michelin', 'Nitto', 'Pirelli', 'Toyo', 'Yokohama'
+    ],
+    commonTireSizes: [
+        '205/55R16', '215/55R17', '225/45R17', '225/65R17', '235/40R18',
+        '235/65R17', '245/45R18', '265/70R17', '275/55R20', '275/65R18'
+    ]
 };
 
 
@@ -58,19 +171,10 @@ export async function addVehicleSubmodel(make: string, model: string, submodel: 
 }
 
 
-export async function getPolicies(): Promise<Policy[]> {
-    const { data, error } = await supabase.from('policies').select();
-    if (error) {
-        console.error('Error fetching policies from Supabase:', error);
-        throw new Error('Failed to fetch policies.');
-    }
-    return data;
-}
-
 export async function savePolicy(policy: Policy): Promise<void> {
     const { error } = await supabase.from('policies').insert(policy);
      if (error) {
          console.error('Error saving policy to Supabase:', error);
          throw new Error('Failed to save policy.');
      }
- }
+}
