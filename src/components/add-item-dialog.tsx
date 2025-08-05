@@ -18,22 +18,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { handleAddOption } from '@/app/actions';
+import { handleAddOption, handleAddVehicleModel, handleAddVehicleSubmodel } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
 
 const AddItemSchema = z.object({
   value: z.string().min(1, { message: 'Please enter a value.' }),
 });
 
+type ListKey = 'vehicleMakes' | 'tireBrands' | 'commonTireSizes' | 'vehicleModels' | 'vehicleSubmodels';
+
 interface AddItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  listKey: 'vehicleMakes' | 'tireBrands' | 'commonTireSizes';
+  listKey: ListKey;
   listName: string;
   onSuccess: () => void;
+  // For adding models/submodels
+  make?: string;
+  model?: string;
 }
 
-export function AddItemDialog({ open, onOpenChange, listKey, listName, onSuccess }: AddItemDialogProps) {
+export function AddItemDialog({ open, onOpenChange, listKey, listName, onSuccess, make, model }: AddItemDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof AddItemSchema>>({
@@ -43,7 +48,17 @@ export function AddItemDialog({ open, onOpenChange, listKey, listName, onSuccess
 
   async function onSubmit(values: z.infer<typeof AddItemSchema>) {
     setIsLoading(true);
-    const result = await handleAddOption({ list: listKey, value: values.value });
+    let result;
+    if (listKey === 'vehicleModels' && make) {
+        result = await handleAddVehicleModel({make, model: values.value});
+    } else if (listKey === 'vehicleSubmodels' && make && model) {
+        result = await handleAddVehicleSubmodel({make, model, submodel: values.value});
+    } else if (listKey !== 'vehicleModels' && listKey !== 'vehicleSubmodels') {
+        result = await handleAddOption({ list: listKey, value: values.value });
+    } else {
+        result = { success: false, error: 'Invalid parameters for adding item.'};
+    }
+    
     setIsLoading(false);
 
     if (result.success) {
@@ -58,7 +73,7 @@ export function AddItemDialog({ open, onOpenChange, listKey, listName, onSuccess
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: result.error || `Failed to add new ${listName}.`,
+        description: (result as any).error || `Failed to add new ${listName}.`,
       });
     }
   }

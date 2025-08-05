@@ -5,7 +5,7 @@ import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
 import { searchPolicies, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { getDropdownOptions, addDropdownOption, type DropdownOptions } from "@/data/db-actions";
+import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm } from "@/data/db-actions";
 
 
 const WarrantyClaimSchema = z.object({
@@ -112,8 +112,8 @@ export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Prom
 }
 
 
-export async function fetchDropdownOptions(): Promise<DropdownOptions> {
-    return await getDropdownOptions();
+export async function fetchFormData(): Promise<DataForForm> {
+    return await getDataForForm();
 }
 
 const AddOptionSchema = z.object({
@@ -128,5 +128,36 @@ export async function handleAddOption(values: z.infer<typeof AddOptionSchema>) {
     } catch(error) {
         console.error("Error adding dropdown option:", error);
         return { success: false, error: "Failed to add new option." };
+    }
+}
+
+const AddVehicleModelSchema = z.object({
+    make: z.string().min(1),
+    model: z.string().min(1)
+});
+
+export async function handleAddVehicleModel(values: z.infer<typeof AddVehicleModelSchema>) {
+    try {
+        await addVehicleModel(values.make, values.model);
+        return { success: true };
+    } catch (error) {
+        console.error("Error adding vehicle model:", error);
+        return { success: false, error: "Failed to add new model."};
+    }
+}
+
+const AddVehicleSubmodelSchema = z.object({
+    make: z.string().min(1),
+    model: z.string().min(1),
+    submodel: z.string().min(1),
+});
+
+export async function handleAddVehicleSubmodel(values: z.infer<typeof AddVehicleSubmodelSchema>) {
+    try {
+        await addVehicleSubmodel(values.make, values.model, values.submodel);
+        return { success: true };
+    } catch (error) {
+        console.error("Error adding vehicle submodel:", error);
+        return { success: false, error: "Failed to add new submodel."};
     }
 }

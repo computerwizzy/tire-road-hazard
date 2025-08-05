@@ -19,7 +19,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 
-import { handleWarrantyClaim, handleSendEmail, fetchDropdownOptions } from "@/app/actions";
+import { handleWarrantyClaim, handleSendEmail, fetchFormData } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -51,10 +51,9 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { VEHICLE_MODELS } from "@/lib/constants";
 import { Invoice } from "./invoice";
 import { AddItemDialog } from "./add-item-dialog";
-import type { DropdownOptions } from "@/data/db-actions";
+import type { DataForForm } from "@/data/db-actions";
 
 
 const FormSchema = z.object({
@@ -103,8 +102,10 @@ type PolicyData = {
 
 type DialogState = {
     open: boolean;
-    listKey: 'vehicleMakes' | 'tireBrands' | 'commonTireSizes';
+    listKey: 'vehicleMakes' | 'tireBrands' | 'commonTireSizes' | 'vehicleModels' | 'vehicleSubmodels';
     listName: string;
+    make?: string;
+    model?: string;
 }
 
 export default function WarrantyForm() {
@@ -112,7 +113,7 @@ export default function WarrantyForm() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PolicyData | null>(null);
-  const [dropdownOptions, setDropdownOptions] = useState<DropdownOptions | null>(null);
+  const [formData, setFormData] = useState<DataForForm | null>(null);
   const [dialogState, setDialogState] = useState<DialogState>({ open: false, listKey: 'vehicleMakes', listName: '' });
 
   const { toast } = useToast();
@@ -136,13 +137,13 @@ export default function WarrantyForm() {
     },
   });
 
-  const loadOptions = async () => {
-    const options = await fetchDropdownOptions();
-    setDropdownOptions(options);
+  const loadFormData = async () => {
+    const data = await fetchFormData();
+    setFormData(data);
   }
 
   useEffect(() => {
-    loadOptions();
+    loadFormData();
   }, []);
 
   const selectedMake = form.watch("vehicleMake");
@@ -162,8 +163,8 @@ export default function WarrantyForm() {
   }, []);
 
   useEffect(() => {
-    if (selectedMake && VEHICLE_MODELS[selectedMake]) {
-      const models = Object.keys(VEHICLE_MODELS[selectedMake]);
+    if (selectedMake && formData?.vehicleModels[selectedMake]) {
+      const models = Object.keys(formData.vehicleModels[selectedMake]);
       const uniqueModels = Array.from(new Set(models));
       setAvailableModels(uniqueModels);
       form.setValue('vehicleModel', ''); 
@@ -172,17 +173,17 @@ export default function WarrantyForm() {
       setAvailableModels([]);
     }
     setAvailableSubmodels([]);
-  }, [selectedMake, form]);
+  }, [selectedMake, form, formData]);
   
   useEffect(() => {
-    if (selectedMake && selectedModel && VEHICLE_MODELS[selectedMake]?.[selectedModel]) {
-        const submodels = VEHICLE_MODELS[selectedMake][selectedModel];
+    if (selectedMake && selectedModel && formData?.vehicleModels[selectedMake]?.[selectedModel]) {
+        const submodels = formData.vehicleModels[selectedMake][selectedModel];
         setAvailableSubmodels(Array.from(new Set(submodels)));
         form.setValue('vehicleSubmodel', '');
     } else {
         setAvailableSubmodels([]);
     }
-  }, [selectedMake, selectedModel, form]);
+  }, [selectedMake, selectedModel, form, formData]);
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -219,8 +220,8 @@ export default function WarrantyForm() {
     setIsSendingEmail(false);
   }
 
-  const openDialog = (listKey: DialogState['listKey'], listName: DialogState['listName']) => {
-    setDialogState({ open: true, listKey, listName });
+  const openDialog = (listKey: DialogState['listKey'], listName: DialogState['listName'], context?: {make?: string, model?: string}) => {
+    setDialogState({ open: true, listKey, listName, ...context });
   }
 
   const resetForm = () => {
@@ -271,7 +272,7 @@ export default function WarrantyForm() {
     );
   }
   
-  if (!dropdownOptions) {
+  if (!formData) {
       return (
         <div className="flex items-center justify-center min-h-[500px]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -286,7 +287,9 @@ export default function WarrantyForm() {
         onOpenChange={(open) => setDialogState({...dialogState, open})}
         listKey={dialogState.listKey}
         listName={dialogState.listName}
-        onSuccess={loadOptions}
+        make={dialogState.make}
+        model={dialogState.model}
+        onSuccess={loadFormData}
     />
     <Card className="w-full shadow-lg">
       <CardHeader>
@@ -405,7 +408,7 @@ export default function WarrantyForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {dropdownOptions.vehicleMakes.map((make) => (
+                          {formData.vehicleMakes.map((make) => (
                             <SelectItem key={make} value={make}>{make}</SelectItem>
                           ))}
                         </SelectContent>
@@ -424,6 +427,7 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Model</FormLabel>
+                      <div className="flex gap-2">
                       <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedMake}>
                         <FormControl>
                           <SelectTrigger>
@@ -440,6 +444,10 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
+                      <Button type="button" variant="outline" size="icon" onClick={() => openDialog('vehicleModels', 'Vehicle Model', {make: selectedMake})} disabled={!selectedMake}>
+                          <PlusCircle className="h-4 w-4" />
+                      </Button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -449,8 +457,9 @@ export default function WarrantyForm() {
                   name="vehicleSubmodel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Submodel (Optional)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={availableSubmodels.length === 0}>
+                      <FormLabel>Submodel</FormLabel>
+                      <div className="flex gap-2">
+                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedModel || availableSubmodels.length === 0}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={!selectedModel ? "Select model first" : "Select a submodel"} />
@@ -466,6 +475,10 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
+                      <Button type="button" variant="outline" size="icon" onClick={() => openDialog('vehicleSubmodels', 'Vehicle Submodel', {make: selectedMake, model: selectedModel})} disabled={!selectedModel}>
+                          <PlusCircle className="h-4 w-4" />
+                      </Button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -497,7 +510,7 @@ export default function WarrantyForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {dropdownOptions.tireBrands.map((brand) => (
+                          {formData.tireBrands.map((brand) => (
                              <SelectItem key={brand} value={brand}>{brand}</SelectItem>
                           ))}
                         </SelectContent>
@@ -537,7 +550,7 @@ export default function WarrantyForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                           {dropdownOptions.commonTireSizes.map((size) => (
+                           {formData.commonTireSizes.map((size) => (
                              <SelectItem key={size} value={size}>{size}</SelectItem>
                           ))}
                         </SelectContent>
