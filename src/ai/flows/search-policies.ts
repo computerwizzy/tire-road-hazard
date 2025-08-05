@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -10,6 +11,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import fs from 'fs/promises';
+import path from 'path';
 
 const SearchPoliciesInputSchema = z.object({
   query: z.string().describe('The search query, which could be a policy number or a tire DOT number.'),
@@ -30,18 +33,34 @@ const SearchPoliciesOutputSchema = z.object({
 });
 export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
-// This is a mock database of policies for demonstration purposes.
-// In a real application, this would be a database query.
-const mockPolicies: z.infer<typeof PolicySchema>[] = [
-    { policyNumber: 'WP-2024-ABC123', customerName: 'Alice Johnson', customerEmail: 'alice@example.com', tireDot: 'DOTB3RVY8C4223', purchaseDate: '2024-01-15', warrantyEndDate: '2027-01-15' },
-    { policyNumber: 'WP-2024-DEF456', customerName: 'Bob Williams', customerEmail: 'bob@example.com', tireDot: 'DOTC4SXY9D5323', purchaseDate: '2024-02-20', warrantyEndDate: '2027-02-20' },
-    { policyNumber: 'WP-2023-GHI789', customerName: 'Charlie Brown', customerEmail: 'charlie@example.com', tireDot: 'DOTD5TZA0E6422', purchaseDate: '2023-11-10', warrantyEndDate: '2026-11-10' },
-];
+const dbPath = path.resolve(process.cwd(), 'src/data/db.json');
+
+async function readPolicies(): Promise<z.infer<typeof PolicySchema>[]> {
+    try {
+        const data = await fs.readFile(dbPath, 'utf-8');
+        const db = JSON.parse(data);
+        return db.policies || [];
+    } catch (error) {
+        // If the file doesn't exist, return an empty array
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+            return [];
+        }
+        throw error;
+    }
+}
+
+async function writePolicies(policies: z.infer<typeof PolicySchema>[]): Promise<void> {
+    const db = { policies };
+    await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf-8');
+}
+
 
 export async function addPolicy(policy: z.infer<typeof PolicySchema>) {
+    const policies = await readPolicies();
     // Prevent duplicates
-    if (!mockPolicies.some(p => p.policyNumber === policy.policyNumber)) {
-        mockPolicies.unshift(policy);
+    if (!policies.some(p => p.policyNumber === policy.policyNumber)) {
+        policies.unshift(policy);
+        await writePolicies(policies);
     }
 }
 
@@ -58,8 +77,9 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
+        const policies = await readPolicies();
         const query = input.query.toLowerCase();
-        const results = mockPolicies.filter(p => 
+        const results = policies.filter(p => 
             p.policyNumber.toLowerCase().includes(query) || 
             p.tireDot.toLowerCase().includes(query)
         );

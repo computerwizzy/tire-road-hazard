@@ -1,0 +1,29 @@
+
+{
+    "policies": [
+        { 
+            "policyNumber": "WP-2024-ABC123", 
+            "customerName": "Alice Johnson", 
+            "customerEmail": "alice@example.com", 
+            "tireDot": "DOTB3RVY8C4223", 
+            "purchaseDate": "2024-01-15", 
+            "warrantyEndDate": "2027-01-15" 
+        },
+        { 
+            "policyNumber": "WP-2024-DEF456", 
+            "customerName": "Bob Williams", 
+            "customerEmail": "bob@example.com", 
+            "tireDot": "DOTC4SXY9D5323", 
+            "purchaseDate": "2024-02-20", 
+            "warrantyEndDate": "2027-02-20" 
+        },
+        { 
+            "policyNumber": "WP-2023-GHI789", 
+            "customerName": "Charlie Brown", 
+            "customerEmail": "charlie@example.com", 
+            "tireDot": "DOTD5TZA0E6422", 
+            "purchaseDate": "2023-11-10", 
+            "warrantyEndDate": "2026-11-10" 
+        }
+    ]
+}
