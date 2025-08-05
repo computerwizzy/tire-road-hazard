@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { handleSearch } from '@/app/actions';
 import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,8 +25,9 @@ function PolicyDetail({ label, value, icon: Icon }: { label: string; value: stri
 }
 
 
-export default function PolicyPage({ params }: { params: { policyNumber: string } }) {
-    const { policyNumber } = params;
+export default function PolicyPage() {
+    const params = useParams();
+    const policyNumber = params.policyNumber as string;
     const [policy, setPolicy] = useState<Policy | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
