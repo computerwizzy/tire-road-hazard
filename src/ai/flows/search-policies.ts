@@ -13,6 +13,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { getDb } from '@/lib/firebase-admin';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 
 
 const SearchPoliciesInputSchema = z.object({
@@ -38,9 +39,9 @@ export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
 
 export async function addPolicy(policy: Policy) {
-    const db = getDb();
-    const policyRef = db.collection("policies").doc(policy.policyNumber);
-    await policyRef.set(policy);
+    const db = await getDb();
+    const policyRef = doc(db, "policies", policy.policyNumber);
+    await setDoc(policyRef, policy);
 }
 
 
@@ -56,8 +57,8 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
-        const db = getDb();
-        const policiesCol = db.collection("policies");
+        const db = await getDb();
+        const policiesCol = collection(db, "policies");
         const lowerCaseQuery = input.query.toLowerCase();
         
         // Firestore doesn't support case-insensitive `in` or `array-contains` queries directly,
@@ -65,7 +66,7 @@ const findPoliciesTool = ai.defineTool(
         // A common workaround is to store a lower-case version of the fields for searching.
         // However, for simplicity here, we will fetch all and filter client-side.
         // This is NOT performant for large datasets.
-        const policySnapshot = await policiesCol.get();
+        const policySnapshot = await getDocs(policiesCol);
         const allPolicies: Policy[] = [];
         policySnapshot.forEach(doc => {
             allPolicies.push(PolicySchema.parse(doc.data()));
