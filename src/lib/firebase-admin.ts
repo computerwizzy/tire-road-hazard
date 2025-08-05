@@ -9,12 +9,17 @@ if (!serviceAccountKey) {
 
 const decodedServiceAccount = JSON.parse(Buffer.from(serviceAccountKey, 'base64').toString('utf-8'));
 
-if (!admin.apps.length) {
-  admin.initializeApp({
+let app: admin.app.App;
+
+if (admin.apps.length === 0) {
+  app = admin.initializeApp({
     credential: admin.credential.cert(decodedServiceAccount),
     projectId: decodedServiceAccount.project_id,
   });
+} else {
+  app = admin.app();
 }
 
-const db = admin.firestore();
+const db = admin.firestore(app);
+
 export { db, admin };
