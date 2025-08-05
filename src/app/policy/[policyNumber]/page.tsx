@@ -25,7 +25,6 @@ function PolicyDetail({ label, value, icon: Icon }: { label: string; value: stri
 
 
 export default function PolicyPage({ params }: { params: { policyNumber: string } }) {
-    const { policyNumber } = params;
     const [policy, setPolicy] = useState<Policy | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -33,9 +32,9 @@ export default function PolicyPage({ params }: { params: { policyNumber: string 
     useEffect(() => {
         async function fetchPolicy() {
             setIsLoading(true);
-            const response = await handleSearch({ searchTerm: policyNumber });
+            const response = await handleSearch({ searchTerm: params.policyNumber });
             if (response.success && response.data?.results && response.data.results.length > 0) {
-                const foundPolicy = response.data.results.find(p => p.policyNumber === policyNumber);
+                const foundPolicy = response.data.results.find(p => p.policyNumber === params.policyNumber);
                 if (foundPolicy) {
                     setPolicy(foundPolicy);
                 } else {
@@ -47,10 +46,10 @@ export default function PolicyPage({ params }: { params: { policyNumber: string 
             setIsLoading(false);
         }
 
-        if (policyNumber) {
+        if (params.policyNumber) {
             fetchPolicy();
         }
-    }, [policyNumber]);
+    }, [params.policyNumber]);
 
     return (
         <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
@@ -64,7 +63,7 @@ export default function PolicyPage({ params }: { params: { policyNumber: string 
                            <FileText className="text-primary" /> Warranty Policy Details
                         </CardTitle>
                         <CardDescription>
-                            Viewing details for policy number: <span className="font-mono text-primary">{policyNumber}</span>
+                            Viewing details for policy number: <span className="font-mono text-primary">{params.policyNumber}</span>
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
