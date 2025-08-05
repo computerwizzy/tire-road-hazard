@@ -39,7 +39,7 @@ export function Invoice({ data }: { data: any }) {
       `}</style>
       <header className="flex justify-between items-start mb-8">
         <div className="flex items-center">
-          <img data-ai-hint="logo tire" src="https://placehold.co/100x50.png" alt="Logo" className="h-12 mr-4" />
+          <img data-ai-hint="tire shop logo" src="https://placehold.co/100x50.png" alt="Logo" className="h-12 mr-4" />
           <div>
             <h1 className="text-2xl font-bold">TIRES AND ENGINE PERFORMANCE</h1>
             <p>3031 Pelham Parkway</p>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +14,7 @@ import { Search, Loader2, FileQuestion } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { SearchPoliciesOutput } from '@/ai/flows/search-policies';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const SearchSchema = z.object({
@@ -23,6 +25,7 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SearchPoliciesOutput | null>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof SearchSchema>>({
     resolver: zodResolver(SearchSchema),
@@ -42,6 +45,10 @@ export default function SearchPage() {
       setError(response.error || 'An unknown error occurred.');
     }
     setIsLoading(false);
+  }
+
+  function handleRowClick(policyNumber: string) {
+    router.push(`/policy/${policyNumber}`);
   }
 
   return (
@@ -107,7 +114,11 @@ export default function SearchPage() {
                     </TableHeader>
                     <TableBody>
                       {results.results.map((policy) => (
-                        <TableRow key={policy.policyNumber}>
+                        <TableRow 
+                            key={policy.policyNumber} 
+                            onClick={() => handleRowClick(policy.policyNumber)}
+                            className="cursor-pointer"
+                        >
                           <TableCell className="font-medium">{policy.policyNumber}</TableCell>
                           <TableCell>{policy.customerName}</TableCell>
                           <TableCell>{policy.tireDot}</TableCell>
