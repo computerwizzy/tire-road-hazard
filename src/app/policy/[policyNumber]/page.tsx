@@ -24,7 +24,8 @@ function PolicyDetail({ label, value, icon: Icon }: { label: string; value: stri
 }
 
 
-export default function PolicyPage({ params: { policyNumber } }: { params: { policyNumber: string } }) {
+export default function PolicyPage({ params }: { params: { policyNumber: string } }) {
+    const { policyNumber } = params;
     const [policy, setPolicy] = useState<Policy | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
