@@ -148,23 +148,17 @@ export async function getAllPolicies(): Promise<{
   data?: Policy[];
   error?: string;
 }> {
-    try {
-        const { data, error } = await supabase
-            .from('policies')
-            .select()
-            .order('purchaseDate', { ascending: false });
+    const { data, error } = await supabase
+        .from('policies')
+        .select()
+        .order('purchaseDate', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching all policies from Supabase:', error);
-            throw new Error('Failed to fetch policies.');
-        }
-        
-        return { success: true, data: data || [] };
-
-    } catch (error) {
-        console.error("Error fetching all policies:", error);
-        return { success: false, error: "Failed to fetch policies. Please try again." };
+    if (error) {
+        console.error('Error fetching all policies from Supabase:', error);
+        return { success: false, error: 'Failed to fetch policies. Please check database permissions and RLS policies.' };
     }
+    
+    return { success: true, data: data || [] };
 }
 
 
