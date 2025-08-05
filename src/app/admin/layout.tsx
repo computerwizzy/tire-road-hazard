@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import AdminLayout from "@/components/admin-layout";
 import { cookies } from "next/headers";
-import type { User } from '@supabase/supabase-js';
 
 export default async function LayoutForAdmin({
   children,
