@@ -3,8 +3,10 @@
 
 import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
-import { searchPolicies, type SearchPoliciesInput, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
+import { searchPolicies, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
+import { getDropdownOptions, addDropdownOption, type DropdownOptions } from "@/data/db-actions";
+
 
 const WarrantyClaimSchema = z.object({
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -48,7 +50,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const result = await generatePolicyDocument(input);
 
     // Add the new policy to our mock database
-    addPolicy({
+    await addPolicy({
         policyNumber,
         customerName: values.customerName,
         customerEmail: values.customerEmail,
@@ -107,4 +109,24 @@ export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Prom
     console.error("Error sending email:", error);
     return { success: false, error: "Failed to send email. Please try again." };
   }
+}
+
+
+export async function fetchDropdownOptions(): Promise<DropdownOptions> {
+    return await getDropdownOptions();
+}
+
+const AddOptionSchema = z.object({
+    list: z.enum(['vehicleMakes', 'tireBrands', 'commonTireSizes']),
+    value: z.string().min(1, {message: "Value cannot be empty."})
+});
+
+export async function handleAddOption(values: z.infer<typeof AddOptionSchema>) {
+    try {
+        await addDropdownOption(values.list, values.value);
+        return { success: true };
+    } catch(error) {
+        console.error("Error adding dropdown option:", error);
+        return { success: false, error: "Failed to add new option." };
+    }
 }

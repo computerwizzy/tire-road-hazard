@@ -1,3 +1,4 @@
+
 {
   "policies": [
     {
@@ -32,5 +33,75 @@
       "purchaseDate": "2023-11-10",
       "warrantyEndDate": "2026-11-10"
     }
+  ],
+  "vehicleMakes": [
+    "Acura",
+    "Audi",
+    "BMW",
+    "Buick",
+    "Cadillac",
+    "Chevrolet",
+    "Chrysler",
+    "Dodge",
+    "Ford",
+    "GMC",
+    "Honda",
+    "Hyundai",
+    "Infiniti",
+    "Jaguar",
+    "Jeep",
+    "Kia",
+    "Land Rover",
+    "Lexus",
+    "Lincoln",
+    "Mazda",
+    "Mercedes-Benz",
+    "Nissan",
+    "Ram",
+    "Subaru",
+    "Tesla",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+  ],
+  "tireBrands": [
+    "BFGoodrich",
+    "Bridgestone",
+    "Continental",
+    "Cooper",
+    "Falken",
+    "Goodyear",
+    "Hankook",
+    "Kenda",
+    "Michelin",
+    "Nitto",
+    "Pirelli",
+    "Rovelo",
+    "Toyo",
+    "Yokohama"
+  ],
+  "commonTireSizes": [
+    "195/65R15",
+    "205/55R16",
+    "215/55R17",
+    "215/60R16",
+    "215/65R16",
+    "225/45R17",
+    "225/50R17",
+    "225/60R17",
+    "225/65R17",
+    "235/45R18",
+    "235/60R18",
+    "235/65R17",
+    "235/65R18",
+    "245/40R18",
+    "245/45R18",
+    "245/65R17",
+    "265/60R18",
+    "265/65R17",
+    "265/70R16",
+    "265/70R17",
+    "275/55R20",
+    "275/65R18"
   ]
 }

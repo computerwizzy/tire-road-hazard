@@ -1,53 +1,4 @@
 
-export const TIRE_BRANDS = [
-  "BFGoodrich",
-  "Bridgestone",
-  "Continental",
-  "Cooper",
-  "Falken",
-  "Goodyear",
-  "Hankook",
-  "Kenda",
-  "Michelin",
-  "Nitto",
-  "Pirelli",
-  "Rovelo",
-  "Toyo",
-  "Yokohama",
-  "Other",
-];
-
-export const VEHICLE_MAKES = [
-    "Acura",
-    "Audi",
-    "BMW",
-    "Buick",
-    "Cadillac",
-    "Chevrolet",
-    "Chrysler",
-    "Dodge",
-    "Ford",
-    "GMC",
-    "Honda",
-    "Hyundai",
-    "Infiniti",
-    "Jaguar",
-    "Jeep",
-    "Kia",
-    "Land Rover",
-    "Lexus",
-    "Lincoln",
-    "Mazda",
-    "Mercedes-Benz",
-    "Nissan",
-    "Ram",
-    "Subaru",
-    "Tesla",
-    "Toyota",
-    "Volkswagen",
-    "Volvo",
-    "Other"
-];
 
 export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = {
     "Acura": {
@@ -56,7 +7,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Integra": ["Base", "A-Spec", "A-Spec w/Technology", "Type S"],
         "MDX": ["Base", "Technology", "A-Spec", "Advance", "Type S"],
         "RDX": ["Base", "Technology", "A-Spec", "Advance"],
-        "Other": []
     },
     "Audi": {
         "A3": ["Premium", "Premium Plus", "Prestige"],
@@ -71,7 +21,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Q7": ["Premium", "Premium Plus", "Prestige"],
         "Q8": ["Premium", "Premium Plus", "Prestige"],
         "e-tron GT": ["Premium Plus", "Prestige", "RS"],
-        "Other": []
     },
     "BMW": {
         "2 Series": ["228i", "M235i", "230i", "M240i"],
@@ -86,14 +35,12 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "X5": ["sDrive40i", "xDrive40i", "xDrive50e", "M60i", "M Competition"],
         "X6": ["xDrive40i", "M60i", "M Competition"],
         "X7": ["xDrive40i", "M60i", "Alpina XB7"],
-        "Other": []
     },
     "Buick": {
         "Encore": ["Base", "Preferred"],
         "Encore GX": ["Preferred", "Select", "Essence"],
         "Envision": ["Preferred", "Essence", "Avenir"],
         "Enclave": ["Essence", "Premium", "Avenir"],
-        "Other": []
     },
     "Cadillac": {
         "CT4": ["Luxury", "Premium Luxury", "Sport", "V-Series", "V-Series Blackwing"],
@@ -103,7 +50,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "XT5": ["Luxury", "Premium Luxury", "Sport"],
         "XT6": ["Luxury", "Premium Luxury", "Sport"],
         "Lyriq": ["Tech", "Luxury", "Sport"],
-        "Other": []
     },
     "Chevrolet": {
         "Spark": ["LS", "1LT", "2LT", "Activ"],
@@ -122,20 +68,17 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Silverado 2500HD": ["WT", "Custom", "LT", "LTZ", "High Country"],
         "Silverado 3500HD": ["WT", "LT", "LTZ", "High Country"],
         "Silverado EV": ["WT", "RST"],
-        "Other": []
     },
     "Chrysler": {
         "300": ["Touring", "Touring L", "300S"],
         "Pacifica": ["Touring", "Touring L", "Limited", "Pinnacle"],
         "Voyager": ["LX"],
-        "Other": []
     },
     "Dodge": {
         "Hornet": ["GT", "R/T"],
         "Durango": ["SXT", "GT", "R/T", "Citadel", "SRT 392", "SRT Hellcat"],
         "Charger": ["SXT", "GT", "R/T", "Scat Pack", "SRT Hellcat"],
         "Challenger": ["SXT", "GT", "R/T", "R/T Scat Pack", "SRT Hellcat"],
-        "Other": []
     },
     "Ford": {
         "Mustang": ["EcoBoost", "EcoBoost Premium", "GT", "GT Premium", "Dark Horse"],
@@ -152,7 +95,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "F-350 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
         "F-450 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
         "F-150 Lightning": ["Pro", "XLT", "Flash", "Lariat", "Platinum"],
-        "Other": []
     },
     "GMC": {
         "Terrain": ["SLE", "SLT", "AT4", "Denali"],
@@ -163,7 +105,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Sierra 2500HD": ["Pro", "SLE", "SLT", "AT4", "Denali", "AT4X"],
         "Sierra 3500HD": ["Pro", "SLE", "SLT", "AT4", "Denali", "AT4X"],
         "Hummer EV": ["EV2X", "EV3X"],
-        "Other": []
     },
     "Honda": {
         "Civic": ["LX", "Sport", "EX", "Touring", "Si"],
@@ -175,7 +116,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Odyssey": ["EX", "EX-L", "Sport", "Touring", "Elite"],
         "Ridgeline": ["Sport", "RTL", "TrailSport", "Black Edition"],
         "Prologue": ["EX", "Touring", "Elite"],
-        "Other": []
     },
     "Hyundai": {
         "Elantra": ["SE", "SEL", "Limited", "N Line", "N"],
@@ -188,7 +128,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Santa Cruz": ["SE", "SEL", "Night", "XRT", "Limited"],
         "Ioniq 5": ["SE Standard Range", "SE", "SEL", "Limited"],
         "Ioniq 6": ["SE Standard Range", "SE", "SEL", "Limited"],
-        "Other": []
     },
     "Infiniti": {
         "Q50": ["Luxe", "Sensory", "Red Sport 400"],
@@ -196,7 +135,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "QX55": ["Luxe", "Essential", "Sensory"],
         "QX60": ["Pure", "Luxe", "Sensory", "Autograph"],
         "QX80": ["Luxe", "Premium Select", "Sensory"],
-        "Other": []
     },
     "Jaguar": {
         "F-PACE": ["P250 R-Dynamic S", "P400 R-Dynamic S"],
@@ -204,7 +142,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "I-PACE": ["R-Dynamic HSE"],
         "F-TYPE": ["R-Dynamic", "75", "R75"],
         "XF": ["R-Dynamic SE"],
-        "Other": []
     },
     "Jeep": {
         "Renegade": ["Latitude", "Upland", "Trailhawk"],
@@ -214,7 +151,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Wrangler": ["Sport", "Willys", "Sahara", "Rubicon", "Rubicon X", "Rubicon 392"],
         "Gladiator": ["Sport", "Willys", "Mojave", "Rubicon"],
         "Grand Wagoneer": ["Series I", "Series II", "Obsidian", "Series III"],
-        "Other": []
     },
     "Kia": {
         "Forte": ["LX", "LXS", "GT-Line", "GT"],
@@ -227,7 +163,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Telluride": ["LX", "S", "EX", "SX", "SX Prestige", "X-Line", "X-Pro"],
         "EV6": ["Wind", "GT-Line", "GT"],
         "EV9": ["Light", "Wind", "Land", "GT-Line"],
-        "Other": []
     },
     "Land Rover": {
         "Range Rover Evoque": ["S", "Dynamic SE"],
@@ -237,7 +172,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Discovery Sport": ["S", "Dynamic SE"],
         "Discovery": ["S", "Dynamic SE"],
         "Defender": ["90", "110", "130"],
-        "Other": []
     },
     "Lexus": {
         "IS": ["300", "350 F Sport Design", "350 F Sport", "500 F Sport Performance"],
@@ -249,14 +183,12 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "TX": ["350", "550h+", "500h F Sport Performance"],
         "GX": ["550 Premium", "550 Overtrail", "550 Luxury"],
         "LX": ["600", "600 F Sport Handling", "600 Ultra Luxury"],
-        "Other": []
     },
     "Lincoln": {
         "Corsair": ["Standard", "Reserve", "Grand Touring"],
         "Nautilus": ["Standard", "Reserve", "Black Label"],
         "Aviator": ["Standard", "Reserve", "Grand Touring", "Black Label"],
         "Navigator": ["Standard", "Reserve", "Black Label"],
-        "Other": []
     },
     "Mazda": {
         "Mazda3": ["2.5 S", "2.5 S Select Sport", "2.5 S Preferred", "2.5 S Carbon Edition", "2.5 S Premium", "2.5 Carbon Turbo", "2.5 Turbo Premium Plus"],
@@ -264,7 +196,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "CX-5": ["2.5 S Select", "2.5 S Preferred", "2.5 S Carbon Edition", "2.5 S Premium", "2.5 S Premium Plus", "2.5 Carbon Turbo", "2.5 Turbo Signature"],
         "CX-50": ["2.5 S Select", "2.5 S Preferred", "2.5 S Premium", "2.5 S Premium Plus", "2.5 Turbo", "2.5 Turbo Meridian Edition", "2.5 Turbo Premium", "2.5 Turbo Premium Plus"],
         "CX-90": ["Turbo Select", "Turbo Preferred", "Turbo Preferred Plus", "Turbo Premium", "Turbo Premium Plus", "Turbo S", "Turbo S Premium", "Turbo S Premium Plus"],
-        "Other": []
     },
     "Mercedes-Benz": {
         "C-Class": ["C 300", "AMG C 43"],
@@ -278,7 +209,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "EQB": ["250+", "300", "350"],
         "EQE": ["350+", "350 4MATIC", "500 4MATIC", "AMG EQE"],
         "EQS": ["450+", "450 4MATIC", "580 4MATIC"],
-        "Other": []
     },
     "Nissan": {
         "Versa": ["S", "SV", "SR"],
@@ -293,13 +223,11 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Frontier": ["S", "SV", "PRO-X", "PRO-4X"],
         "Titan": ["SV", "PRO-4X", "Platinum Reserve"],
         "Ariya": ["Engage", "Venture+", "Evolve+", "Empower+", "Platinum+"],
-        "Other": []
     },
     "Ram": {
         "1500": ["Tradesman", "Big Horn", "Laramie", "Rebel", "Limited Longhorn", "Limited", "TRX"],
         "2500": ["Tradesman", "Big Horn", "Laramie", "Power Wagon", "Limited Longhorn", "Limited"],
         "3500": ["Tradesman", "Big Horn", "Laramie", "Limited Longhorn", "Limited"],
-        "Other": []
     },
     "Subaru": {
         "Impreza": ["Base", "Sport", "RS"],
@@ -309,7 +237,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Outback": ["Base", "Premium", "Onyx Edition", "Limited", "Touring", "Onyx Edition XT", "Wilderness", "Limited XT", "Touring XT"],
         "Ascent": ["Base", "Premium", "Onyx Edition", "Limited", "Onyx Edition Limited", "Touring"],
         "Solterra": ["Premium", "Limited", "Touring"],
-        "Other": []
     },
     "Tesla": {
         "Model 3": ["Rear-Wheel Drive", "Long Range", "Performance"],
@@ -317,7 +244,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Model S": ["Dual Motor", "Plaid"],
         "Model X": ["Dual Motor", "Plaid"],
         "Cybertruck": ["Rear-Wheel Drive", "All-Wheel Drive", "Cyberbeast"],
-        "Other": []
     },
     "Toyota": {
         "Corolla": ["LE", "SE", "Nightshade", "XSE"],
@@ -334,7 +260,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Tacoma": ["SR", "SR5", "TRD PreRunner", "TRD Sport", "TRD Off-Road", "Limited", "TRD Pro", "Trailhunter"],
         "Tundra": ["SR", "SR5", "Limited", "Platinum", "1794 Edition", "TRD Pro", "Capstone"],
         "bZ4X": ["XLE", "Limited"],
-        "Other": []
     },
     "Volkswagen": {
         "Jetta": ["S", "Sport", "SE", "SEL"],
@@ -343,7 +268,6 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Atlas Cross Sport": ["SE", "SE with Technology", "SEL", "SEL R-Line", "SEL Premium R-Line"],
         "Atlas": ["SE", "SE with Technology", "Peak Edition SE", "SEL", "Peak Edition SEL", "SEL Premium R-Line"],
         "ID.4": ["Standard", "Pro", "Pro S", "Pro S Plus"],
-        "Other": []
     },
     "Volvo": {
         "S60": ["Core", "Plus", "Ultimate"],
@@ -353,35 +277,5 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "XC90": ["Core", "Plus", "Ultimate"],
         "C40 Recharge": ["Core", "Plus", "Ultimate"],
         "XC40 Recharge": ["Core", "Plus", "Ultimate"],
-        "Other": []
-    },
-    "Other": {
-        "Other": []
     }
 };
-
-export const COMMON_TIRE_SIZES = [
-    "195/65R15",
-    "205/55R16",
-    "215/55R17",
-    "215/60R16",
-    "215/65R16",
-    "225/45R17",
-    "225/50R17",
-    "225/60R17",
-    "225/65R17",
-    "235/45R18",
-    "235/60R18",
-    "235/65R17",
-    "235/65R18",
-    "245/40R18",
-    "245/45R18",
-    "245/65R17",
-    "265/60R18",
-    "265/65R17",
-    "265/70R16",
-    "265/70R17",
-    "275/55R20",
-    "275/65R18",
-    "Other"
-];
