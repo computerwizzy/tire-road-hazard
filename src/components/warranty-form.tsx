@@ -75,6 +75,7 @@ const FormSchema = z.object({
   }),
   tireQuantity: z.coerce.number().min(1, { message: "Quantity must be at least 1."}).max(6, { message: "You can add a maximum of 6 tires."}),
   pricePerTire: z.coerce.number().min(0, { message: "Price must be a positive number."}),
+  roadHazardPrice: z.coerce.number().min(0, { message: "Price must be a positive number." }),
   tireDot1: z.string().min(7, { message: "Please enter a valid DOT number (7-13 characters)." }).max(13, { message: "Please enter a valid DOT number (7-13 characters)." }),
   tireDot2: z.string().optional(),
   tireDot3: z.string().optional(),
@@ -121,6 +122,7 @@ export default function WarrantyForm() {
       tireSize: "",
       tireQuantity: 1,
       pricePerTire: 0,
+      roadHazardPrice: 0,
       tireDot1: "",
       tireDot2: "",
       tireDot3: "",
@@ -597,6 +599,19 @@ export default function WarrantyForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="roadHazardPrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Road Hazard Price</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g. 50" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormItem className="md:col-span-2">
                     <FormLabel>Upload Receipt (Optional)</FormLabel>
                     <FormControl>
@@ -643,5 +658,7 @@ export default function WarrantyForm() {
     </>
   );
 }
+
+    
 
     

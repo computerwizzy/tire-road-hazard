@@ -32,6 +32,7 @@ const WarrantyClaimSchema = z.object({
   tireSize: z.string().min(5, { message: "Tire size is required." }),
   tireQuantity: z.coerce.number().min(1).max(6),
   pricePerTire: z.coerce.number().min(0),
+  roadHazardPrice: z.coerce.number().min(0, { message: "Price must be a positive number."}),
   tireDot1: z.string().min(7).max(13),
   tireDot2: z.string().optional(),
   tireDot3: z.string().optional(),
@@ -91,6 +92,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       tireDot: allDots,
       dealerName: values.dealerName,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
+      roadHazardPrice: values.roadHazardPrice,
       warrantyStartDate: warrantyStartDate.toISOString().split('T')[0],
       warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
       termsAndConditions: "This Road Hazard Warranty covers only the tire. Damage to the wheel, TPMS sensors, or any other part of the vehicle is not covered. This warranty is non-transferable and is valid only for the original purchaser. The warranty is void if the tire is used for racing, off-road applications, or has been repaired by an unauthorized facility. A valid proof of purchase is required for all claims.",
@@ -287,5 +289,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 export { addUser, deleteUser, getUsers };
 export type { User } from "@/data/db-actions";
+
+    
 
     
