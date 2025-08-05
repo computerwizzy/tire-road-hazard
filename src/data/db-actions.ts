@@ -214,6 +214,9 @@ export async function addUser(email: string, role: 'admin' | 'member'): Promise<
         if (error.code === '42P01') {
              throw new Error("The 'users' table does not exist. Please create it in your Supabase dashboard.");
         }
+        if (error.code === '42501') {
+            throw new Error("Permission denied. Please check your Row Level Security (RLS) policies on the 'users' table in your Supabase dashboard.");
+        }
         if (error.code === '23505') {
             throw new Error('A user with this email already exists.');
         }
