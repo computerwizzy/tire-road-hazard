@@ -12,23 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, getDocs } from 'firebase/firestore';
-
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  projectId: "tiresafe",
-  appId: "1:709228917008:web:2e583a3e30904fc942b595",
-  storageBucket: "tiresafe.firebasestorage.app",
-  apiKey: "AIzaSyCzuGa-CwhbN2E8RktVaBs1wom9D6FnDkY",
-  authDomain: "tiresafe.firebaseapp.com",
-  messagingSenderId: "709228917008",
-};
-
-// This ensures we initialize the app only once.
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
+import { db } from '@/lib/firebase-admin';
 
 
 const SearchPoliciesInputSchema = z.object({
@@ -54,8 +38,8 @@ export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
 
 export async function addPolicy(policy: Policy) {
-    const policyRef = doc(db, "policies", policy.policyNumber);
-    await setDoc(policyRef, policy);
+    const policyRef = db.collection("policies").doc(policy.policyNumber);
+    await policyRef.set(policy);
 }
 
 
@@ -71,7 +55,7 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
-        const policiesCol = collection(db, "policies");
+        const policiesCol = db.collection("policies");
         const lowerCaseQuery = input.query.toLowerCase();
         
         // Firestore doesn't support case-insensitive `in` or `array-contains` queries directly,
@@ -79,7 +63,7 @@ const findPoliciesTool = ai.defineTool(
         // A common workaround is to store a lower-case version of the fields for searching.
         // However, for simplicity here, we will fetch all and filter client-side.
         // This is NOT performant for large datasets.
-        const policySnapshot = await getDocs(policiesCol);
+        const policySnapshot = await policiesCol.get();
         const allPolicies: Policy[] = [];
         policySnapshot.forEach(doc => {
             allPolicies.push(PolicySchema.parse(doc.data()));

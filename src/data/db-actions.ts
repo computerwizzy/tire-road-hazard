@@ -1,23 +1,7 @@
 
 'use server';
 
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  projectId: "tiresafe",
-  appId: "1:709228917008:web:2e583a3e30904fc942b595",
-  storageBucket: "tiresafe.firebasestorage.app",
-  apiKey: "AIzaSyCzuGa-CwhbN2E8RktVaBs1wom9D6FnDkY",
-  authDomain: "tiresafe.firebaseapp.com",
-  messagingSenderId: "709228917008",
-};
-
-// This ensures we initialize the app only once.
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
-
+import { db } from '@/lib/firebase-admin';
 
 export type DataForForm = {
     vehicleMakes: string[];
@@ -27,14 +11,14 @@ export type DataForForm = {
 }
 
 async function getDocument(collectionName: string, docName: string): Promise<any> {
-    const docRef = doc(db, collectionName, docName);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
+    const docRef = db.collection(collectionName).doc(docName);
+    const docSnap = await docRef.get();
+    return docSnap.exists ? docSnap.data() : null;
 }
 
 async function updateDocument(collectionName: string, docName: string, data: any): Promise<void> {
-    const docRef = doc(db, collectionName, docName);
-    await setDoc(docRef, data, { merge: true });
+    const docRef = db.collection(collectionName).doc(docName);
+    await docRef.set(data, { merge: true });
 }
 
 
