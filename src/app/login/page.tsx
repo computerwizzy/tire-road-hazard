@@ -23,6 +23,7 @@ const LoginSchema = z.object({
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -36,13 +37,20 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     
-    const result = await handleLogin(values);
-
-    if (result?.error) {
-      setError(result.error);
+    try {
+      const result = await handleLogin(values);
+      if (result?.error) {
+        setError(result.error);
+      }
+    } catch (e) {
+        if (e instanceof Error) {
+            setError(e.message);
+        } else {
+            setError("An unexpected error occurred.");
+        }
+    } finally {
+        setIsLoading(false);
     }
-    
-    setIsLoading(false);
   }
 
   return (
