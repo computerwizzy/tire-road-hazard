@@ -19,14 +19,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/client';
 
 export default function AdminPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   const [stats, setStats] = useState({
@@ -35,15 +32,6 @@ export default function AdminPage() {
     expiredPolicies: 0,
     totalCustomers: 0
   });
-
-   useEffect(() => {
-    const supabase = createClient();
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    fetchUser();
-  }, []);
 
   useEffect(() => {
     async function loadPolicies() {
@@ -70,11 +58,9 @@ export default function AdminPage() {
       }
       setIsLoading(false);
     }
-    // Only load policies if the user object is available
-    if (user) {
-      loadPolicies();
-    }
-  }, [user]);
+    
+    loadPolicies();
+  }, []);
 
   function handleRowClick(policyNumber: string) {
     router.push(`/policy/${policyNumber}`);
