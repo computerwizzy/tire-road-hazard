@@ -63,7 +63,7 @@ export default function AdminLayout({
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/settings')}>
-                  <Link href="/admin">
+                  <Link href="/admin/settings">
                     <Settings />
                     Settings
                   </Link>

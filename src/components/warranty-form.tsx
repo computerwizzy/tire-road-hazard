@@ -47,7 +47,6 @@ import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { AddItemDialog } from "./add-item-dialog";
 import type { DataForForm } from "@/data/db-actions";
 import { WarrantyResult } from "./warranty-result";
@@ -122,8 +121,6 @@ export default function WarrantyForm() {
   const [formData, setFormData] = useState<DataForForm | null>(null);
   const [dialogState, setDialogState] = useState<DialogState>({ open: false, listKey: 'vehicleMakes', listName: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -657,5 +654,3 @@ export default function WarrantyForm() {
     </>
   );
 }
-
-    

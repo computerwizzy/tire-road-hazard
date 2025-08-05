@@ -27,7 +27,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${ptSans.variable} ${spaceGrotesk.variable}`}>
-      <head />
       <body className="font-body antialiased">
          <ThemeProvider
             attribute="class"
