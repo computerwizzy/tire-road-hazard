@@ -20,16 +20,10 @@ const VehicleIcon = (props: React.SVGProps<SVGSVGElement>) => (
       strokeLinejoin="round" 
       {...props}
     >
-      <path d="M14 16.5 17.5 12 21 16.5" />
-      <path d="M9.5 12.5 13 16.5" />
-      <path d="M12 12V2l-4.5 4.5" />
-      <path d="m8.5 12.5-4.41-4.41A2 2 0 0 1 5.5 5.5H12" />
-      <path d="M3 12h10" />
-      <path d="M12 12h9.5" />
-      <path d="M19 12v6" />
-      <path d="M5 12v6" />
-      <path d="M3 18h4" />
-      <path d="M17 18h4" />
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20"/>
+      <path d="M6.5 2a2.5 2.5 0 0 1 0 5H20"/>
+      <path d="M10 12h4"/>
+      <path d="M10 17h4"/>
     </svg>
 );
 
