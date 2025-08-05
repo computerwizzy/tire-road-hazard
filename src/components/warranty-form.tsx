@@ -47,7 +47,6 @@ import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
-import { AddItemDialog } from "./add-item-dialog";
 import type { DataForForm } from "@/data/db-actions";
 import { WarrantyResult } from "./warranty-result";
 
@@ -98,14 +97,6 @@ export type PolicyData = {
   formData: z.infer<typeof FormSchema>;
 };
 
-type DialogState = {
-    open: boolean;
-    listKey: 'vehicleMakes' | 'tireBrands' | 'commonTireSizes' | 'vehicleModels' | 'vehicleSubmodels';
-    listName: string;
-    make?: string;
-    model?: string;
-}
-
 const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -119,7 +110,6 @@ export default function WarrantyForm() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PolicyData | null>(null);
   const [formData, setFormData] = useState<DataForForm | null>(null);
-  const [dialogState, setDialogState] = useState<DialogState>({ open: false, listKey: 'vehicleMakes', listName: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -214,10 +204,6 @@ export default function WarrantyForm() {
     setIsLoading(false);
   }
 
-  const openDialog = (listKey: DialogState['listKey'], listName: DialogState['listName'], context?: {make?: string, model?: string}) => {
-    setDialogState({ open: true, listKey, listName, ...context });
-  }
-
   const resetForm = () => {
     setResult(null);
     form.reset();
@@ -237,15 +223,6 @@ export default function WarrantyForm() {
 
   return (
     <>
-    <AddItemDialog 
-        open={dialogState.open}
-        onOpenChange={(open) => setDialogState({...dialogState, open})}
-        listKey={dialogState.listKey}
-        listName={dialogState.listName}
-        make={dialogState.make}
-        model={dialogState.model}
-        onSuccess={loadFormData}
-    />
     <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-2xl">
@@ -368,9 +345,6 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button type="button" variant="outline" size="icon" onClick={() => openDialog('vehicleMakes', 'Vehicle Make')}>
-                          <PlusCircle className="h-4 w-4" />
-                      </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -399,9 +373,6 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
-                      <Button type="button" variant="outline" size="icon" onClick={() => openDialog('vehicleModels', 'Vehicle Model', {make: selectedMake})} disabled={!selectedMake}>
-                          <PlusCircle className="h-4 w-4" />
-                      </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -430,9 +401,6 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
-                      <Button type="button" variant="outline" size="icon" onClick={() => openDialog('vehicleSubmodels', 'Vehicle Submodel', {make: selectedMake, model: selectedModel})} disabled={!selectedModel}>
-                          <PlusCircle className="h-4 w-4" />
-                      </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -483,9 +451,6 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button type="button" variant="outline" size="icon" onClick={() => openDialog('tireBrands', 'Tire Brand')}>
-                          <PlusCircle className="h-4 w-4" />
-                      </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -523,9 +488,6 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button type="button" variant="outline" size="icon" onClick={() => openDialog('commonTireSizes', 'Tire Size')}>
-                          <PlusCircle className="h-4 w-4" />
-                      </Button>
                       </div>
                       <FormMessage />
                     </FormItem>

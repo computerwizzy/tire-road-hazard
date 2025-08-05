@@ -174,65 +174,6 @@ export async function getDataForForm(): Promise<DataForForm> {
     return JSON.parse(JSON.stringify(formStore));
 }
 
-export async function addDropdownOption(list: 'vehicleMakes' | 'tireBrands' | 'commonTireSizes', value: string): Promise<void> {
-    const collection = formStore[list] as string[];
-    if (!collection.includes(value)) {
-        collection.push(value);
-        collection.sort();
-        
-        if (list === 'vehicleMakes' && !formStore.vehicleModels[value]) {
-            formStore.vehicleModels[value] = {};
-        }
-    }
-}
-
-export async function deleteDropdownOption(list: 'vehicleMakes' | 'tireBrands' | 'commonTireSizes', value: string): Promise<void> {
-    const collection = formStore[list] as string[];
-    const index = collection.indexOf(value);
-    if (index > -1) {
-        collection.splice(index, 1);
-    }
-    if (list === 'vehicleMakes' && formStore.vehicleModels[value]) {
-        delete formStore.vehicleModels[value];
-    }
-}
-
-
-export async function addVehicleModel(make: string, model: string): Promise<void> {
-    if (!formStore.vehicleModels[make]) {
-        formStore.vehicleModels[make] = {};
-    }
-    if (!formStore.vehicleModels[make][model]) {
-        formStore.vehicleModels[make][model] = [];
-    }
-}
-
-export async function deleteVehicleModel(make: string, model: string): Promise<void> {
-    if (formStore.vehicleModels[make] && formStore.vehicleModels[make][model]) {
-        delete formStore.vehicleModels[make][model];
-    }
-}
-
-
-export async function addVehicleSubmodel(make: string, model: string, submodel: string): Promise<void> {
-    if (formStore.vehicleModels[make] && formStore.vehicleModels[make][model]) {
-        if (!formStore.vehicleModels[make][model].includes(submodel)) {
-            formStore.vehicleModels[make][model].push(submodel);
-            formStore.vehicleModels[make][model].sort();
-        }
-    }
-}
-
-export async function deleteVehicleSubmodel(make: string, model: string, submodel: string): Promise<void> {
-    if (formStore.vehicleModels[make] && formStore.vehicleModels[make][model]) {
-        const index = formStore.vehicleModels[make][model].indexOf(submodel);
-        if (index > -1) {
-            formStore.vehicleModels[make][model].splice(index, 1);
-        }
-    }
-}
-
-
 export async function savePolicy(policy: Omit<Policy, 'id'>): Promise<void> {
     const { error } = await supabase.from('policies').insert(policy);
      if (error) {

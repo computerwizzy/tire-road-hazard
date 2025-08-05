@@ -5,7 +5,7 @@ import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
 import { searchPolicies, type SearchPoliciesOutput, type Policy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm, savePolicy, deleteDropdownOption, deleteVehicleModel, deleteVehicleSubmodel } from "@/data/db-actions";
+import { getDataForForm, type DataForForm, savePolicy } from "@/data/db-actions";
 import { supabase } from "@/lib/supabase";
 
 const WarrantyClaimSchema = z.object({
@@ -137,91 +137,6 @@ export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Prom
 export async function fetchFormData(): Promise<DataForForm> {
     return await getDataForForm();
 }
-
-const AddOptionSchema = z.object({
-    list: z.enum(['vehicleMakes', 'tireBrands', 'commonTireSizes']),
-    value: z.string().min(1, {message: "Value cannot be empty."})
-});
-
-export async function handleAddOption(values: z.infer<typeof AddOptionSchema>) {
-    try {
-        await addDropdownOption(values.list, values.value);
-        return { success: true };
-    } catch(error) {
-        console.error("Error adding dropdown option:", error);
-        return { success: false, error: "Failed to add new option." };
-    }
-}
-
-const DeleteOptionSchema = AddOptionSchema;
-
-export async function handleDeleteOption(values: z.infer<typeof DeleteOptionSchema>) {
-    try {
-        await deleteDropdownOption(values.list, values.value);
-        return { success: true };
-    } catch(error) {
-        console.error("Error deleting dropdown option:", error);
-        return { success: false, error: "Failed to delete option." };
-    }
-}
-
-
-const AddVehicleModelSchema = z.object({
-    make: z.string().min(1),
-    model: z.string().min(1)
-});
-
-export async function handleAddVehicleModel(values: z.infer<typeof AddVehicleModelSchema>) {
-    try {
-        await addVehicleModel(values.make, values.model);
-        return { success: true };
-    } catch (error) {
-        console.error("Error adding vehicle model:", error);
-        return { success: false, error: "Failed to add new model."};
-    }
-}
-
-const DeleteVehicleModelSchema = AddVehicleModelSchema;
-
-export async function handleDeleteVehicleModel(values: z.infer<typeof DeleteVehicleModelSchema>) {
-    try {
-        await deleteVehicleModel(values.make, values.model);
-        return { success: true };
-    } catch (error) {
-        console.error("Error deleting vehicle model:", error);
-        return { success: false, error: "Failed to delete model."};
-    }
-}
-
-
-const AddVehicleSubmodelSchema = z.object({
-    make: z.string().min(1),
-    model: z.string().min(1),
-    submodel: z.string().min(1),
-});
-
-export async function handleAddVehicleSubmodel(values: z.infer<typeof AddVehicleSubmodelSchema>) {
-    try {
-        await addVehicleSubmodel(values.make, values.model, values.submodel);
-        return { success: true };
-    } catch (error) {
-        console.error("Error adding vehicle submodel:", error);
-        return { success: false, error: "Failed to add new submodel."};
-    }
-}
-
-const DeleteVehicleSubmodelSchema = AddVehicleSubmodelSchema;
-
-export async function handleDeleteVehicleSubmodel(values: z.infer<typeof DeleteVehicleSubmodelSchema>) {
-    try {
-        await deleteVehicleSubmodel(values.make, values.model, values.submodel);
-        return { success: true };
-    } catch (error) {
-        console.error("Error deleting vehicle submodel:", error);
-        return { success: false, error: "Failed to delete submodel."};
-    }
-}
-
 
 export async function getAllPolicies(): Promise<{
   success: boolean;
