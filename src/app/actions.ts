@@ -97,7 +97,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       roadHazardPrice: values.roadHazardPrice,
       warrantyStartDate: warrantyStartDate.toISOString().split('T')[0],
-      warrantyEndDate: warrantyEndDate.toISOString().split('T[0]'),
+      warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
       termsAndConditions: "This Road Hazard Warranty covers only the tire. Damage to the wheel, TPMS sensors, or any other part of the vehicle is not covered. This warranty is non-transferable and is valid only for the original purchaser. The warranty is void if the tire is used for racing, off-road applications, or has been repaired by an unauthorized facility. A valid proof of purchase is required for all claims.",
       coverageDetails: [
         "Repair or replacement of tires damaged due to common road hazards like potholes, nails, glass, and other debris.",
