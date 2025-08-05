@@ -1,5 +1,5 @@
 
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
@@ -12,6 +12,12 @@ const firebaseConfig = {
   messagingSenderId: "709228917008",
 };
 
-// Initialize Firebase
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// This ensures we initialize the app only once.
+let app: FirebaseApp;
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
+}
+
 export const db = getFirestore(app);
