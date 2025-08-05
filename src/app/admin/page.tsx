@@ -8,7 +8,6 @@ import { format, parseISO, isAfter } from 'date-fns';
 import { FileText, Loader2, AlertCircle, Users, ShieldCheck, ShieldX, PlusCircle } from 'lucide-react';
 import { getAllPolicies } from '@/app/actions';
 import type { Policy } from '@/ai/flows/search-policies';
-import AdminLayout from '@/components/admin-layout';
 import {
   Table,
   TableBody,
@@ -20,8 +19,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { User } from '@supabase/supabase-js';
 
-export default function AdminPage() {
+export default function AdminPage({ user }: { user: User }) {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,6 @@ export default function AdminPage() {
         const fetchedPolicies = response.data;
         setPolicies(fetchedPolicies);
         
-        // Calculate stats
         const today = new Date();
         const active = fetchedPolicies.filter(p => isAfter(parseISO(p.warrantyEndDate), today)).length;
         const expired = fetchedPolicies.length - active;
@@ -60,8 +59,11 @@ export default function AdminPage() {
       }
       setIsLoading(false);
     }
-    loadPolicies();
-  }, []);
+    // Only load policies if the user object is available
+    if (user) {
+      loadPolicies();
+    }
+  }, [user]);
 
   function handleRowClick(policyNumber: string) {
     router.push(`/policy/${policyNumber}`);
@@ -77,7 +79,6 @@ export default function AdminPage() {
   }
 
   return (
-    <AdminLayout>
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
@@ -192,6 +193,5 @@ export default function AdminPage() {
             </CardContent>
         </Card>
       </div>
-    </AdminLayout>
   );
 }

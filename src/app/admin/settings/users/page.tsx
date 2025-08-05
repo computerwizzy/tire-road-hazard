@@ -9,7 +9,6 @@ import { format, parseISO } from 'date-fns';
 import { PlusCircle, Trash2, Users, Loader2, AlertCircle } from 'lucide-react';
 import { addUser, deleteUser, getUsers, type User } from '@/data/db-actions';
 
-import AdminLayout from '@/components/admin-layout';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -137,7 +136,6 @@ export default function UserManagementPage() {
   }
 
   return (
-    <AdminLayout>
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
@@ -284,6 +282,5 @@ export default function UserManagementPage() {
           </Form>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
   );
 }

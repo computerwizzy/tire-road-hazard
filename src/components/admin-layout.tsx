@@ -22,15 +22,24 @@ import Image from 'next/image';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { handleLogout } from '@/app/actions';
+import { User } from '@supabase/supabase-js';
+import React from 'react';
 
 export default function AdminLayout({
   children,
   user
 }: {
   children: React.ReactNode;
-  user?: { email?: string };
+  user?: User;
 }) {
   const pathname = usePathname();
+  
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { user } as { user: User });
+    }
+    return child;
+  });
 
   return (
     <SidebarProvider>
@@ -116,7 +125,7 @@ export default function AdminLayout({
                     </DropdownMenu>
                  </div>
             </header>
-            {children}
+            {childrenWithProps}
         </SidebarInset>
       </div>
     </SidebarProvider>
