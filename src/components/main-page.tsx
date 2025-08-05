@@ -8,28 +8,27 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 const TireIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        width="24" 
-        height="24" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        {...props}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
     >
-        <path d="M6.34 2.16 4.93 4.93m14.14 0 1.41-2.77m-1.41 19.64 1.41 2.77M4.93 19.07l-1.41 2.77"/>
-        <path d="M9 7.5a2.5 2.5 0 0 1 5 0V10c0 .83-.67 1.5-1.5 1.5h-2A1.5 1.5 0 0 1 9 10V7.5Z"/>
-        <path d="M12 12v1.5a2.5 2.5 0 0 1-5 0V12"/>
-        <path d="m14.5 12.5.5 2"/>
-        <path d="m9.5 12.5-.5 2"/>
-        <path d="M18 12h.5a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1"/>
-        <path d="M6 12h-.5a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h1"/>
-        <path d="M12 2a10 10 0 0 0-10 10v0a10 10 0 0 0 10 10v0a10 10 0 0 0 10-10v0a10 10 0 0 0-10-10Z"/>
+      <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" />
+      <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+      <path d="m15 9-3 3" />
+      <path d="M9 9h.01" />
+      <path d="M15 15h.01" />
+      <path d="M9 15h.01" />
+      <path d="m12 12-1.5 1.5" />
     </svg>
-)
+  );
 
 
 export default function MainPage() {
