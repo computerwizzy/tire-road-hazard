@@ -39,6 +39,9 @@ export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
 
 export async function addPolicy(policy: Policy) {
+    if (!db) {
+      throw new Error("Firestore is not initialized");
+    }
     const policyRef = doc(db, "policies", policy.policyNumber);
     await setDoc(policyRef, policy);
 }
@@ -56,6 +59,9 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
+        if (!db) {
+            return { results: [] };
+        }
         const policiesCol = collection(db, "policies");
         const lowerCaseQuery = input.query.toLowerCase();
         

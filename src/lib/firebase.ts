@@ -1,7 +1,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,5 +16,15 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
+
+// For local development, you might want to connect to the Firestore emulator
+// if (process.env.NODE_ENV === 'development') {
+//   try {
+//       connectFirestoreEmulator(db, 'localhost', 8080);
+//       console.log("Connected to Firestore emulator");
+//   } catch(e) {
+//       // The emulator may already be connected
+//   }
+// }
 
 export { app, db };
