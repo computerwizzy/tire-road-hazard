@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -22,6 +23,7 @@ const GeneratePolicyDocumentInputSchema = z.object({
   vehicleModel: z.string().describe('The model of the vehicle.'),
   vehicleSubmodel: z.string().optional().describe('The submodel of the vehicle.'),
   vehicleMileage: z.number().describe('The current mileage of the vehicle.'),
+  isCommercial: z.boolean().describe('Whether the vehicle is for commercial use.'),
   tireBrand: z.string().describe('The brand of the tire.'),
   tireModel: z.string().describe('The model of the tire.'),
   tireSize: z.string().describe('The size of the tire.'),
@@ -85,7 +87,7 @@ For thirty-six (36) months from the Plan Purchase Date, you may receive flat tir
 Submit the above documentation to: Road Hazard Plan Roadside Assistance, P.O. Box 33535 Denver, CO 80233.
 
 ### EXCLUSIONS AND LIMITATIONS
-The following vehicles are not eligible for Plan coverage: Vehicles with a manufacturer's load rating capacity of greater than one (1) ton. Vehicles used for farm or agricultural purpose. Any emergency service vehicle, any vehicle used for hire (including Lyft, Uber or similar type of service), towing, construction, postal service, off-road service or commercial purposes. Coverage excludes damage from off-road use, collision, fire, vandalism, theft, snow chains, manufacturer's defects, abuse and neglect (i.e., improper application, improper inflation, overloading, brake lock up, wheel spinning, torque snags, etc.), cosmetic damage, sidewall abrasions or other appearance items that do not affect the safety or performance of the tire. Tires with torn beads. Also excluded are damages or irregular wear caused by misalignment, mechanical failures or interference with vehicle components, tires that have been repaired in a manner other than per manufacturer's guidelines. This Plan covers only the eligible tires installed on the vehicle registered to the customer and listed on the original purchase receipt. **CONSEQUENTIAL AND INCIDENTAL DAMAGES ARE EXCLUDED.** Some states do not allow the exclusion or limitation of consequential and incidental damages; therefore, such limitations or exclusions may not apply to you. No expressed guarantees given other than that stated herein. This Plan gives You specific legal rights; You may have other rights, which vary from state to state.
+The following vehicles are not eligible for Plan coverage: Vehicles with a manufacturer's load rating capacity of greater than one (1) ton. Vehicles used for farm or agricultural purpose. Any emergency service vehicle, any vehicle used for hire (including Lyft, Uber or similar type of service), towing, construction, postal service, off-road service or commercial purposes.{{#if isCommercial}} **This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**{{/if}} Coverage excludes damage from off-road use, collision, fire, vandalism, theft, snow chains, manufacturer's defects, abuse and neglect (i.e., improper application, improper inflation, overloading, brake lock up, wheel spinning, torque snags, etc.), cosmetic damage, sidewall abrasions or other appearance items that do not affect the safety or performance of the tire. Tires with torn beads. Also excluded are damages or irregular wear caused by misalignment, mechanical failures or interference with vehicle components, tires that have been repaired in a manner other than per manufacturer's guidelines. This Plan covers only the eligible tires installed on the vehicle registered to the customer and listed on the original purchase receipt. **CONSEQUENTIAL AND INCIDENTAL DAMAGES ARE EXCLUDED.** Some states do not allow the exclusion or limitation of consequential and incidental damages; therefore, such limitations or exclusions may not apply to you. No expressed guarantees given other than that stated herein. This Plan gives You specific legal rights; You may have other rights, which vary from state to state.
 
 **THE PROGRAM ADMINISTRATOR RESERVES THE RIGHT TO DENY ANY CLAIM SUBMITTED WITH FALSE OR MISLEADING INFORMATION, OR IF THE DOCUMENTATION DOES NOT CLEARLY IDENTIFY THE ORIGINAL PURCHASER, VEHICLE OR TIRES. ANY PERSON WHO KNOWINGLY AND WITH INTENT TO INJURE, DEFRAUD, OR...**
 `,
@@ -102,3 +104,5 @@ const generatePolicyDocumentFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

@@ -28,6 +28,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -39,6 +40,7 @@ import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { WarrantyResult, type PolicyData } from "./warranty-result";
+import { Checkbox } from "./ui/checkbox";
 
 
 const FormSchema = z.object({
@@ -65,17 +67,20 @@ const FormSchema = z.object({
   vehicleMileage: z.coerce
     .number()
     .min(0, { message: "Mileage must be a positive number." }),
+  isCommercial: z.boolean().default(false),
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
   tireSize: z.string().min(5, {
     message: "Please enter a valid tire size (e.g., 225/45R17).",
   }),
-  tireQuantity: z.coerce.number().min(1, { message: "Quantity must be at least 1."}).max(4, { message: "You can add a maximum of 4 tires."}),
+  tireQuantity: z.coerce.number().min(1, { message: "Quantity must be at least 1."}).max(6, { message: "You can add a maximum of 6 tires."}),
   pricePerTire: z.coerce.number().min(0, { message: "Price must be a positive number."}),
   tireDot1: z.string().min(7, { message: "Please enter a valid DOT number (7-13 characters)." }).max(13, { message: "Please enter a valid DOT number (7-13 characters)." }),
   tireDot2: z.string().optional(),
   tireDot3: z.string().optional(),
   tireDot4: z.string().optional(),
+  tireDot5: z.string().optional(),
+  tireDot6: z.string().optional(),
   purchaseDate: z.date({
     required_error: "A purchase date is required.",
   }),
@@ -110,6 +115,7 @@ export default function WarrantyForm() {
       vehicleModel: "",
       vehicleSubmodel: "",
       vehicleMileage: 0,
+      isCommercial: false,
       tireBrand: "",
       tireModel: "",
       tireSize: "",
@@ -119,6 +125,8 @@ export default function WarrantyForm() {
       tireDot2: "",
       tireDot3: "",
       tireDot4: "",
+      tireDot5: "",
+      tireDot6: "",
       dealerName: "",
       vehicleYear: new Date().getFullYear(),
     },
@@ -348,6 +356,28 @@ export default function WarrantyForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="isCommercial"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-end space-x-2 pb-2">
+                       <FormControl>
+                         <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                       </FormControl>
+                       <div className="space-y-1 leading-none">
+                        <FormLabel>
+                          Commercial Vehicle
+                        </FormLabel>
+                        <FormDescription>
+                          Check this box if the vehicle is used for commercial purposes.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
             </fieldset>
 
@@ -402,9 +432,9 @@ export default function WarrantyForm() {
                   name="tireQuantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Quantity (Max 4)</FormLabel>
+                      <FormLabel>Quantity (Max 6)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 4" {...field} min={1} max={4} />
+                        <Input type="number" placeholder="e.g. 4" {...field} min={1} max={6} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -470,6 +500,32 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>DOT Number 4</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Optional" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />}
+                { tireQuantity > 4 && <FormField
+                  control={form.control}
+                  name="tireDot5"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DOT Number 5</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Optional" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />}
+                { tireQuantity > 5 && <FormField
+                  control={form.control}
+                  name="tireDot6"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DOT Number 6</FormLabel>
                       <FormControl>
                         <Input placeholder="Optional" {...field} />
                       </FormControl>

@@ -26,15 +26,18 @@ const WarrantyClaimSchema = z.object({
   vehicleModel: z.string().min(1, { message: "Vehicle model is required." }),
   vehicleSubmodel: z.string().optional(),
   vehicleMileage: z.coerce.number().min(0, { message: "Mileage must be a positive number."}),
+  isCommercial: z.boolean().default(false),
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
   tireSize: z.string().min(5, { message: "Tire size is required." }),
-  tireQuantity: z.coerce.number().min(1).max(4),
+  tireQuantity: z.coerce.number().min(1).max(6),
   pricePerTire: z.coerce.number().min(0),
   tireDot1: z.string().min(7).max(13),
   tireDot2: z.string().optional(),
   tireDot3: z.string().optional(),
   tireDot4: z.string().optional(),
+  tireDot5: z.string().optional(),
+  tireDot6: z.string().optional(),
   purchaseDate: z.date(),
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
@@ -67,7 +70,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     }
 
     const fullAddress = `${values.customerStreet}, ${values.customerCity}, ${values.customerState} ${values.customerZip}`;
-    const allDots = [values.tireDot1, values.tireDot2, values.tireDot3, values.tireDot4].filter(Boolean).join(', ');
+    const allDots = [values.tireDot1, values.tireDot2, values.tireDot3, values.tireDot4, values.tireDot5, values.tireDot6].filter(Boolean).join(', ');
 
 
     const input: GeneratePolicyDocumentInput = {
@@ -81,6 +84,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       vehicleModel: values.vehicleModel,
       vehicleSubmodel: values.vehicleSubmodel,
       vehicleMileage: values.vehicleMileage,
+      isCommercial: values.isCommercial,
       tireBrand: values.tireBrand,
       tireModel: values.tireModel,
       tireSize: values.tireSize,
