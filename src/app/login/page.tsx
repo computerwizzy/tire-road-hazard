@@ -40,7 +40,7 @@ export default function LoginPage() {
     const result = await handleLogin(values);
 
     if (result.success) {
-      window.location.href = '/admin';
+      router.push('/admin');
     } else {
       setError(result.error || 'An unknown error occurred.');
     }
