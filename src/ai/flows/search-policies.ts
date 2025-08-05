@@ -32,11 +32,18 @@ export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
 // This is a mock database of policies for demonstration purposes.
 // In a real application, this would be a database query.
-const mockPolicies = [
-    { policyNumber: 'WP-2024-ABC123', customerName: 'Alice Johnson', customerEmail: 'alice@example.com', tireDot: 'DOTB3RVY8C4223', purchaseDate: '2024-01-15', warrantyEndDate: '2026-01-15' },
-    { policyNumber: 'WP-2024-DEF456', customerName: 'Bob Williams', customerEmail: 'bob@example.com', tireDot: 'DOTC4SXY9D5323', purchaseDate: '2024-02-20', warrantyEndDate: '2026-02-20' },
-    { policyNumber: 'WP-2023-GHI789', customerName: 'Charlie Brown', customerEmail: 'charlie@example.com', tireDot: 'DOTD5TZA0E6422', purchaseDate: '2023-11-10', warrantyEndDate: '2025-11-10' },
+const mockPolicies: z.infer<typeof PolicySchema>[] = [
+    { policyNumber: 'WP-2024-ABC123', customerName: 'Alice Johnson', customerEmail: 'alice@example.com', tireDot: 'DOTB3RVY8C4223', purchaseDate: '2024-01-15', warrantyEndDate: '2027-01-15' },
+    { policyNumber: 'WP-2024-DEF456', customerName: 'Bob Williams', customerEmail: 'bob@example.com', tireDot: 'DOTC4SXY9D5323', purchaseDate: '2024-02-20', warrantyEndDate: '2027-02-20' },
+    { policyNumber: 'WP-2023-GHI789', customerName: 'Charlie Brown', customerEmail: 'charlie@example.com', tireDot: 'DOTD5TZA0E6422', purchaseDate: '2023-11-10', warrantyEndDate: '2026-11-10' },
 ];
+
+export async function addPolicy(policy: z.infer<typeof PolicySchema>) {
+    // Prevent duplicates
+    if (!mockPolicies.some(p => p.policyNumber === policy.policyNumber)) {
+        mockPolicies.unshift(policy);
+    }
+}
 
 
 export async function searchPolicies(input: SearchPoliciesInput): Promise<SearchPoliciesOutput> {

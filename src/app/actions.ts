@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
-import { searchPolicies, type SearchPoliciesInput, type SearchPoliciesOutput } from "@/ai/flows/search-policies";
+import { searchPolicies, type SearchPoliciesInput, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 
 const WarrantyClaimSchema = z.object({
@@ -46,6 +46,18 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     };
 
     const result = await generatePolicyDocument(input);
+
+    // Add the new policy to our mock database
+    addPolicy({
+        policyNumber,
+        customerName: values.customerName,
+        customerEmail: values.customerEmail,
+        tireDot: values.tireDot,
+        purchaseDate: values.purchaseDate.toISOString().split('T')[0],
+        warrantyEndDate: warrantyEndDate.toISOString().split('T')[0]
+    });
+
+
     return { success: true, data: {...result, customerName: values.customerName, customerEmail: values.customerEmail, policyNumber} };
 
   } catch (error) {
