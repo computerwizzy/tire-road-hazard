@@ -15,15 +15,20 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, FileText, Settings, Search } from 'lucide-react';
+import { Home, FileText, Settings, Search, LogOut, User as UserIcon } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import Image from 'next/image';
+import { Avatar, AvatarFallback } from './ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { handleLogout } from '@/app/actions';
 
 export default function AdminLayout({
   children,
+  user
 }: {
   children: React.ReactNode;
+  user?: { email?: string };
 }) {
   const pathname = usePathname();
 
@@ -54,14 +59,6 @@ export default function AdminLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin'}>
-                   <Link href="/admin">
-                    <FileText />
-                    Policies
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/settings')}>
                   <Link href="/admin/settings">
                     <Settings />
@@ -84,12 +81,40 @@ export default function AdminLayout({
                     <SidebarTrigger />
                 </div>
                  <div className="flex-1" />
-                 <Button asChild variant="outline">
-                    <Link href="/search">
-                        <Search className="mr-2 h-4 w-4" />
-                        Search Policies
-                    </Link>
-                 </Button>
+                 <div className="flex items-center gap-4">
+                    <Button asChild variant="outline">
+                        <Link href="/search">
+                            <Search className="mr-2 h-4 w-4" />
+                            Search Policies
+                        </Link>
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                           <Avatar className="h-8 w-8">
+                                <AvatarFallback>
+                                    <UserIcon className="h-4 w-4" />
+                                </AvatarFallback>
+                           </Avatar>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">Admin</p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => handleLogout()}>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                 </div>
             </header>
             {children}
         </SidebarInset>

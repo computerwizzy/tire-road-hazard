@@ -5,8 +5,13 @@ import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
 import { searchPolicies, type SearchPoliciesOutput, type Policy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { getDataForForm, type DataForForm, savePolicy } from "@/data/db-actions";
+import { getDataForForm, type DataForForm, savePolicy, addUser, deleteUser, getUsers } from "@/data/db-actions";
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
+
 
 const WarrantyClaimSchema = z.object({
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -160,4 +165,36 @@ export async function getAllPolicies(): Promise<{
         console.error("Error fetching all policies:", error);
         return { success: false, error: "Failed to fetch policies. Please try again." };
     }
+}
+
+
+// Auth Actions
+const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1, { message: "Password is required." }),
+});
+
+export async function handleLogin(values: z.infer<typeof LoginSchema>) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: values.email,
+    password: values.password,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  
+  revalidatePath("/admin", "layout");
+  return { success: true };
+}
+
+
+export async function handleLogout() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+  await supabase.auth.signOut();
+  redirect('/login');
 }
