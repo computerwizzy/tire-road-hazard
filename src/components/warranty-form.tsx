@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -92,7 +92,6 @@ const FormSchema = z.object({
     required_error: "A purchase date is required.",
   }),
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
-  receipt: z.any().optional(),
 });
 
 type PolicyData = {
@@ -111,6 +110,14 @@ type DialogState = {
     model?: string;
 }
 
+const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+    reader.onerror = error => reject(error);
+});
+
+
 export default function WarrantyForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -118,6 +125,7 @@ export default function WarrantyForm() {
   const [result, setResult] = useState<PolicyData | null>(null);
   const [formData, setFormData] = useState<DataForForm | null>(null);
   const [dialogState, setDialogState] = useState<DialogState>({ open: false, listKey: 'vehicleMakes', listName: '' });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
 
@@ -192,7 +200,19 @@ export default function WarrantyForm() {
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
     setError(null);
-    const response = await handleWarrantyClaim(values);
+
+    let receiptData = null;
+    const receiptFile = fileInputRef.current?.files?.[0];
+    if (receiptFile) {
+        const buffer = await toBase64(receiptFile);
+        receiptData = {
+            buffer,
+            contentType: receiptFile.type,
+            fileName: receiptFile.name
+        }
+    }
+
+    const response = await handleWarrantyClaim(values, receiptData);
     if (response.success && response.data) {
       setResult({...response.data, formData: values});
     } else {
@@ -657,19 +677,13 @@ export default function WarrantyForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="receipt"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Upload Receipt (Optional)</FormLabel>
-                      <FormControl>
-                        <Input type="file" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormItem className="md:col-span-2">
+                    <FormLabel>Upload Receipt (Optional)</FormLabel>
+                    <FormControl>
+                    <Input type="file" ref={fileInputRef} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
               </div>
             </fieldset>
 
@@ -709,5 +723,3 @@ export default function WarrantyForm() {
     </>
   );
 }
-
-    

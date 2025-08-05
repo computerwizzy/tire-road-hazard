@@ -6,7 +6,8 @@ import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/f
 import { searchPolicies, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm } from "@/data/db-actions";
-
+import { getStorage } from "firebase-admin/storage";
+import { getDb } from "@/lib/firebase-admin"; // Ensure db is initialized
 
 const WarrantyClaimSchema = z.object({
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -26,12 +27,30 @@ const WarrantyClaimSchema = z.object({
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
 
-export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>) {
+export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
     const policyNumber = `WP-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const warrantyStartDate = new Date();
     const warrantyEndDate = new Date();
-    warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3); // Updated to 3-year warranty to match prompt
+    warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3);
+
+    let receiptUrl = null;
+    if (receiptData) {
+        const bucket = getStorage().bucket();
+        const buffer = Buffer.from(receiptData.buffer, 'base64');
+        const file = bucket.file(`receipts/${policyNumber}-${receiptData.fileName}`);
+        
+        await file.save(buffer, {
+            metadata: {
+                contentType: receiptData.contentType,
+            }
+        });
+        
+        // Make the file public and get the URL
+        await file.makePublic();
+        receiptUrl = file.publicUrl();
+    }
+
 
     const input: GeneratePolicyDocumentInput = {
       ...values,
@@ -50,14 +69,14 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
 
     const result = await generatePolicyDocument(input);
 
-    // Add the new policy to our mock database
     await addPolicy({
         policyNumber,
         customerName: values.customerName,
         customerEmail: values.customerEmail,
         tireDot: values.tireDot,
         purchaseDate: values.purchaseDate.toISOString().split('T')[0],
-        warrantyEndDate: warrantyEndDate.toISOString().split('T')[0]
+        warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
+        receiptUrl: receiptUrl
     });
 
 

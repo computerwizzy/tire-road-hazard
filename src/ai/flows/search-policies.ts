@@ -26,6 +26,7 @@ const PolicySchema = z.object({
     tireDot: z.string(),
     purchaseDate: z.string(),
     warrantyEndDate: z.string(),
+    receiptUrl: z.string().url().nullable(),
 });
 export type Policy = z.infer<typeof PolicySchema>;
 
