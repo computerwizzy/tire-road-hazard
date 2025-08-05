@@ -5,14 +5,16 @@
  * @fileOverview A flow for searching warranty policies.
  *
  * - searchPolicies - A function that searches for policies based on a query.
+ * - addPolicy - A function to add a new policy to the database.
  * - SearchPoliciesInput - The input type for the searchPolicies function.
  * - SearchPoliciesOutput - The return type for the searchPolicies function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import fs from 'fs/promises';
-import path from 'path';
+import { db } from '@/lib/firebase';
+import { collection, doc, setDoc, getDocs, query, where, or } from 'firebase/firestore';
+
 
 const SearchPoliciesInputSchema = z.object({
   query: z.string().describe('The search query, which could be a policy number or a tire DOT number.'),
@@ -27,41 +29,18 @@ const PolicySchema = z.object({
     purchaseDate: z.string(),
     warrantyEndDate: z.string(),
 });
+export type Policy = z.infer<typeof PolicySchema>;
+
 
 const SearchPoliciesOutputSchema = z.object({
   results: z.array(PolicySchema).describe('A list of matching warranty policies.'),
 });
 export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
-const dbPath = path.resolve(process.cwd(), 'src/data/db.json');
 
-async function readPolicies(): Promise<z.infer<typeof PolicySchema>[]> {
-    try {
-        const data = await fs.readFile(dbPath, 'utf-8');
-        const db = JSON.parse(data);
-        return db.policies || [];
-    } catch (error) {
-        // If the file doesn't exist, return an empty array
-        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-            return [];
-        }
-        throw error;
-    }
-}
-
-async function writePolicies(policies: z.infer<typeof PolicySchema>[]): Promise<void> {
-    const db = { policies };
-    await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf-8');
-}
-
-
-export async function addPolicy(policy: z.infer<typeof PolicySchema>) {
-    const policies = await readPolicies();
-    // Prevent duplicates
-    if (!policies.some(p => p.policyNumber === policy.policyNumber)) {
-        policies.unshift(policy);
-        await writePolicies(policies);
-    }
+export async function addPolicy(policy: Policy) {
+    const policyRef = doc(db, "policies", policy.policyNumber);
+    await setDoc(policyRef, policy);
 }
 
 
@@ -77,12 +56,25 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
-        const policies = await readPolicies();
-        const query = input.query.toLowerCase();
-        const results = policies.filter(p => 
-            p.policyNumber.toLowerCase().includes(query) || 
-            p.tireDot.toLowerCase().includes(query)
+        const policiesCol = collection(db, "policies");
+        const lowerCaseQuery = input.query.toLowerCase();
+        
+        // Firestore doesn't support case-insensitive `in` or `array-contains` queries directly,
+        // and a full-text search solution like Algolia/Elasticsearch is out of scope.
+        // A common workaround is to store a lower-case version of the fields for searching.
+        // However, for simplicity here, we will fetch all and filter client-side.
+        // This is NOT performant for large datasets.
+        const policySnapshot = await getDocs(policiesCol);
+        const allPolicies: Policy[] = [];
+        policySnapshot.forEach(doc => {
+            allPolicies.push(PolicySchema.parse(doc.data()));
+        });
+
+        const results = allPolicies.filter(p => 
+            p.policyNumber.toLowerCase().includes(lowerCaseQuery) || 
+            p.tireDot.toLowerCase().includes(lowerCaseQuery)
         );
+
         return { results };
     }
 );
@@ -96,8 +88,6 @@ const searchPoliciesFlow = ai.defineFlow(
     tools: [findPoliciesTool]
   },
   async (input) => {
-    // Directly call the tool to get the results.
-    // The previous implementation with an LLM call was unnecessary and causing issues.
     return await findPoliciesTool(input);
   }
 );
