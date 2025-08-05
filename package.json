@@ -9,7 +9,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "netlify:deploy": "netlify deploy",
+    "netlify:deploy:prod": "netlify deploy --prod"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
