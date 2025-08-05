@@ -21,6 +21,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.tirerack.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'evsportline.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

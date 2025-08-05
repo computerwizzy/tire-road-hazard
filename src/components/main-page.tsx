@@ -19,8 +19,8 @@ export default function MainPage() {
         <header className="text-center mb-8">
           <div className="mb-4">
             <Image 
-                src="https://www.tirerack.com/content/dam/tirerack/desktop/Open_Graph_Images/RHP_FB.png"
-                alt="Tire Rack Road Hazard Program"
+                src="https://evsportline.com/cdn/shop/files/t-sportline-tire-protection-program-02_c23e898f-b885-43bd-8415-21380b9ed17c_4000x.progressive.jpg"
+                alt="Tire Protection Program"
                 width={1200}
                 height={630}
                 className="w-full max-w-md mx-auto rounded-lg shadow-md"
