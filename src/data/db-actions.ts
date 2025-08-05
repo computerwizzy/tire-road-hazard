@@ -181,3 +181,53 @@ export async function savePolicy(policy: Omit<Policy, 'id'>): Promise<void> {
          throw new Error('Failed to save policy.');
      }
 }
+
+// User Management Actions
+export type User = {
+    id: number;
+    email: string;
+    role: 'admin' | 'member';
+    created_at: string;
+}
+
+export async function getUsers(): Promise<User[]> {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*');
+
+    if (error) {
+        console.error('Error fetching users:', error);
+        throw new Error('Failed to fetch users.');
+    }
+    return data || [];
+}
+
+export async function addUser(email: string, role: 'admin' | 'member'): Promise<User> {
+    const { data, error } = await supabase
+        .from('users')
+        .insert([{ email, role }])
+        .select()
+        .single();
+    
+    if (error) {
+        console.error('Error adding user:', error);
+        // Handle specific errors like unique constraint violation
+        if (error.code === '23505') {
+            throw new Error('A user with this email already exists.');
+        }
+        throw new Error('Failed to add user.');
+    }
+    return data;
+}
+
+export async function deleteUser(id: number): Promise<void> {
+    const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting user:', error);
+        throw new Error('Failed to delete user.');
+    }
+}
