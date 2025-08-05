@@ -17,10 +17,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from './ui/button';
-import { Invoice } from "./invoice";
 
-// Re-defining the schema parts needed for the invoice for clarity
-// This could also be imported from a shared types file
+// This schema is not strictly needed anymore since the invoice is gone,
+// but it doesn't hurt to keep for typing the formData.
 const InvoiceFormDataSchema = z.object({
   customerName: z.string(),
   customerPhone: z.string(),
@@ -34,9 +33,6 @@ const InvoiceFormDataSchema = z.object({
   tireSize: z.string(),
   tireDot1: z.string(),
   purchaseDate: z.date(),
-  // Address fields are no longer a single string.
-  // We can leave them out here as they are not directly used by the Invoice component,
-  // but they are part of the `formData` object passed in.
 });
 
 export type PolicyData = {
@@ -81,8 +77,7 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
   
     return (
         <div className="space-y-8">
-            <Invoice data={result} />
-            <Card className="w-full shadow-lg print-hidden">
+            <Card className="w-full shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl flex items-center gap-2">
                         <FileText className="text-primary" />
@@ -93,11 +88,11 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg">
+                    <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg printable-area">
                         <ReactMarkdown>{result.policyDocument}</ReactMarkdown>
                     </div>
                 </CardContent>
-                <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
+                <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 print-hidden">
                     <div className="flex gap-4">
                         <Button onClick={onSendEmail} disabled={isSendingEmail}>
                             {isSendingEmail ? (
@@ -112,7 +107,7 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
                                 </>
                             )}
                         </Button>
-                        <Button variant="outline" onClick={() => window.print()}>Print Invoice & Policy</Button>
+                        <Button variant="outline" onClick={() => window.print()}>Print Policy</Button>
                     </div>
                     <Button variant="secondary" onClick={onReset}>Create New Warranty</Button>
                 </CardFooter>
