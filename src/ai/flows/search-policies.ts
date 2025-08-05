@@ -5,14 +5,11 @@
  * @fileOverview A flow for searching warranty policies.
  *
  * - searchPolicies - A function that searches for policies based on a query.
- * - addPolicy - A function to add a new policy to the database.
  * - SearchPoliciesInput - The input type for the searchPolicies function.
  * - SearchPoliciesOutput - The return type for the searchPolicies function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-import { getPolicies, savePolicy } from '@/data/db-actions';
+import { z } from 'genkit';
 import { supabase } from '@/lib/supabase';
 
 const SearchPoliciesInputSchema = z.object({
@@ -37,55 +34,16 @@ const SearchPoliciesOutputSchema = z.object({
 });
 export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
-
-export async function addPolicy(policy: Policy) {
-    await savePolicy(policy);
-}
-
-
 export async function searchPolicies(input: SearchPoliciesInput): Promise<SearchPoliciesOutput> {
-  return searchPoliciesFlow(input);
-}
-
-const findPoliciesTool = ai.defineTool(
-    {
-      name: 'findPoliciesTool',
-      description: 'Finds warranty policies based on a policy number or DOT number.',
-      inputSchema: SearchPoliciesInputSchema,
-      outputSchema: SearchPoliciesOutputSchema,
-    },
-    async (input) => {
-        const { data, error } = await supabase
-            .from('policies')
-            .select()
-            .or(`policyNumber.ilike.%${input.query}%,tireDot.ilike.%${input.query}%`);
-
-        if (error) {
-            console.error('Error searching policies in Supabase:', error);
-            throw new Error('Failed to search policies.');
-        }
-
-        return { results: data || [] };
-    }
-);
-
-
-const searchPoliciesFlow = ai.defineFlow(
-  {
-    name: 'searchPoliciesFlow',
-    inputSchema: SearchPoliciesInputSchema,
-    outputSchema: SearchPoliciesOutputSchema,
-  },
-  async (input) => {
     const { data, error } = await supabase
         .from('policies')
         .select()
         .or(`policyNumber.ilike.%${input.query}%,tireDot.ilike.%${input.query}%`);
 
     if (error) {
-        console.error('Error searching policies:', error);
-        return { results: [] };
+        console.error('Error searching policies in Supabase:', error);
+        throw new Error('Failed to search policies.');
     }
-    return { results: data };
-  }
-);
+
+    return { results: data || [] };
+}

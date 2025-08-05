@@ -3,9 +3,9 @@
 
 import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
-import { searchPolicies, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
+import { searchPolicies, type SearchPoliciesOutput } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm } from "@/data/db-actions";
+import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm, savePolicy } from "@/data/db-actions";
 import { supabase } from "@/lib/supabase";
 
 const WarrantyClaimSchema = z.object({
@@ -71,7 +71,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
 
     const result = await generatePolicyDocument(input);
 
-    await addPolicy({
+    await savePolicy({
         policyNumber,
         customerName: values.customerName,
         customerEmail: values.customerEmail,
