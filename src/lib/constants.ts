@@ -1,10 +1,19 @@
 
 export const TIRE_BRANDS = [
-  "Michelin",
-  "Goodyear",
+  "BFGoodrich",
   "Bridgestone",
-  "Pirelli",
   "Continental",
+  "Cooper",
+  "Falken",
+  "Goodyear",
+  "Hankook",
+  "Kenda",
+  "Michelin",
+  "Nitto",
+  "Pirelli",
+  "Rovelo",
+  "Toyo",
+  "Yokohama",
   "Other",
 ];
 
@@ -139,10 +148,10 @@ export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = 
         "Maverick": ["XL", "XLT", "Lariat"],
         "Ranger": ["XL", "XLT", "Lariat", "Raptor"],
         "F-150": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Tremor", "Raptor"],
-        "F-150 Lightning": ["Pro", "XLT", "Flash", "Lariat", "Platinum"],
         "F-250 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
         "F-350 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
         "F-450 Super Duty": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
+        "F-150 Lightning": ["Pro", "XLT", "Flash", "Lariat", "Platinum"],
         "Other": []
     },
     "GMC": {
