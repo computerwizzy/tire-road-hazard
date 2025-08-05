@@ -29,7 +29,7 @@ const WarrantyClaimSchema = z.object({
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
   tireSize: z.string().min(5, { message: "Tire size is required." }),
-  tireQuantity: z.coerce.number().min(1),
+  tireQuantity: z.coerce.number().min(1).max(4),
   pricePerTire: z.coerce.number().min(0),
   tireDot1: z.string().min(7).max(13),
   tireDot2: z.string().optional(),
@@ -283,3 +283,5 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 export { addUser, deleteUser, getUsers };
 export type { User } from "@/data/db-actions";
+
+    

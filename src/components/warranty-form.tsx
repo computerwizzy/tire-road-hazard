@@ -70,7 +70,7 @@ const FormSchema = z.object({
   tireSize: z.string().min(5, {
     message: "Please enter a valid tire size (e.g., 225/45R17).",
   }),
-  tireQuantity: z.coerce.number().min(1, { message: "Quantity must be at least 1."}),
+  tireQuantity: z.coerce.number().min(1, { message: "Quantity must be at least 1."}).max(4, { message: "You can add a maximum of 4 tires."}),
   pricePerTire: z.coerce.number().min(0, { message: "Price must be a positive number."}),
   tireDot1: z.string().min(7, { message: "Please enter a valid DOT number (7-13 characters)." }).max(13, { message: "Please enter a valid DOT number (7-13 characters)." }),
   tireDot2: z.string().optional(),
@@ -123,6 +123,8 @@ export default function WarrantyForm() {
       vehicleYear: new Date().getFullYear(),
     },
   });
+  
+  const tireQuantity = form.watch('tireQuantity');
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -400,9 +402,9 @@ export default function WarrantyForm() {
                   name="tireQuantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Quantity</FormLabel>
+                      <FormLabel>Quantity (Max 4)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 4" {...field} />
+                        <Input type="number" placeholder="e.g. 4" {...field} min={1} max={4} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -423,7 +425,7 @@ export default function WarrantyForm() {
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                 <FormField
+                 { tireQuantity > 0 && <FormField
                   control={form.control}
                   name="tireDot1"
                   render={({ field }) => (
@@ -435,46 +437,46 @@ export default function WarrantyForm() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-                 <FormField
+                />}
+                 { tireQuantity > 1 && <FormField
                   control={form.control}
                   name="tireDot2"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>DOT Number 2 (Optional)</FormLabel>
+                      <FormLabel>DOT Number 2</FormLabel>
                       <FormControl>
                         <Input placeholder="Optional" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-                 <FormField
+                />}
+                 { tireQuantity > 2 && <FormField
                   control={form.control}
                   name="tireDot3"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>DOT Number 3 (Optional)</FormLabel>
+                      <FormLabel>DOT Number 3</FormLabel>
                       <FormControl>
                         <Input placeholder="Optional" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-                 <FormField
+                />}
+                 { tireQuantity > 3 && <FormField
                   control={form.control}
                   name="tireDot4"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>DOT Number 4 (Optional)</FormLabel>
+                      <FormLabel>DOT Number 4</FormLabel>
                       <FormControl>
                         <Input placeholder="Optional" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                />}
               </div>
             </fieldset>
 
@@ -585,3 +587,5 @@ export default function WarrantyForm() {
     </>
   );
 }
+
+    
