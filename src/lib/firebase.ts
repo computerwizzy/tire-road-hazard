@@ -12,21 +12,8 @@ const firebaseConfig = {
   messagingSenderId: "709228917008",
 };
 
-let app: FirebaseApp;
-let db: Firestore;
+// Initialize Firebase
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-function initializeFirebase() {
-    if (getApps().length === 0) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApp();
-    }
-    db = getFirestore(app);
-}
-
-export function getDb(): Firestore {
-    if (!db) {
-        initializeFirebase();
-    }
-    return db;
-}
+export { db };

@@ -12,7 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getDb } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { collection, doc, setDoc, getDocs } from 'firebase/firestore';
 
 
@@ -39,10 +39,6 @@ export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
 
 export async function addPolicy(policy: Policy) {
-    const db = getDb();
-    if (!db) {
-      throw new Error("Firestore is not initialized");
-    }
     const policyRef = doc(db, "policies", policy.policyNumber);
     await setDoc(policyRef, policy);
 }
@@ -60,10 +56,6 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
-        const db = getDb();
-        if (!db) {
-            return { results: [] };
-        }
         const policiesCol = collection(db, "policies");
         const lowerCaseQuery = input.query.toLowerCase();
         
