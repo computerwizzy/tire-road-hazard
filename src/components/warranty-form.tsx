@@ -76,6 +76,9 @@ const FormSchema = z.object({
   vehicleMake: z.string().min(2, { message: "Vehicle make is required." }),
   vehicleModel: z.string().min(1, { message: "Vehicle model is required." }),
   vehicleSubmodel: z.string().optional(),
+  vehicleMileage: z.coerce
+    .number()
+    .min(0, { message: "Mileage must be a positive number." }),
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
   tireSize: z.string().min(5, {
@@ -128,6 +131,7 @@ export default function WarrantyForm() {
       vehicleMake: "",
       vehicleModel: "",
       vehicleSubmodel: "",
+      vehicleMileage: 0,
       tireBrand: "",
       tireModel: "",
       tireSize: "",
@@ -371,7 +375,7 @@ export default function WarrantyForm() {
                 <Car className="text-primary" />
                 Vehicle Information
               </legend>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
                   name="vehicleYear"
@@ -479,6 +483,19 @@ export default function WarrantyForm() {
                           <PlusCircle className="h-4 w-4" />
                       </Button>
                       </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="vehicleMileage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mileage</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g. 54000" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

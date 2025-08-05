@@ -68,7 +68,7 @@ export function Invoice({ data }: { data: any }) {
         </div>
         <div className="text-right">
             <h3 className="font-bold text-gray-500">Mileage In / Out</h3>
-            <p>265105 Mi. / 265105 Mi.</p>
+            <p>{formData.vehicleMileage} Mi. / {formData.vehicleMileage} Mi.</p>
         </div>
       </section>
 
