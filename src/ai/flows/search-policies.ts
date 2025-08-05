@@ -69,28 +69,8 @@ const searchPoliciesFlow = ai.defineFlow(
     tools: [findPoliciesTool]
   },
   async (input) => {
-    const llmResponse = await ai.generate({
-        prompt: `The user wants to find warranty policies matching the following query: "${input.query}". Use the available tools to find the policies.`,
-        tools: [findPoliciesTool],
-        model: 'googleai/gemini-2.0-flash'
-    });
-
-    const toolRequest = llmResponse.toolRequest();
-    if (toolRequest) {
-        const toolResponse = await toolRequest.run();
-        const llmResponseWithTool = await ai.generate({
-            prompt: `The user wants to find warranty policies matching the following query: "${input.query}". Use the available tools to find the policies.`,
-            history: [llmResponse.requestAsMessage, llmResponse.message, toolResponse],
-            tools: [findPoliciesTool],
-        });
-        const output = llmResponseWithTool.output();
-        if (output) {
-            return output;
-        }
-    }
-    
-    // Fallback if no tool is called or output is not generated
-    const fallbackResults = await findPoliciesTool(input);
-    return fallbackResults;
+    // Directly call the tool to get the results.
+    // The previous implementation with an LLM call was unnecessary and causing issues.
+    return await findPoliciesTool(input);
   }
 );
