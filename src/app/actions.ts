@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
-import { searchPolicies, type SearchPoliciesOutput } from "@/ai/flows/search-policies";
+import { searchPolicies, type SearchPoliciesOutput, type Policy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm, savePolicy } from "@/data/db-actions";
 import { supabase } from "@/lib/supabase";
@@ -181,5 +181,30 @@ export async function handleAddVehicleSubmodel(values: z.infer<typeof AddVehicle
     } catch (error) {
         console.error("Error adding vehicle submodel:", error);
         return { success: false, error: "Failed to add new submodel."};
+    }
+}
+
+
+export async function getAllPolicies(): Promise<{
+  success: boolean;
+  data?: Policy[];
+  error?: string;
+}> {
+    try {
+        const { data, error } = await supabase
+            .from('policies')
+            .select()
+            .order('purchaseDate', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching all policies from Supabase:', error);
+            throw new Error('Failed to fetch policies.');
+        }
+        
+        return { success: true, data: data || [] };
+
+    } catch (error) {
+        console.error("Error fetching all policies:", error);
+        return { success: false, error: "Failed to fetch policies. Please try again." };
     }
 }
