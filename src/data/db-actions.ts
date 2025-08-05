@@ -197,6 +197,12 @@ export async function getUsers(): Promise<User[]> {
 
     if (error) {
         console.error('Error fetching users:', error);
+        if (error.code === '42P01') {
+             throw new Error("The 'users' table does not exist. Please create it in your Supabase dashboard.");
+        }
+        if (error.code === '42501') {
+            throw new Error("Permission denied. Please check your Row Level Security (RLS) policies on the 'users' table in your Supabase dashboard.");
+        }
         throw new Error('Failed to fetch users.');
     }
     return data || [];
@@ -233,6 +239,9 @@ export async function deleteUser(id: number): Promise<void> {
 
     if (error) {
         console.error('Error deleting user:', error);
+        if (error.code === '42501') {
+            throw new Error("Permission denied. Please check your Row Level Security (RLS) policies on the 'users' table in your Supabase dashboard.");
+        }
         throw new Error('Failed to delete user.');
     }
 }

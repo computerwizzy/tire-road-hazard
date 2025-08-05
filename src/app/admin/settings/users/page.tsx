@@ -86,6 +86,11 @@ export default function UserManagementPage() {
       setUsers(fetchedUsers);
     } catch (e) {
       setError((e as Error).message);
+      toast({
+        variant: "destructive",
+        title: "Failed to load users",
+        description: (e as Error).message,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +130,7 @@ export default function UserManagementPage() {
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: 'Error deleting user',
         description: (e as Error).message,
       });
     }
@@ -157,7 +162,7 @@ export default function UserManagementPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             )}
-            {error && (
+            {error && !isLoading && (
               <div className="flex flex-col items-center justify-center h-40 text-destructive">
                 <AlertCircle className="h-8 w-8 mb-2" />
                 <p className="font-semibold">Error</p>
