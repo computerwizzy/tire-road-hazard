@@ -68,9 +68,9 @@ export async function getPolicies(): Promise<Policy[]> {
 }
 
 export async function savePolicy(policy: Policy): Promise<void> {
-   const { error } = await supabase.from('policies').upsert(policy);
-    if (error) {
-        console.error('Error saving policy to Supabase:', error);
-        throw new Error('Failed to save policy.');
-    }
-}
+    const { error } = await supabase.from('policies').insert(policy);
+     if (error) {
+         console.error('Error saving policy to Supabase:', error);
+         throw new Error('Failed to save policy.');
+     }
+ }
