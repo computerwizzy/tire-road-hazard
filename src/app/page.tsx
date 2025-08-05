@@ -2,10 +2,14 @@ import Link from 'next/link';
 import WarrantyForm from '@/components/warranty-form';
 import { Wrench, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
+       <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
       <div className="w-full max-w-4xl">
         <header className="text-center mb-8">
           <div className="inline-flex items-center justify-center bg-primary text-primary-foreground p-3 rounded-full mb-4">
