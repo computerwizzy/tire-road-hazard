@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,7 @@ import {
   Loader2,
   Calendar as CalendarIcon,
   Disc3,
+  PlusCircle,
 } from "lucide-react";
 
 import { handleWarrantyClaim, getInitialFormData, getModelsForMake, getSubmodelsForModel } from "@/app/actions";
@@ -41,6 +42,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
@@ -95,6 +105,7 @@ const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) 
     reader.onerror = error => reject(error);
 });
 
+type AddableField = 'vehicleMake' | 'vehicleModel' | 'vehicleSubmodel' | 'tireBrand' | 'tireSize';
 
 export default function WarrantyForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -108,6 +119,11 @@ export default function WarrantyForm() {
   const [availableSubmodels, setAvailableSubmodels] = useState<string[]>([]);
   const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(false);
   const [vehicleYears, setVehicleYears] = useState<(number | string)[]>([]);
+
+  // State for the "Add New" dialog
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [fieldToAdd, setFieldToAdd] = useState<AddableField | null>(null);
+  const [newItemValue, setNewItemValue] = useState('');
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -175,6 +191,50 @@ export default function WarrantyForm() {
     setAvailableSubmodels([]);
     fetchSubmodels();
   }, [selectedMake, selectedModel, form]);
+
+  function openAddDialog(field: AddableField) {
+    setFieldToAdd(field);
+    setNewItemValue('');
+    setIsAddDialogOpen(true);
+  }
+
+  function handleAddNewItem() {
+    if (!fieldToAdd || !newItemValue) return;
+
+    switch (fieldToAdd) {
+        case 'vehicleMake':
+            if (formData) {
+                const newMakes = [...formData.vehicleMakes, newItemValue];
+                setFormData({...formData, vehicleMakes: newMakes});
+                form.setValue('vehicleMake', newItemValue);
+            }
+            break;
+        case 'vehicleModel':
+            setAvailableModels(prev => [...prev, newItemValue]);
+            form.setValue('vehicleModel', newItemValue);
+            break;
+        case 'vehicleSubmodel':
+             setAvailableSubmodels(prev => [...prev, newItemValue]);
+             form.setValue('vehicleSubmodel', newItemValue);
+            break;
+        case 'tireBrand':
+             if (formData) {
+                const newBrands = [...formData.tireBrands, newItemValue];
+                setFormData({...formData, tireBrands: newBrands});
+                form.setValue('tireBrand', newItemValue);
+            }
+            break;
+        case 'tireSize':
+             if (formData) {
+                const newSizes = [...formData.commonTireSizes, newItemValue];
+                setFormData({...formData, commonTireSizes: newSizes});
+                form.setValue('tireSize', newItemValue);
+            }
+            break;
+    }
+    setIsAddDialogOpen(false);
+  }
+
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -341,6 +401,9 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                       <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('vehicleMake')}>
+                          <PlusCircle className="h-5 w-5" />
+                        </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -373,6 +436,9 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('vehicleModel')} disabled={!selectedMake}>
+                          <PlusCircle className="h-5 w-5" />
+                        </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -385,10 +451,10 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Submodel</FormLabel>
                       <div className="flex gap-2">
-                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedModel || availableSubmodels.length === 0 || isSubmodelsLoading}>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedModel || isSubmodelsLoading}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={isSubmodelsLoading ? "Loading..." : (!selectedModel ? "Select model first" : "Select a submodel")} />
+                            <SelectValue placeholder={isSubmodelsLoading ? "Loading..." : (!selectedModel ? "Select model first" : (availableSubmodels.length === 0 ? "No submodels" : "Select a submodel"))} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -405,6 +471,9 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
+                       <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('vehicleSubmodel')} disabled={!selectedModel}>
+                          <PlusCircle className="h-5 w-5" />
+                        </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -455,6 +524,9 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('tireBrand')}>
+                          <PlusCircle className="h-5 w-5" />
+                        </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -492,6 +564,9 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                       <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('tireSize')}>
+                          <PlusCircle className="h-5 w-5" />
+                        </Button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -617,6 +692,34 @@ export default function WarrantyForm() {
         </p>
       </CardFooter>
     </Card>
+
+    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New {fieldToAdd?.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</DialogTitle>
+            <DialogDescription>
+              Enter the new value to add to the list.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input 
+                value={newItemValue}
+                onChange={(e) => setNewItemValue(e.target.value)}
+                placeholder="Enter new value..."
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost">Cancel</Button>
+            </DialogClose>
+            <Button type="button" onClick={handleAddNewItem} disabled={!newItemValue}>
+              Add
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
+
+    
