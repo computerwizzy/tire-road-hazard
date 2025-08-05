@@ -187,6 +187,7 @@ export async function handleLogin(values: z.infer<typeof LoginSchema>) {
     return { success: false, error: error.message };
   }
   
+  revalidatePath('/', 'layout');
   return { success: true };
 }
 
