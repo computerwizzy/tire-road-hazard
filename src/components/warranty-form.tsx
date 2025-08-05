@@ -128,6 +128,7 @@ export default function WarrantyForm() {
   const selectedYear = form.watch("vehicleYear");
   const selectedMake = form.watch("vehicleMake");
   const selectedModel = form.watch("vehicleModel");
+  const selectedTireBrand = form.watch("tireBrand");
   const selectedTireSize = form.watch("tireSize");
 
   const [availableModels, setAvailableModels] = useState<string[]>([]);
@@ -147,10 +148,8 @@ export default function WarrantyForm() {
   useEffect(() => {
     if (selectedMake && VEHICLE_MODELS[selectedMake]) {
       const models = Object.keys(VEHICLE_MODELS[selectedMake]);
-      if (!models.includes("Other")) {
-        models.push("Other");
-      }
-      setAvailableModels(models);
+      const uniqueModels = Array.from(new Set(models.concat("Other")));
+      setAvailableModels(uniqueModels);
       if (selectedMake !== 'Other') {
         form.setValue('vehicleModel', ''); 
       }
@@ -167,7 +166,7 @@ export default function WarrantyForm() {
         if (!submodels.includes("Other")) {
             submodels.push("Other");
         }
-        setAvailableSubmodels(submodels);
+        setAvailableSubmodels(Array.from(new Set(submodels)));
         if (selectedModel !== 'Other') {
             form.setValue('vehicleSubmodel', '');
         }
@@ -359,11 +358,11 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
-                      {field.value === 'Other' && (
+                      {selectedYear === 'Other' && (
                           <FormControl>
                               <Input 
                                 type="number"
-                                placeholder="Enter year if not listed" 
+                                placeholder="Enter year" 
                                 onChange={(e) => field.onChange(parseInt(e.target.value))}
                                 className="mt-2" 
                               />
@@ -393,7 +392,7 @@ export default function WarrantyForm() {
                       </Select>
                       {selectedMake === 'Other' && (
                           <FormControl>
-                              <Input placeholder="Enter make if not listed" {...field} className="mt-2" />
+                              <Input placeholder="Enter make" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />
@@ -409,7 +408,7 @@ export default function WarrantyForm() {
                       <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedMake || selectedMake === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={!selectedMake || selectedMake === 'Other' ? "First select a make" : "Select a model"} />
+                            <SelectValue placeholder={!selectedMake || selectedMake === 'Other' ? "Enter make first" : "Select a model"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -418,13 +417,13 @@ export default function WarrantyForm() {
                               <SelectItem key={model} value={model}>{model}</SelectItem>
                             ))
                           ) : (
-                            <SelectItem value="none" disabled>First select a make</SelectItem>
+                            <SelectItem value="none" disabled>Select a make first</SelectItem>
                           )}
                         </SelectContent>
                       </Select>
                       {selectedModel === 'Other' && (
                           <FormControl>
-                            <Input placeholder="Enter model if not listed" {...field} className="mt-2" />
+                            <Input placeholder="Enter model" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />
@@ -440,7 +439,7 @@ export default function WarrantyForm() {
                       <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={availableSubmodels.length === 0 || selectedModel === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={!selectedModel || selectedModel === 'Other' ? "First select a model" : "Select a submodel"} />
+                            <SelectValue placeholder={!selectedModel || selectedModel === 'Other' ? "Enter model first" : "Select a submodel"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -449,13 +448,13 @@ export default function WarrantyForm() {
                               <SelectItem key={submodel} value={submodel}>{submodel}</SelectItem>
                             ))
                           ) : (
-                            <SelectItem value="none" disabled>First select a model</SelectItem>
+                            <SelectItem value="none" disabled>Select a model first</SelectItem>
                           )}
                         </SelectContent>
                       </Select>
                        {form.watch('vehicleSubmodel') === 'Other' && (
                           <FormControl>
-                            <Input placeholder="Enter submodel if not listed" {...field} className="mt-2" />
+                            <Input placeholder="Enter submodel" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />
@@ -493,9 +492,9 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
-                      {form.watch('tireBrand') === 'Other' && (
+                      {selectedTireBrand === 'Other' && (
                           <FormControl>
-                            <Input placeholder="Enter brand if not listed" {...field} className="mt-2" />
+                            <Input placeholder="Enter brand" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />
@@ -535,7 +534,7 @@ export default function WarrantyForm() {
                       </Select>
                       {selectedTireSize === 'Other' && (
                           <FormControl>
-                              <Input placeholder="Enter size if not listed" {...field} className="mt-2" />
+                              <Input placeholder="Enter size" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />
