@@ -10,7 +10,8 @@
  */
 
 import { z } from 'genkit';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 
 const SearchPoliciesInputSchema = z.object({
   query: z.string().describe('The search query, which could be a policy number or a tire DOT number.'),
@@ -35,6 +36,9 @@ const SearchPoliciesOutputSchema = z.object({
 export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
 export async function searchPolicies(input: SearchPoliciesInput): Promise<SearchPoliciesOutput> {
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
+
     const { data, error } = await supabase
         .from('policies')
         .select()

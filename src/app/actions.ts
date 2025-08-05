@@ -5,12 +5,11 @@ import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
 import { searchPolicies, type SearchPoliciesOutput, type Policy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { savePolicy, addUser, deleteUser, getUsers } from "@/data/db-actions";
-import { createClient } from "@/lib/supabase/server";
+import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb } from "@/data/db-actions";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { supabase } from "@/lib/supabase";
 
 
 const WarrantyClaimSchema = z.object({
@@ -45,6 +44,9 @@ const WarrantyClaimSchema = z.object({
 
 export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
+    const cookieStore = cookies();
+    const supabase = createServerClient(cookieStore);
+
     const policyNumber = `WP-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const warrantyStartDate = new Date();
     const warrantyEndDate = new Date();
@@ -94,7 +96,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       roadHazardPrice: values.roadHazardPrice,
       warrantyStartDate: warrantyStartDate.toISOString().split('T')[0],
-      warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
+      warrantyEndDate: warrantyEndDate.toISOString().split('T[0]'),
       termsAndConditions: "This Road Hazard Warranty covers only the tire. Damage to the wheel, TPMS sensors, or any other part of the vehicle is not covered. This warranty is non-transferable and is valid only for the original purchaser. The warranty is void if the tire is used for racing, off-road applications, or has been repaired by an unauthorized facility. A valid proof of purchase is required for all claims.",
       coverageDetails: [
         "Repair or replacement of tires damaged due to common road hazards like potholes, nails, glass, and other debris.",
@@ -175,34 +177,7 @@ export async function getAllPolicies(page: number = 1, limit: number = 10): Prom
   count?: number;
   error?: string;
 }> {
-    try {
-        const from = (page - 1) * limit;
-        const to = from + limit - 1;
-
-        const { data, error, count } = await supabase
-            .from('policies')
-            .select('*', { count: 'exact' })
-            .order('purchaseDate', { ascending: false })
-            .range(from, to);
-
-        if (error) {
-            console.error('Error fetching policies from Supabase:', error);
-            if (error.code === '42501') { // RLS error
-                 return { success: false, error: "Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard." };
-            }
-            throw error; // Re-throw other errors
-        }
-        
-        return { success: true, data: data || [], count: count || 0 };
-    } catch(e) {
-        const error = e as Error;
-        console.error('A critical error occurred while trying to load policies:', error.message);
-        let errorMessage = 'An unexpected error occurred. Please check the server console for more details.';
-         if (error.message.includes("relation \"policies\" does not exist")) {
-            errorMessage = "The 'policies' table does not exist. Please create it in your Supabase dashboard to continue.";
-        }
-        return { success: false, error: errorMessage, data: [], count: 0 };
-    }
+    return getAllPoliciesFromDb(page, limit);
 }
 
 
@@ -214,7 +189,7 @@ const LoginSchema = z.object({
 
 export async function handleLogin(values: z.infer<typeof LoginSchema>) {
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createServerClient(cookieStore);
 
   const { error } = await supabase.auth.signInWithPassword({
     email: values.email,
@@ -232,7 +207,7 @@ export async function handleLogin(values: z.infer<typeof LoginSchema>) {
 
 export async function handleLogout() {
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createServerClient(cookieStore);
   await supabase.auth.signOut();
   redirect('/login');
 }
@@ -245,51 +220,9 @@ export type DashboardStats = {
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-    const today = new Date().toISOString();
-
-    const { count: totalPolicies, error: totalError } = await supabase
-        .from('policies')
-        .select('*', { count: 'exact', head: true });
-
-    if (totalError) throw totalError;
-
-    const { count: activePolicies, error: activeError } = await supabase
-        .from('policies')
-        .select('*', { count: 'exact', head: true })
-        .gt('warrantyEndDate', today);
-    
-    if (activeError) throw activeError;
-
-    const { count: expiredPolicies, error: expiredError } = await supabase
-        .from('policies')
-        .select('*', { count: 'exact', head: true })
-        .lt('warrantyEndDate', today);
-
-    if (expiredError) throw expiredError;
-    
-    // Supabase doesn't have a direct distinct count, so we fetch the data and count in code.
-    // This is not ideal for very large datasets, but ok for thousands of records.
-    // For larger scale, a PostgREST function would be better.
-    const { data: customers, error: customerError } = await supabase
-        .from('policies')
-        .select('customerEmail');
-
-    if (customerError) throw customerError;
-
-    const totalCustomers = new Set(customers.map(c => c.customerEmail)).size;
-    
-    return {
-        totalPolicies: totalPolicies ?? 0,
-        activePolicies: activePolicies ?? 0,
-        expiredPolicies: expiredPolicies ?? 0,
-        totalCustomers: totalCustomers ?? 0,
-    }
+    return getDashboardStatsFromDb();
 }
 
 
 export { addUser, deleteUser, getUsers };
 export type { User } from "@/data/db-actions";
-
-    
-
-    
