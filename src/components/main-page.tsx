@@ -8,25 +8,26 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 const TireIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        width="24" 
-        height="24" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        {...props}
-    >
-        <path d="M19 12H5a2 2 0 0 0-2 2v4h18v-4a2 2 0 0 0-2-2Z" />
-        <path d="M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5" />
-        <path d="M2 18h20" />
-        <path d="M6 18C4.34 18 3 19.34 3 21" />
-        <path d="M18 18c1.66 0 3 1.34 3 3" />
-        <line x1="12" x2="12" y1="5" y2="12" />
-        <line x1="5" x2="19" y1="9" y2="9" />
+    <svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <g fill="currentColor">
+            {/* Car Body */}
+            <rect x="30" y="40" width="120" height="30" />
+            <rect x="40" y="30" width="60" height="10" />
+            <rect x="90" y="30" width="60" height="10" />
+
+            {/* Wheels (using a contrasting color from the theme) */}
+            <circle cx="60" cy="40" r="15" fill="hsl(var(--background))" />
+            <circle cx="140" cy="40" r="15" fill="hsl(var(--background))" />
+
+            {/* Tires */}
+            <ellipse cx="60" cy="40" rx="12" ry="8" />
+            <ellipse cx="140" cy="40" rx="12" ry="8" />
+
+            {/* Road Hazard Icon */}
+            <rect x="140" y="50" width="10" height="10" fill="hsl(var(--background))" />
+            <rect x="140" y="60" width="10" height="5" fill="hsl(var(--background))" />
+            <rect x="140" y="70" width="10" height="5" fill="hsl(var(--background))" />
+        </g>
     </svg>
 );
 
