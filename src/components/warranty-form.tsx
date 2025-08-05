@@ -1,25 +1,22 @@
 
 "use client";
 
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import ReactMarkdown from 'react-markdown';
 import {
   Car,
   User,
   Store,
-  FileText,
   Loader2,
   Calendar as CalendarIcon,
   Disc3,
-  Mail,
   PlusCircle,
 } from "lucide-react";
 
-import { handleWarrantyClaim, handleSendEmail, fetchFormData } from "@/app/actions";
+import { handleWarrantyClaim, fetchFormData } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -53,8 +50,7 @@ import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { AddItemDialog } from "./add-item-dialog";
 import type { DataForForm } from "@/data/db-actions";
-
-const Invoice = lazy(() => import("./invoice").then(module => ({ default: module.Invoice })));
+import { WarrantyResult } from "./warranty-result";
 
 
 const FormSchema = z.object({
@@ -95,7 +91,7 @@ const FormSchema = z.object({
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
 
-type PolicyData = {
+export type PolicyData = {
   policyDocument: string;
   customerName: string;
   customerEmail: string;
@@ -121,7 +117,6 @@ const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) 
 
 export default function WarrantyForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PolicyData | null>(null);
   const [formData, setFormData] = useState<DataForForm | null>(null);
@@ -222,29 +217,6 @@ export default function WarrantyForm() {
     setIsLoading(false);
   }
 
-  async function onSendEmail() {
-    if (!result) return;
-    setIsSendingEmail(true);
-    const response = await handleSendEmail({
-        customerName: result.customerName,
-        customerEmail: result.customerEmail,
-        policyDocument: result.policyDocument,
-    });
-    if (response.success) {
-        toast({
-            title: "Email Sent",
-            description: `The warranty policy has been sent to ${result.customerEmail}.`,
-        });
-    } else {
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: response.error || "Failed to send email.",
-        });
-    }
-    setIsSendingEmail(false);
-  }
-
   const openDialog = (listKey: DialogState['listKey'], listName: DialogState['listName'], context?: {make?: string, model?: string}) => {
     setDialogState({ open: true, listKey, listName, ...context });
   }
@@ -255,48 +227,7 @@ export default function WarrantyForm() {
   }
 
   if (result) {
-    return (
-      <div className="space-y-8">
-        <Suspense fallback={<div className="flex justify-center items-center h-96"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-            <Invoice data={result} />
-        </Suspense>
-        <Card className="w-full shadow-lg print-hidden">
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl flex items-center gap-2">
-              <FileText className="text-primary" />
-              Your Warranty Policy is Ready
-            </CardTitle>
-            <CardDescription>
-              Thank you for registering, {result.customerName}. You can email or print the policy document.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg">
-                <ReactMarkdown>{result.policyDocument}</ReactMarkdown>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-              <div className="flex gap-4">
-                  <Button onClick={onSendEmail} disabled={isSendingEmail}>
-                      {isSendingEmail ? (
-                          <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Sending...
-                          </>
-                      ) : (
-                          <>
-                              <Mail className="mr-2 h-4 w-4" />
-                              Email to Customer
-                          </>
-                      )}
-                  </Button>
-                  <Button variant="outline" onClick={() => window.print()}>Print Invoice & Policy</Button>
-              </div>
-            <Button variant="secondary" onClick={resetForm}>Create New Warranty</Button>
-          </CardFooter>
-        </Card>
-      </div>
-    );
+    return <WarrantyResult result={result} onReset={resetForm} />;
   }
   
   if (!formData) {
@@ -726,3 +657,5 @@ export default function WarrantyForm() {
     </>
   );
 }
+
+    
