@@ -73,6 +73,7 @@ const FormSchema = z.object({
     }),
   vehicleMake: z.string().min(2, { message: "Vehicle make is required." }),
   vehicleModel: z.string().min(1, { message: "Vehicle model is required." }),
+  vehicleSubmodel: z.string().optional(),
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
   tireSize: z.string().min(5, {
@@ -113,6 +114,7 @@ export default function WarrantyForm() {
       customerAddress: "",
       vehicleMake: "",
       vehicleModel: "",
+      vehicleSubmodel: "",
       tireBrand: "",
       tireModel: "",
       tireSize: "",
@@ -123,7 +125,9 @@ export default function WarrantyForm() {
   });
 
   const selectedMake = form.watch("vehicleMake");
+  const selectedModel = form.watch("vehicleModel");
   const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [availableSubmodels, setAvailableSubmodels] = useState<string[]>([]);
   const [vehicleYears, setVehicleYears] = useState<number[]>([]);
 
   useEffect(() => {
@@ -137,12 +141,23 @@ export default function WarrantyForm() {
 
   useEffect(() => {
     if (selectedMake && VEHICLE_MODELS[selectedMake]) {
-      setAvailableModels(VEHICLE_MODELS[selectedMake]);
-      form.setValue('vehicleModel', ''); // Reset model when make changes
+      setAvailableModels(Object.keys(VEHICLE_MODELS[selectedMake]));
+      form.setValue('vehicleModel', ''); 
+      form.setValue('vehicleSubmodel', '');
     } else {
       setAvailableModels([]);
     }
+    setAvailableSubmodels([]);
   }, [selectedMake, form]);
+  
+  useEffect(() => {
+    if (selectedMake && selectedModel && VEHICLE_MODELS[selectedMake]?.[selectedModel]) {
+        setAvailableSubmodels(VEHICLE_MODELS[selectedMake][selectedModel]);
+        form.setValue('vehicleSubmodel', '');
+    } else {
+        setAvailableSubmodels([]);
+    }
+  }, [selectedMake, selectedModel, form]);
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -308,7 +323,7 @@ export default function WarrantyForm() {
                 <Car className="text-primary" />
                 Vehicle Information
               </legend>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <FormField
                   control={form.control}
                   name="vehicleYear"
@@ -372,6 +387,32 @@ export default function WarrantyForm() {
                             ))
                           ) : (
                             <SelectItem value="none" disabled>First select a make</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="vehicleSubmodel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Submodel</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={availableSubmodels.length === 0}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a submodel" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {availableSubmodels.length > 0 ? (
+                            availableSubmodels.map((submodel) => (
+                              <SelectItem key={submodel} value={submodel}>{submodel}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>First select a model</SelectItem>
                           )}
                         </SelectContent>
                       </Select>

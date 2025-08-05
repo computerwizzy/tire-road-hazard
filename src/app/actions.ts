@@ -13,6 +13,7 @@ const WarrantyClaimSchema = z.object({
   vehicleYear: z.coerce.number().min(1900).max(new Date().getFullYear() + 1),
   vehicleMake: z.string().min(2, { message: "Vehicle make is required." }),
   vehicleModel: z.string().min(1, { message: "Vehicle model is required." }),
+  vehicleSubmodel: z.string().optional(),
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
   tireSize: z.string().min(5, { message: "Tire size is required." }),

@@ -20,6 +20,7 @@ const GeneratePolicyDocumentInputSchema = z.object({
   vehicleYear: z.number().describe('The year the vehicle was manufactured.'),
   vehicleMake: z.string().describe('The make of the vehicle.'),
   vehicleModel: z.string().describe('The model of the vehicle.'),
+  vehicleSubmodel: z.string().optional().describe('The submodel of the vehicle.'),
   tireBrand: z.string().describe('The brand of the tire.'),
   tireModel: z.string().describe('The model of the tire.'),
   tireSize: z.string().describe('The size of the tire.'),
@@ -61,7 +62,7 @@ const prompt = ai.definePrompt({
 | **Name:** | | **Phone:** | |
 | {{customerName}} | | {{customerPhone}} | |
 | **Vehicle:** | | **Mileage:** | |
-| {{vehicleYear}} {{vehicleMake}} {{vehicleModel}} | | 265105 | |
+| {{vehicleYear}} {{vehicleMake}} {{vehicleModel}} {{#if vehicleSubmodel}}{{vehicleSubmodel}}{{/if}} | | 265105 | |
 
 
 This Road Hazard Plan ("Plan") is afforded to You with the purchase of Your tires provided by ABS Risk, LLC (also referred to herein as "Obligor", "We", "Us", and "Our"), Administrative Office: 10170 Church Ranch Way, Suite 320, Westminster, CO 80021, (888) 268-4888, and administered by Automotive Business Solutions ("Program Administrator") P.O. Box 33535, Denver, CO 80233. This Plan covers only the eligible tires You purchased and installed on the vehicle identified on the original purchase receipt. This Plan only applies to passenger and light truck tires, which become unserviceable because of a road hazard. A road hazard occurs when a tire fails due to a puncture, bruise or break incurred during the course of normal driving on a maintained road. Nails, glass, and potholes would be the most common examples of road hazard damage.

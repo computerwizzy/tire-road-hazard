@@ -39,36 +39,55 @@ export const VEHICLE_MAKES = [
     "Other"
 ];
 
-export const VEHICLE_MODELS: { [key: string]: string[] } = {
-    "Acura": ["ILX", "TLX", "RLX", "MDX", "RDX"],
-    "Audi": ["A3", "A4", "A6", "A8", "Q3", "Q5", "Q7"],
-    "BMW": ["3 Series", "5 Series", "7 Series", "X1", "X3", "X5"],
-    "Buick": ["Encore", "Envision", "Enclave"],
-    "Cadillac": ["CT4", "CT5", "XT4", "XT5", "XT6", "Escalade"],
-    "Chevrolet": ["Spark", "Malibu", "Impala", "Equinox", "Traverse", "Tahoe", "Silverado"],
-    "Chrysler": ["300", "Pacifica"],
-    "Dodge": ["Charger", "Challenger", "Durango"],
-    "Ford": ["Fiesta", "Focus", "Fusion", "Mustang", "Escape", "Explorer", "F-150"],
-    "GMC": ["Terrain", "Acadia", "Yukon", "Sierra"],
-    "Honda": ["Fit", "Civic", "Accord", "HR-V", "CR-V", "Pilot", "Odyssey"],
-    "Hyundai": ["Accent", "Elantra", "Sonata", "Kona", "Tucson", "Santa Fe"],
-    "Infiniti": ["Q50", "Q60", "QX50", "QX60", "QX80"],
-    "Jaguar": ["XE", "XF", "F-PACE", "E-PACE"],
-    "Jeep": ["Renegade", "Compass", "Cherokee", "Grand Cherokee", "Wrangler"],
-    "Kia": ["Rio", "Forte", "Optima", "Seltos", "Sportage", "Sorento", "Telluride"],
-    "Land Rover": ["Discovery Sport", "Range Rover Evoque", "Range Rover Velar", "Range Rover"],
-    "Lexus": ["IS", "ES", "GS", "NX", "RX", "GX", "LX"],
-    "Lincoln": ["Corsair", "Nautilus", "Aviator", "Navigator"],
-    "Mazda": ["Mazda3", "Mazda6", "CX-3", "CX-5", "CX-9"],
-    "Mercedes-Benz": ["A-Class", "C-Class", "E-Class", "S-Class", "GLA", "GLC", "GLE"],
-    "Nissan": ["Versa", "Sentra", "Altima", "Maxima", "Kicks", "Rogue", "Murano", "Pathfinder", "Titan"],
-    "Ram": ["1500", "2500", "3500"],
-    "Subaru": ["Impreza", "Legacy", "Crosstrek", "Forester", "Outback", "Ascent"],
-    "Tesla": ["Model 3", "Model S", "Model X", "Model Y"],
-    "Toyota": ["Yaris", "Corolla", "Camry", "Avalon", "RAV4", "Highlander", "4Runner", "Tacoma", "Tundra"],
-    "Volkswagen": ["Jetta", "Passat", "Tiguan", "Atlas"],
-    "Volvo": ["S60", "S90", "XC40", "XC60", "XC90"],
-    "Other": ["Other"]
+export const VEHICLE_MODELS: { [key: string]: { [model: string]: string[] } } = {
+    "Acura": {
+        "ILX": ["Base", "Premium", "A-Spec"],
+        "TLX": ["Base", "Technology", "A-Spec", "Advance"],
+        "RLX": ["Base", "Sport Hybrid"],
+        "MDX": ["Base", "Technology", "A-Spec", "Advance"],
+        "RDX": ["Base", "Technology", "A-Spec", "Advance"]
+    },
+    "Audi": {
+        "A3": ["Premium", "Premium Plus", "Prestige"],
+        "A4": ["Premium", "Premium Plus", "Prestige"],
+        "A6": ["Premium", "Premium Plus", "Prestige"],
+        "A8": ["L"],
+        "Q3": ["Premium", "Premium Plus"],
+        "Q5": ["Premium", "Premium Plus", "Prestige"],
+        "Q7": ["Premium", "Premium Plus", "Prestige"]
+    },
+    "BMW": {
+        "3 Series": ["330i", "340i", "M340i"],
+        "5 Series": ["530i", "540i", "M550i"],
+        "7 Series": ["740i", "750i"],
+        "X1": ["sDrive28i", "xDrive28i"],
+        "X3": ["sDrive30i", "xDrive30i", "M40i"],
+        "X5": ["sDrive40i", "xDrive40i", "M50i"]
+    },
+    "Chevrolet": {
+        "Silverado": ["WT", "LT", "RST", "LTZ", "High Country"],
+        "Equinox": ["L", "LS", "LT", "Premier"],
+        "Malibu": ["L", "LS", "RS", "LT", "Premier"],
+    },
+    "Ford": {
+        "F-150": ["XL", "XLT", "Lariat", "King Ranch", "Platinum", "Limited"],
+        "Explorer": ["Base", "XLT", "Limited", "ST", "Platinum"],
+        "Escape": ["S", "SE", "SEL", "Titanium"]
+    },
+    "Honda": {
+        "Civic": ["LX", "Sport", "EX", "Touring", "Si"],
+        "Accord": ["LX", "Sport", "EX-L", "Touring"],
+        "CR-V": ["LX", "EX", "EX-L", "Touring"]
+    },
+    "Toyota": {
+        "Camry": ["L", "LE", "SE", "XLE", "XSE", "TRD"],
+        "Corolla": ["L", "LE", "SE", "XLE", "XSE"],
+        "RAV4": ["LE", "XLE", "XLE Premium", "Adventure", "Limited", "TRD Off-Road"],
+        "Tacoma": ["SR", "SR5", "TRD Sport", "TRD Off-Road", "Limited", "TRD Pro"]
+    },
+    "Other": {
+        "Other": []
+    }
 };
 
 export const COMMON_TIRE_SIZES = [
