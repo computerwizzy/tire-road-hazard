@@ -1,9 +1,6 @@
 
 import * as admin from 'firebase-admin';
 
-// This is a robust way to initialize Firebase Admin SDK in a serverless environment.
-// It checks if an app is already initialized to prevent errors.
-
 let db: admin.firestore.Firestore;
 
 function getDb() {
