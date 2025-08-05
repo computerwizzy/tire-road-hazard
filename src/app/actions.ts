@@ -6,8 +6,6 @@ import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/f
 import { searchPolicies, type SearchPoliciesOutput, addPolicy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { getDataForForm, addDropdownOption, addVehicleModel, addVehicleSubmodel, type DataForForm } from "@/data/db-actions";
-import { getStorage } from "firebase-admin/storage";
-import { getDb } from "@/lib/firebase-admin"; // Ensure db is initialized
 
 const WarrantyClaimSchema = z.object({
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -34,23 +32,8 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const warrantyEndDate = new Date();
     warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3);
 
-    let receiptUrl = null;
-    if (receiptData) {
-        const bucket = getStorage().bucket();
-        const buffer = Buffer.from(receiptData.buffer, 'base64');
-        const file = bucket.file(`receipts/${policyNumber}-${receiptData.fileName}`);
-        
-        await file.save(buffer, {
-            metadata: {
-                contentType: receiptData.contentType,
-            }
-        });
-        
-        // Make the file public and get the URL
-        await file.makePublic();
-        receiptUrl = file.publicUrl();
-    }
-
+    // Placeholder for receipt URL as we are not using a real file storage
+    const receiptUrl = null;
 
     const input: GeneratePolicyDocumentInput = {
       ...values,
