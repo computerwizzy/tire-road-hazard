@@ -13,10 +13,9 @@ import {
   Loader2,
   Calendar as CalendarIcon,
   Disc3,
-  PlusCircle,
 } from "lucide-react";
 
-import { handleWarrantyClaim, fetchFormData } from "@/app/actions";
+import { handleWarrantyClaim, getInitialFormData, getModelsForMake, getSubmodelsForModel } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -104,6 +103,12 @@ export default function WarrantyForm() {
   const [formData, setFormData] = useState<DataForForm | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [isModelsLoading, setIsModelsLoading] = useState(false);
+  const [availableSubmodels, setAvailableSubmodels] = useState<string[]>([]);
+  const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(false);
+  const [vehicleYears, setVehicleYears] = useState<(number | string)[]>([]);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -124,53 +129,52 @@ export default function WarrantyForm() {
     },
   });
 
-  const loadFormData = async () => {
-    const data = await fetchFormData();
-    setFormData(data);
-  }
-
   useEffect(() => {
-    loadFormData();
-  }, []);
-
-  const selectedMake = form.watch("vehicleMake");
-  const selectedModel = form.watch("vehicleModel");
-
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
-  const [availableSubmodels, setAvailableSubmodels] = useState<string[]>([]);
-  const [vehicleYears, setVehicleYears] = useState<(number | string)[]>([]);
-
-  useEffect(() => {
+    const loadInitialData = async () => {
+        const data = await getInitialFormData();
+        setFormData(data);
+    }
     const currentYear = new Date().getFullYear();
     const years: (number | string)[] = [];
     for (let year = currentYear; year >= 1995; year--) {
       years.push(year);
     }
     setVehicleYears(years);
+    loadInitialData();
   }, []);
 
+  const selectedMake = form.watch("vehicleMake");
+  const selectedModel = form.watch("vehicleModel");
+
   useEffect(() => {
-    if (selectedMake && formData?.vehicleModels[selectedMake]) {
-      const models = Object.keys(formData.vehicleModels[selectedMake]);
-      const uniqueModels = Array.from(new Set(models));
-      setAvailableModels(uniqueModels);
-      form.setValue('vehicleModel', ''); 
-      form.setValue('vehicleSubmodel', '');
-    } else {
-      setAvailableModels([]);
+    async function fetchModels() {
+        if (selectedMake) {
+            setIsModelsLoading(true);
+            const models = await getModelsForMake(selectedMake);
+            setAvailableModels(models);
+            setIsModelsLoading(false);
+        }
     }
+    form.setValue('vehicleModel', ''); 
+    form.setValue('vehicleSubmodel', '');
+    setAvailableModels([]);
     setAvailableSubmodels([]);
-  }, [selectedMake, form, formData]);
+    fetchModels();
+  }, [selectedMake, form]);
   
   useEffect(() => {
-    if (selectedMake && selectedModel && formData?.vehicleModels[selectedMake]?.[selectedModel]) {
-        const submodels = formData.vehicleModels[selectedMake][selectedModel];
-        setAvailableSubmodels(Array.from(new Set(submodels)));
-        form.setValue('vehicleSubmodel', '');
-    } else {
-        setAvailableSubmodels([]);
+    async function fetchSubmodels() {
+        if (selectedMake && selectedModel) {
+            setIsSubmodelsLoading(true);
+            const submodels = await getSubmodelsForModel(selectedMake, selectedModel);
+            setAvailableSubmodels(submodels);
+            setIsSubmodelsLoading(false);
+        }
     }
-  }, [selectedMake, selectedModel, form, formData]);
+    form.setValue('vehicleSubmodel', '');
+    setAvailableSubmodels([]);
+    fetchSubmodels();
+  }, [selectedMake, selectedModel, form]);
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -349,14 +353,18 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Model</FormLabel>
                       <div className="flex gap-2">
-                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedMake}>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedMake || isModelsLoading}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={!selectedMake ? "Select make first" : "Select a model"} />
+                            <SelectValue placeholder={isModelsLoading ? "Loading..." : (!selectedMake ? "Select make first" : "Select a model")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {availableModels.length > 0 ? (
+                          {isModelsLoading ? (
+                            <div className="flex items-center justify-center p-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : availableModels.length > 0 ? (
                             availableModels.map((model) => (
                               <SelectItem key={model} value={model}>{model}</SelectItem>
                             ))
@@ -377,19 +385,23 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Submodel</FormLabel>
                       <div className="flex gap-2">
-                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedModel || availableSubmodels.length === 0}>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedModel || availableSubmodels.length === 0 || isSubmodelsLoading}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={!selectedModel ? "Select model first" : "Select a submodel"} />
+                            <SelectValue placeholder={isSubmodelsLoading ? "Loading..." : (!selectedModel ? "Select model first" : "Select a submodel")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {availableSubmodels.length > 0 ? (
+                           {isSubmodelsLoading ? (
+                             <div className="flex items-center justify-center p-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                           ) : availableSubmodels.length > 0 ? (
                             availableSubmodels.map((submodel) => (
                               <SelectItem key={submodel} value={submodel}>{submodel}</SelectItem>
                             ))
                           ) : (
-                            <SelectItem value="none" disabled>Select a model first</SelectItem>
+                            <SelectItem value="none" disabled>No submodels available</SelectItem>
                           )}
                         </SelectContent>
                       </Select>
