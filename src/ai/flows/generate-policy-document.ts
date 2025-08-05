@@ -13,7 +13,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GeneratePolicyDocumentInputSchema = z.object({
-  policyNumber: z.string().describe('The policy number for the warranty.'),
+  invoiceNumber: z.string().describe('The invoice number for the warranty.'),
   customerName: z.string().describe('The name of the customer.'),
   customerPhone: z.string().describe('The phone number of the customer.'),
   customerEmail: z.string().describe('The email address of the customer.'),
@@ -60,7 +60,7 @@ const prompt = ai.definePrompt({
 
 | | | | |
 | :--- | :--- | :--- | :--- |
-| **Invoice:** {{policyNumber}} | **Covered Tires** | **Plan ID:** TMX1392090 | **Road Hazard** S_______ |
+| **Invoice:** {{invoiceNumber}} | **Covered Tires** | **Plan ID:** TMX1392090 | **Road Hazard** S_______ |
 | **Issuing Dealer:** | {{tireBrand}} {{tireModel}} | **Date:** {{purchaseDate}} | **Purchase Price** |
 | {{dealerName}} | **Comfort Size:** {{tireSize}} | **Name:** {{customerName}} | \${{roadHazardPrice}} |
 | 3031 Pelham PKWY | | **Phone:** {{customerPhone}} | |
@@ -103,5 +103,3 @@ const generatePolicyDocumentFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    

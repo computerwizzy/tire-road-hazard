@@ -13,6 +13,7 @@ import { cookies } from "next/headers";
 
 
 const WarrantyClaimSchema = z.object({
+  invoiceNumber: z.string().min(1, { message: "Invoice number is required." }),
   customerName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   customerEmail: z.string().email({ message: "Invalid email address." }),
   customerPhone: z.string().min(10, { message: "Phone number is required." }),
@@ -47,7 +48,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const cookieStore = cookies();
     const supabase = createServerClient(cookieStore);
 
-    const policyNumber = `WP-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const policyNumber = values.invoiceNumber;
     const warrantyStartDate = new Date();
     const warrantyEndDate = new Date();
     warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3);
@@ -77,7 +78,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
 
 
     const input: GeneratePolicyDocumentInput = {
-      policyNumber,
+      invoiceNumber: policyNumber,
       customerName: values.customerName,
       customerPhone: values.customerPhone,
       customerEmail: values.customerEmail,

@@ -44,6 +44,7 @@ import { Checkbox } from "./ui/checkbox";
 
 
 const FormSchema = z.object({
+  invoiceNumber: z.string().min(1, { message: "Invoice number is required." }),
   customerName: z
     .string()
     .min(2, { message: "Name must be at least 2 characters." }),
@@ -105,6 +106,7 @@ export default function WarrantyForm() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
+      invoiceNumber: "",
       customerName: "",
       customerEmail: "",
       customerPhone: "",
@@ -558,6 +560,19 @@ export default function WarrantyForm() {
                     </FormItem>
                   )}
                 />
+                 <FormField
+                  control={form.control}
+                  name="invoiceNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Invoice Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. INV-12345" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="purchaseDate"
@@ -658,7 +673,3 @@ export default function WarrantyForm() {
     </>
   );
 }
-
-    
-
-    
