@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -67,7 +68,7 @@ const FormSchema = z.object({
     .min(10, { message: "A complete address is required." }),
   vehicleYear: z.coerce
     .number()
-    .min(1995, { message: "Vehicle year must be 1995 or newer." })
+    .min(1900, { message: "Vehicle year must be 1900 or newer." })
     .max(new Date().getFullYear() + 1, {
       message: "Vehicle year cannot be in the future.",
     }),
@@ -124,26 +125,28 @@ export default function WarrantyForm() {
     },
   });
 
+  const selectedYear = form.watch("vehicleYear");
   const selectedMake = form.watch("vehicleMake");
   const selectedModel = form.watch("vehicleModel");
   const selectedTireSize = form.watch("tireSize");
 
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [availableSubmodels, setAvailableSubmodels] = useState<string[]>([]);
-  const [vehicleYears, setVehicleYears] = useState<number[]>([]);
+  const [vehicleYears, setVehicleYears] = useState<(number | string)[]>([]);
 
   useEffect(() => {
     const currentYear = new Date().getFullYear();
-    const years = [];
+    const years: (number | string)[] = [];
     for (let year = currentYear; year >= 1995; year--) {
       years.push(year);
     }
+    years.push("Other");
     setVehicleYears(years);
   }, []);
 
   useEffect(() => {
     if (selectedMake && VEHICLE_MODELS[selectedMake]) {
-      setAvailableModels(Object.keys(VEHICLE_MODELS[selectedMake]));
+      setAvailableModels([...Object.keys(VEHICLE_MODELS[selectedMake]), "Other"]);
       if (selectedMake !== 'Other') {
         form.setValue('vehicleModel', ''); 
       }
@@ -156,7 +159,7 @@ export default function WarrantyForm() {
   
   useEffect(() => {
     if (selectedMake && selectedModel && VEHICLE_MODELS[selectedMake]?.[selectedModel]) {
-        setAvailableSubmodels(VEHICLE_MODELS[selectedMake][selectedModel]);
+        setAvailableSubmodels([...VEHICLE_MODELS[selectedMake][selectedModel], "Other"]);
         if (selectedModel !== 'Other') {
             form.setValue('vehicleSubmodel', '');
         }
@@ -336,7 +339,7 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Year</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
+                      <Select onValueChange={(value) => field.onChange(value === "Other" ? "Other" : parseInt(value))} defaultValue={String(field.value)}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a year" />
@@ -348,6 +351,16 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {field.value === 'Other' && (
+                          <FormControl>
+                              <Input 
+                                type="number"
+                                placeholder="Enter year if not listed" 
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                className="mt-2" 
+                              />
+                          </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -372,7 +385,7 @@ export default function WarrantyForm() {
                       </Select>
                       {selectedMake === 'Other' && (
                           <FormControl>
-                              <Input placeholder="Enter vehicle make" {...field} className="mt-2" />
+                              <Input placeholder="Enter make if not listed" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />
@@ -388,7 +401,7 @@ export default function WarrantyForm() {
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMake || selectedMake === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a model" />
+                            <SelectValue placeholder={!selectedMake || selectedMake === 'Other' ? "First select a make" : "Select a model"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -403,7 +416,7 @@ export default function WarrantyForm() {
                       </Select>
                       {selectedModel === 'Other' && (
                           <FormControl>
-                            <Input placeholder="Enter vehicle model" {...field} className="mt-2" />
+                            <Input placeholder="Enter model if not listed" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />
@@ -416,10 +429,10 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Submodel</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={availableSubmodels.length === 0 || selectedModel === 'Other'}>
+                      <Select onValueChange={field.onChange} value={field.value || ''} disabled={availableSubmodels.length === 0 || selectedModel === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a submodel" />
+                            <SelectValue placeholder={!selectedModel || selectedModel === 'Other' ? "First select a model" : "Select a submodel"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -432,6 +445,11 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
+                       {form.watch('vehicleSubmodel') === 'Other' && (
+                          <FormControl>
+                            <Input placeholder="Enter submodel if not listed" {...field} className="mt-2" />
+                          </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -467,6 +485,11 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {form.watch('tireBrand') === 'Other' && (
+                          <FormControl>
+                            <Input placeholder="Enter brand if not listed" {...field} className="mt-2" />
+                          </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -504,7 +527,7 @@ export default function WarrantyForm() {
                       </Select>
                       {selectedTireSize === 'Other' && (
                           <FormControl>
-                              <Input placeholder="Enter tire size" {...field} className="mt-2" />
+                              <Input placeholder="Enter size if not listed" {...field} className="mt-2" />
                           </FormControl>
                       )}
                       <FormMessage />

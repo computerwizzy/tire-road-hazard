@@ -1,3 +1,4 @@
+
 "use server";
 
 import { z } from "zod";
@@ -27,7 +28,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const policyNumber = `WP-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const warrantyStartDate = new Date();
     const warrantyEndDate = new Date();
-    warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 2); // Assume 2-year warranty
+    warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3); // Updated to 3-year warranty to match prompt
 
     const input: GeneratePolicyDocumentInput = {
       ...values,
@@ -38,7 +39,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       termsAndConditions: "This Road Hazard Warranty covers only the tire. Damage to the wheel, TPMS sensors, or any other part of the vehicle is not covered. This warranty is non-transferable and is valid only for the original purchaser. The warranty is void if the tire is used for racing, off-road applications, or has been repaired by an unauthorized facility. A valid proof of purchase is required for all claims.",
       coverageDetails: [
         "Repair or replacement of tires damaged due to common road hazards like potholes, nails, glass, and other debris.",
-        "Coverage is valid for 24 months from the date of purchase or until the tire tread depth reaches 2/32\", whichever comes first.",
+        "Coverage is valid for 36 months from the date of purchase or until the tire tread depth reaches 2/32\", whichever comes first.",
         "Labor for mounting and balancing is included for the first 12 months.",
         "Tire replacement is based on a pro-rated basis determined by remaining tread depth."
       ],
