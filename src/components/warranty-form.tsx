@@ -126,6 +126,8 @@ export default function WarrantyForm() {
 
   const selectedMake = form.watch("vehicleMake");
   const selectedModel = form.watch("vehicleModel");
+  const selectedTireSize = form.watch("tireSize");
+
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [availableSubmodels, setAvailableSubmodels] = useState<string[]>([]);
   const [vehicleYears, setVehicleYears] = useState<number[]>([]);
@@ -142,7 +144,9 @@ export default function WarrantyForm() {
   useEffect(() => {
     if (selectedMake && VEHICLE_MODELS[selectedMake]) {
       setAvailableModels(Object.keys(VEHICLE_MODELS[selectedMake]));
-      form.setValue('vehicleModel', ''); 
+      if (selectedMake !== 'Other') {
+        form.setValue('vehicleModel', ''); 
+      }
       form.setValue('vehicleSubmodel', '');
     } else {
       setAvailableModels([]);
@@ -153,7 +157,9 @@ export default function WarrantyForm() {
   useEffect(() => {
     if (selectedMake && selectedModel && VEHICLE_MODELS[selectedMake]?.[selectedModel]) {
         setAvailableSubmodels(VEHICLE_MODELS[selectedMake][selectedModel]);
-        form.setValue('vehicleSubmodel', '');
+        if (selectedModel !== 'Other') {
+            form.setValue('vehicleSubmodel', '');
+        }
     } else {
         setAvailableSubmodels([]);
     }
@@ -364,6 +370,11 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {selectedMake === 'Other' && (
+                          <FormControl>
+                              <Input placeholder="Enter vehicle make" {...field} className="mt-2" />
+                          </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -374,7 +385,7 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Model</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMake}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMake || selectedMake === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a model" />
@@ -390,6 +401,11 @@ export default function WarrantyForm() {
                           )}
                         </SelectContent>
                       </Select>
+                      {selectedModel === 'Other' && (
+                          <FormControl>
+                            <Input placeholder="Enter vehicle model" {...field} className="mt-2" />
+                          </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -400,7 +416,7 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Submodel</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={availableSubmodels.length === 0}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={availableSubmodels.length === 0 || selectedModel === 'Other'}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a submodel" />
@@ -486,6 +502,11 @@ export default function WarrantyForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {selectedTireSize === 'Other' && (
+                          <FormControl>
+                              <Input placeholder="Enter tire size" {...field} className="mt-2" />
+                          </FormControl>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
