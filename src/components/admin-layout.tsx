@@ -30,10 +30,11 @@ export default function AdminLayout({
   user
 }: {
   children: React.ReactNode;
-  user?: User;
+  user: User;
 }) {
   const pathname = usePathname();
   
+  // Clone the child element and pass the user prop
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
       return React.cloneElement(child, { user } as { user: User });
