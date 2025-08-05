@@ -12,7 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { db } from '@/lib/firebase-admin';
+import { getDb } from '@/lib/firebase-admin';
 
 
 const SearchPoliciesInputSchema = z.object({
@@ -38,6 +38,7 @@ export type SearchPoliciesOutput = z.infer<typeof SearchPoliciesOutputSchema>;
 
 
 export async function addPolicy(policy: Policy) {
+    const db = getDb();
     const policyRef = db.collection("policies").doc(policy.policyNumber);
     await policyRef.set(policy);
 }
@@ -55,6 +56,7 @@ const findPoliciesTool = ai.defineTool(
       outputSchema: SearchPoliciesOutputSchema,
     },
     async (input) => {
+        const db = getDb();
         const policiesCol = db.collection("policies");
         const lowerCaseQuery = input.query.toLowerCase();
         

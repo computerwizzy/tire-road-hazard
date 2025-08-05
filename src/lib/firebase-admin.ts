@@ -14,16 +14,20 @@ try {
     throw new Error('Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY_BASE64. Make sure it is a valid Base64 encoded JSON.');
 }
 
-let app: admin.app.App;
+let db: admin.firestore.Firestore;
 
-if (admin.apps.length === 0) {
-  app = admin.initializeApp({
-    credential: admin.credential.cert(decodedServiceAccount),
-  });
-} else {
-  app = admin.app();
+function initializeDb() {
+  if (admin.apps.length === 0) {
+    admin.initializeApp({
+      credential: admin.credential.cert(decodedServiceAccount),
+    });
+  }
+  db = admin.firestore();
 }
 
-const db = admin.firestore(app);
-
-export { db, admin };
+export function getDb(): admin.firestore.Firestore {
+    if (!db) {
+        initializeDb();
+    }
+    return db;
+}
