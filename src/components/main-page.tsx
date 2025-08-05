@@ -23,7 +23,7 @@ export default function MainPage() {
                 alt="Tire Protection Program"
                 width={1200}
                 height={630}
-                className="w-full max-w-md mx-auto rounded-lg shadow-md"
+                className="w-full max-w-sm mx-auto rounded-lg shadow-md"
                 priority
             />
           </div>
