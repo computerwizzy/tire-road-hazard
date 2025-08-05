@@ -211,11 +211,13 @@ export async function addUser(email: string, role: 'admin' | 'member'): Promise<
     
     if (error) {
         console.error('Error adding user:', error);
-        // Handle specific errors like unique constraint violation
+        if (error.code === '42P01') {
+             throw new Error("The 'users' table does not exist. Please create it in your Supabase dashboard.");
+        }
         if (error.code === '23505') {
             throw new Error('A user with this email already exists.');
         }
-        throw new Error('Failed to add user.');
+        throw new Error('Failed to add user. Please check database permissions.');
     }
     return data;
 }

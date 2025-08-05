@@ -106,7 +106,11 @@ export default function UserManagementPage() {
       setIsAddUserOpen(false);
       form.reset();
     } catch (e) {
-      form.setError('email', { type: 'manual', message: (e as Error).message });
+      toast({
+        variant: "destructive",
+        title: "Failed to add user",
+        description: (e as Error).message,
+      });
     }
   }
 
