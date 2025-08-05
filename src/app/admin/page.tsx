@@ -36,27 +36,34 @@ export default function AdminPage() {
   useEffect(() => {
     async function loadPolicies() {
       setIsLoading(true);
-      const response = await getAllPolicies();
-      if (response.success && response.data) {
-        const fetchedPolicies = response.data;
-        setPolicies(fetchedPolicies);
-        
-        const today = new Date();
-        const active = fetchedPolicies.filter(p => isAfter(parseISO(p.warrantyEndDate), today)).length;
-        const expired = fetchedPolicies.length - active;
-        const customers = new Set(fetchedPolicies.map(p => p.customerEmail)).size;
-        
-        setStats({
-          totalPolicies: fetchedPolicies.length,
-          activePolicies: active,
-          expiredPolicies: expired,
-          totalCustomers: customers,
-        });
+      setError(null);
+      try {
+        const response = await getAllPolicies();
+        if (response.success && response.data) {
+          const fetchedPolicies = response.data;
+          setPolicies(fetchedPolicies);
+          
+          const today = new Date();
+          const active = fetchedPolicies.filter(p => isAfter(parseISO(p.warrantyEndDate), today)).length;
+          const expired = fetchedPolicies.length - active;
+          const customers = new Set(fetchedPolicies.map(p => p.customerEmail)).size;
+          
+          setStats({
+            totalPolicies: fetchedPolicies.length,
+            activePolicies: active,
+            expiredPolicies: expired,
+            totalCustomers: customers,
+          });
 
-      } else {
-        setError(response.error || 'An unknown error occurred.');
+        } else {
+          setError(response.error || 'An unknown error occurred while fetching policies.');
+        }
+      } catch (e) {
+        console.error("Failed to load policies:", e);
+        setError("A critical error occurred while trying to load policies. Please check the console for details.");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     
     loadPolicies();
