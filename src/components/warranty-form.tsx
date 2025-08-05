@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,10 +13,9 @@ import {
   Loader2,
   Calendar as CalendarIcon,
   Disc3,
-  PlusCircle,
 } from "lucide-react";
 
-import { handleWarrantyClaim, getInitialFormData, getModelsForMake, getSubmodelsForModel } from "@/app/actions";
+import { handleWarrantyClaim } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,28 +34,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Textarea } from "./ui/textarea";
-import type { DataForForm } from "@/data/db-actions";
 import { WarrantyResult, type PolicyData } from "./warranty-result";
 
 
@@ -105,25 +87,12 @@ const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) 
     reader.onerror = error => reject(error);
 });
 
-type AddableField = 'vehicleMake' | 'vehicleModel' | 'vehicleSubmodel' | 'tireBrand' | 'tireSize';
 
 export default function WarrantyForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PolicyData | null>(null);
-  const [formData, setFormData] = useState<DataForForm | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
-  const [isModelsLoading, setIsModelsLoading] = useState(false);
-  const [availableSubmodels, setAvailableSubmodels] = useState<string[]>([]);
-  const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(false);
-  const [vehicleYears, setVehicleYears] = useState<(number | string)[]>([]);
-
-  // State for the "Add New" dialog
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [fieldToAdd, setFieldToAdd] = useState<AddableField | null>(null);
-  const [newItemValue, setNewItemValue] = useState('');
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -144,97 +113,6 @@ export default function WarrantyForm() {
       vehicleYear: new Date().getFullYear(),
     },
   });
-
-  useEffect(() => {
-    const loadInitialData = async () => {
-        const data = await getInitialFormData();
-        setFormData(data);
-    }
-    const currentYear = new Date().getFullYear();
-    const years: (number | string)[] = [];
-    for (let year = currentYear; year >= 1995; year--) {
-      years.push(year);
-    }
-    setVehicleYears(years);
-    loadInitialData();
-  }, []);
-
-  const selectedMake = form.watch("vehicleMake");
-  const selectedModel = form.watch("vehicleModel");
-
-  useEffect(() => {
-    async function fetchModels() {
-        if (selectedMake) {
-            setIsModelsLoading(true);
-            const models = await getModelsForMake(selectedMake);
-            setAvailableModels(models);
-            setIsModelsLoading(false);
-        }
-    }
-    form.setValue('vehicleModel', ''); 
-    form.setValue('vehicleSubmodel', '');
-    setAvailableModels([]);
-    setAvailableSubmodels([]);
-    fetchModels();
-  }, [selectedMake, form]);
-  
-  useEffect(() => {
-    async function fetchSubmodels() {
-        if (selectedMake && selectedModel) {
-            setIsSubmodelsLoading(true);
-            const submodels = await getSubmodelsForModel(selectedMake, selectedModel);
-            setAvailableSubmodels(submodels);
-            setIsSubmodelsLoading(false);
-        }
-    }
-    form.setValue('vehicleSubmodel', '');
-    setAvailableSubmodels([]);
-    fetchSubmodels();
-  }, [selectedMake, selectedModel, form]);
-
-  function openAddDialog(field: AddableField) {
-    setFieldToAdd(field);
-    setNewItemValue('');
-    setIsAddDialogOpen(true);
-  }
-
-  function handleAddNewItem() {
-    if (!fieldToAdd || !newItemValue) return;
-
-    switch (fieldToAdd) {
-        case 'vehicleMake':
-            if (formData) {
-                const newMakes = [...formData.vehicleMakes, newItemValue];
-                setFormData({...formData, vehicleMakes: newMakes});
-                form.setValue('vehicleMake', newItemValue);
-            }
-            break;
-        case 'vehicleModel':
-            setAvailableModels(prev => [...prev, newItemValue]);
-            form.setValue('vehicleModel', newItemValue);
-            break;
-        case 'vehicleSubmodel':
-             setAvailableSubmodels(prev => [...prev, newItemValue]);
-             form.setValue('vehicleSubmodel', newItemValue);
-            break;
-        case 'tireBrand':
-             if (formData) {
-                const newBrands = [...formData.tireBrands, newItemValue];
-                setFormData({...formData, tireBrands: newBrands});
-                form.setValue('tireBrand', newItemValue);
-            }
-            break;
-        case 'tireSize':
-             if (formData) {
-                const newSizes = [...formData.commonTireSizes, newItemValue];
-                setFormData({...formData, commonTireSizes: newSizes});
-                form.setValue('tireSize', newItemValue);
-            }
-            break;
-    }
-    setIsAddDialogOpen(false);
-  }
-
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -267,14 +145,6 @@ export default function WarrantyForm() {
 
   if (result) {
     return <WarrantyResult result={result} onReset={resetForm} />;
-  }
-  
-  if (!formData) {
-      return (
-        <div className="flex items-center justify-center min-h-[500px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      )
   }
 
   return (
@@ -366,18 +236,9 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Year</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a year" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {vehicleYears.map((year) => (
-                            <SelectItem key={year} value={String(year)}>{year}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g. 2023" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -388,23 +249,9 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Make</FormLabel>
-                      <div className="flex gap-2">
-                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a make" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {formData.vehicleMakes.map((make) => (
-                            <SelectItem key={make} value={make}>{make}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                       <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('vehicleMake')}>
-                          <PlusCircle className="h-5 w-5" />
-                        </Button>
-                      </div>
+                       <FormControl>
+                        <Input placeholder="e.g. Ford" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -415,31 +262,9 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Model</FormLabel>
-                      <div className="flex gap-2">
-                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedMake || isModelsLoading}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={isModelsLoading ? "Loading..." : (!selectedMake ? "Select make first" : "Select a model")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {isModelsLoading ? (
-                            <div className="flex items-center justify-center p-2">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                          ) : availableModels.length > 0 ? (
-                            availableModels.map((model) => (
-                              <SelectItem key={model} value={model}>{model}</SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="none" disabled>Select a make first</SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('vehicleModel')} disabled={!selectedMake}>
-                          <PlusCircle className="h-5 w-5" />
-                        </Button>
-                      </div>
+                       <FormControl>
+                        <Input placeholder="e.g. F-150" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -449,32 +274,10 @@ export default function WarrantyForm() {
                   name="vehicleSubmodel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Submodel</FormLabel>
-                      <div className="flex gap-2">
-                      <Select onValueChange={field.onChange} value={field.value ?? ""} disabled={!selectedModel || isSubmodelsLoading}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={isSubmodelsLoading ? "Loading..." : (!selectedModel ? "Select model first" : (availableSubmodels.length === 0 ? "No submodels" : "Select a submodel"))} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                           {isSubmodelsLoading ? (
-                             <div className="flex items-center justify-center p-2">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                           ) : availableSubmodels.length > 0 ? (
-                            availableSubmodels.map((submodel) => (
-                              <SelectItem key={submodel} value={submodel}>{submodel}</SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="none" disabled>No submodels available</SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                       <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('vehicleSubmodel')} disabled={!selectedModel}>
-                          <PlusCircle className="h-5 w-5" />
-                        </Button>
-                      </div>
+                      <FormLabel>Submodel (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Lariat" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -508,26 +311,9 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Brand</FormLabel>
-                      <div className="flex gap-2">
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a brand" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {formData.tireBrands.map((brand) => (
-                             <SelectItem key={brand} value={brand}>{brand}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('tireBrand')}>
-                          <PlusCircle className="h-5 w-5" />
-                        </Button>
-                      </div>
+                      <FormControl>
+                        <Input placeholder="e.g. Michelin" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -551,23 +337,9 @@ export default function WarrantyForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Size</FormLabel>
-                      <div className="flex gap-2">
-                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a size" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                           {formData.commonTireSizes.map((size) => (
-                             <SelectItem key={size} value={size}>{size}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                       <Button type="button" variant="ghost" size="icon" onClick={() => openAddDialog('tireSize')}>
-                          <PlusCircle className="h-5 w-5" />
-                        </Button>
-                      </div>
+                       <FormControl>
+                        <Input placeholder="e.g. 225/45R17" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -692,32 +464,6 @@ export default function WarrantyForm() {
         </p>
       </CardFooter>
     </Card>
-
-    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New {fieldToAdd?.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</DialogTitle>
-            <DialogDescription>
-              Enter the new value to add to the list.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input 
-                value={newItemValue}
-                onChange={(e) => setNewItemValue(e.target.value)}
-                placeholder="Enter new value..."
-            />
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="ghost">Cancel</Button>
-            </DialogClose>
-            <Button type="button" onClick={handleAddNewItem} disabled={!newItemValue}>
-              Add
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

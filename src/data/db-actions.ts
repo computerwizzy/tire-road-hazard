@@ -3,37 +3,6 @@
 
 import type { Policy } from '@/ai/flows/search-policies';
 import { supabase } from '@/lib/supabase';
-import { formStore } from './form-data';
-
-
-export type DataForForm = {
-    vehicleMakes: string[];
-    tireBrands: string[];
-    commonTireSizes: string[];
-}
-
-export async function getInitialFormData(): Promise<DataForForm> {
-    return {
-        vehicleMakes: formStore.vehicleMakes,
-        tireBrands: formStore.tireBrands,
-        commonTireSizes: formStore.commonTireSizes,
-    };
-}
-
-export async function getModelsForMake(make: string): Promise<string[]> {
-    if (!make || !formStore.vehicleModels[make]) {
-        return [];
-    }
-    return Object.keys(formStore.vehicleModels[make]);
-}
-
-export async function getSubmodelsForModel(make: string, model: string): Promise<string[]> {
-    if (!make || !model || !formStore.vehicleModels[make]?.[model]) {
-        return [];
-    }
-    return formStore.vehicleModels[make][model];
-}
-
 
 export async function savePolicy(policy: Omit<Policy, 'id'>): Promise<void> {
     const { error } = await supabase.from('policies').insert(policy);
@@ -106,3 +75,5 @@ export async function deleteUser(id: number): Promise<void> {
         throw new Error('Failed to delete user.');
     }
 }
+
+    
