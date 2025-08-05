@@ -33,14 +33,6 @@ export default function AdminLayout({
   user: User;
 }) {
   const pathname = usePathname();
-  
-  // Clone the child element and pass the user prop
-  const childrenWithProps = React.Children.map(children, child => {
-    if (React.isValidElement(child)) {
-      return React.cloneElement(child, { user } as { user: User });
-    }
-    return child;
-  });
 
   return (
     <SidebarProvider>
@@ -126,7 +118,7 @@ export default function AdminLayout({
                     </DropdownMenu>
                  </div>
             </header>
-            {childrenWithProps}
+            {children}
         </SidebarInset>
       </div>
     </SidebarProvider>

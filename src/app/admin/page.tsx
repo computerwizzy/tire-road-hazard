@@ -20,11 +20,13 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { User } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 
-export default function AdminPage({ user }: { user: User }) {
+export default function AdminPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   const [stats, setStats] = useState({
@@ -33,6 +35,15 @@ export default function AdminPage({ user }: { user: User }) {
     expiredPolicies: 0,
     totalCustomers: 0
   });
+
+   useEffect(() => {
+    const supabase = createClient();
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     async function loadPolicies() {
@@ -76,6 +87,16 @@ export default function AdminPage({ user }: { user: User }) {
         return <Badge variant="destructive">Expired</Badge>;
     }
     return <Badge variant="secondary">Active</Badge>;
+  }
+
+  if (isLoading) {
+    return (
+         <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+            <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        </div>
+    )
   }
 
   return (
@@ -143,11 +164,6 @@ export default function AdminPage({ user }: { user: User }) {
                 <CardDescription>A complete list of all registered warranties.</CardDescription>
             </CardHeader>
             <CardContent>
-                {isLoading && (
-                    <div className="flex justify-center items-center h-40">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                )}
                 {error && (
                      <div className="flex flex-col items-center justify-center h-40 text-destructive">
                         <AlertCircle className="h-8 w-8 mb-2" />
