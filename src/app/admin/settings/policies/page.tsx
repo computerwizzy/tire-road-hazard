@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FileEdit, Loader2, FileQuestion, Search, AlertCircle, Printer } from 'lucide-react';
+import { FileEdit, Loader2, FileQuestion, Search, AlertCircle } from 'lucide-react';
 
 const SearchSchema = z.object({
   searchTerm: z.string().min(1, { message: 'Please enter a search term.' }),
@@ -49,11 +49,6 @@ export default function PolicyManagementPage() {
 
     function handleRowClick(policyNumber: string) {
         router.push(`/policy/${policyNumber}`);
-    }
-
-    function handleTestLayout(e: React.MouseEvent, policyNumber: string) {
-        e.stopPropagation(); // Prevents the row's onClick from firing
-        window.open(`/policy/${policyNumber}/print`, '_blank');
     }
 
     return (
@@ -126,7 +121,6 @@ export default function PolicyManagementPage() {
                                     <TableHead>Customer</TableHead>
                                     <TableHead>Tire DOT</TableHead>
                                     <TableHead>Expires</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -140,16 +134,6 @@ export default function PolicyManagementPage() {
                                     <TableCell>{policy.customerName}</TableCell>
                                     <TableCell>{policy.tireDot}</TableCell>
                                     <TableCell className="whitespace-nowrap">{format(parseISO(policy.warrantyEndDate), 'PPP')}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm"
-                                            onClick={(e) => handleTestLayout(e, policy.policyNumber)}
-                                        >
-                                           <Printer className="mr-2 h-4 w-4" />
-                                           Test Layout
-                                        </Button>
-                                    </TableCell>
                                     </TableRow>
                                 ))}
                                 </TableBody>
