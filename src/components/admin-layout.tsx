@@ -15,7 +15,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, FileText, Settings, Search, LogOut, User as UserIcon } from 'lucide-react';
+import { Home, Settings, LogOut, User as UserIcon } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -24,6 +24,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { handleLogout } from '@/app/actions';
 import { User } from '@supabase/supabase-js';
 import React from 'react';
+import { Input } from './ui/input';
 
 export default function AdminLayout({
   children,
@@ -82,14 +83,16 @@ export default function AdminLayout({
                 <div className="md:hidden">
                     <SidebarTrigger />
                 </div>
-                 <div className="flex-1" />
+                 <div className="flex-1">
+                    <div className="relative max-w-md">
+                         <Input
+                            type="search"
+                            placeholder="Search Policies"
+                            className="w-full rounded-lg bg-background pl-8"
+                        />
+                    </div>
+                 </div>
                  <div className="flex items-center gap-4">
-                    <Button asChild variant="outline">
-                        <Link href="/search">
-                            <Search className="mr-2 h-4 w-4" />
-                            Search Policies
-                        </Link>
-                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">

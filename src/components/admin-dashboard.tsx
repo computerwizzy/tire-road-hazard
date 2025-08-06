@@ -139,7 +139,7 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                 <CardDescription>A complete list of all registered warranties.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="min-h-[560px] relative">
+                <div className="min-h-[460px] relative">
                     {isLoading && (
                         <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -180,27 +180,29 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                      )}
                 </div>
             </CardContent>
-            <div className="p-4 border-t flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                    Showing page {currentPage} of {totalPages}
-                </p>
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={() => goToPage(currentPage - 1)}
-                        disabled={currentPage === 1 || isLoading}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => goToPage(currentPage + 1)}
-                        disabled={currentPage === totalPages || isLoading}
-                    >
-                        Next
-                    </Button>
+            { totalPages > 1 && (
+                 <div className="p-4 border-t flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                        Showing page {currentPage} of {totalPages}
+                    </p>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => goToPage(currentPage - 1)}
+                            disabled={currentPage === 1 || isLoading}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => goToPage(currentPage + 1)}
+                            disabled={currentPage === totalPages || isLoading}
+                        >
+                            Next
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            )}
         </Card>
       </div>
   );
