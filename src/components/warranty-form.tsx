@@ -67,7 +67,8 @@ const FormSchema = z.object({
   vehicleSubmodel: z.string().optional(),
   vehicleMileage: z.coerce
     .number({invalid_type_error: "Mileage must be a number."})
-    .min(0, { message: "Mileage must be a positive number." }),
+    .min(0, { message: "Mileage must be a positive number." })
+    .optional(),
   isCommercial: z.boolean().default(false),
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
   tireModel: z.string().min(1, { message: "Tire model is required." }),
@@ -75,8 +76,8 @@ const FormSchema = z.object({
     message: "Please enter a valid tire size (e.g., 225/45R17).",
   }),
   tireQuantity: z.coerce.number().min(1, { message: "Quantity must be at least 1."}).max(6, { message: "You can add a maximum of 6 tires."}),
-  pricePerTire: z.coerce.number().min(0, { message: "Price must be a positive number."}),
-  roadHazardPrice: z.coerce.number().min(0, { message: "Price must be a positive number." }),
+  pricePerTire: z.coerce.number().min(0, { message: "Price must be a positive number."}).optional(),
+  roadHazardPrice: z.coerce.number().min(0, { message: "Price must be a positive number." }).optional(),
   tireDot1: z.string().min(7, { message: "Please enter a valid DOT number (7-13 characters)." }).max(13, { message: "Please enter a valid DOT number (7-13 characters)." }),
   tireDot2: z.string().optional(),
   tireDot3: z.string().optional(),
