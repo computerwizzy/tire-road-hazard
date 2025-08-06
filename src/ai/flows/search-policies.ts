@@ -26,6 +26,7 @@ const PolicySchema = z.object({
     purchaseDate: z.string(),
     warrantyEndDate: z.string(),
     receiptUrl: z.string().url().nullable(),
+    policyDocument: z.string().nullable(),
 });
 export type Policy = z.infer<typeof PolicySchema>;
 
@@ -49,5 +50,13 @@ export async function searchPolicies(input: SearchPoliciesInput): Promise<Search
         throw new Error('Failed to search policies.');
     }
 
-    return { results: data || [] };
+    // Supabase returns an array of objects. We need to ensure they match the Policy schema.
+    const validatedData = z.array(PolicySchema).safeParse(data);
+    
+    if (!validatedData.success) {
+        console.error("Supabase data failed validation:", validatedData.error);
+        throw new Error("Data from database does not match expected format.");
+    }
+    
+    return { results: validatedData.data || [] };
 }

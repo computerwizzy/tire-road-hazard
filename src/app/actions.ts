@@ -114,7 +114,8 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
         tireDot: values.tireDot1,
         purchaseDate: values.purchaseDate.toISOString().split('T')[0],
         warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
-        receiptUrl: receiptUrl
+        receiptUrl: receiptUrl,
+        policyDocument: result.policyDocument // Save the generated document
     });
 
 

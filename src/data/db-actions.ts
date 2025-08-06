@@ -13,10 +13,10 @@ function getSupabase() {
 
 export async function savePolicy(policy: Omit<Policy, 'id'>): Promise<void> {
     const supabase = getSupabase();
-    const { error } = await supabase.from('policies').insert(policy);
+    const { error } = await supabase.from('policies').insert([policy]); // Wrap in array for insert
      if (error) {
          console.error('Error saving policy to Supabase:', error);
-         throw new Error('Failed to save policy.');
+         throw new Error(`Failed to save policy. DB Error: ${error.message}`);
      }
 }
 
