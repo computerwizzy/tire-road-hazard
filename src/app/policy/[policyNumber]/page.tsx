@@ -8,15 +8,16 @@ import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone, Phone, Hash } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone, Phone, Hash, ShieldCheck, Truck, Mail } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 function PolicyDetail({ label, value, icon: Icon }: { label: string; value: string | number | null | undefined, icon: React.ElementType }) {
     if (!value && typeof value !== 'number') return null;
     return (
         <div className="flex items-start text-sm">
-            <Icon className="h-4 w-4 mr-2 mt-1 text-muted-foreground" />
+            <Icon className="h-4 w-4 mr-2 mt-1 text-muted-foreground shrink-0" />
             <div>
                 <p className="font-semibold text-foreground">{label}</p>
                 <p className="text-muted-foreground break-words">{String(value)}</p>
@@ -24,7 +25,6 @@ function PolicyDetail({ label, value, icon: Icon }: { label: string; value: stri
         </div>
     );
 }
-
 
 export default function PolicyPage() {
     const params = useParams();
@@ -71,6 +71,8 @@ export default function PolicyPage() {
         policy.tireDot5,
         policy.tireDot6
     ].filter(dot => dot && dot.trim()) : [];
+    
+    const isPolicyActive = policy ? new Date() < parseISO(policy.warrantyEndDate) : false;
 
     return (
         <main className="flex min-h-screen flex-col items-center p-4 sm:p-6 md:p-8 lg:p-12 bg-background">
@@ -82,11 +84,18 @@ export default function PolicyPage() {
                     <CardHeader className="sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <CardTitle className="font-headline text-2xl flex items-center gap-2">
-                            <FileText className="text-primary" /> Warranty Policy Details
+                                <FileText className="text-primary" /> Warranty Policy Details
                             </CardTitle>
-                            <CardDescription className="break-all">
-                                Viewing details for policy number: <span className="font-mono text-primary">{policyNumber}</span>
-                            </CardDescription>
+                            <div className="flex items-center gap-2 mt-2">
+                                <CardDescription className="break-all">
+                                    <span className="font-mono text-primary">{policyNumber}</span>
+                                </CardDescription>
+                                {policy && (
+                                    isPolicyActive ? 
+                                    <Badge variant="secondary">Active</Badge> : 
+                                    <Badge variant="destructive">Expired</Badge>
+                                )}
+                           </div>
                         </div>
                          {policy && (
                             <Button variant="outline" onClick={handleReprint} className="mt-4 sm:mt-0 print-hidden">
@@ -117,9 +126,10 @@ export default function PolicyPage() {
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <PolicyDetail label="Customer Name" value={policy.customerName} icon={User} />
-                                        <PolicyDetail label="Customer Email" value={policy.customerEmail} icon={User} />
+                                        <PolicyDetail label="Customer Email" value={policy.customerEmail} icon={Mail} />
                                         <PolicyDetail label="Customer Phone" value={policy.customerPhone} icon={Phone} />
                                         <PolicyDetail label="Warranty End Date" value={format(parseISO(policy.warrantyEndDate), 'PPP')} icon={Calendar} />
+                                        <PolicyDetail label="Commercial Vehicle" value={policy.isCommercial ? 'Yes' : 'No'} icon={Truck} />
                                     </div>
                                 </div>
                                 <Separator />
@@ -129,12 +139,15 @@ export default function PolicyPage() {
                                         Vehicle &amp; Tire
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        <PolicyDetail label="Vehicle" value={`${policy.vehicleYear} ${policy.vehicleMake} ${policy.vehicleModel}`} icon={Car} />
+                                        <PolicyDetail label="Vehicle" value={`${policy.vehicleYear} ${policy.vehicleMake} ${policy.vehicleModel} ${policy.vehicleSubmodel || ''}`.trim()} icon={Car} />
                                         <PolicyDetail label="Mileage" value={policy.vehicleMileage?.toLocaleString()} icon={Milestone} />
+                                        <PolicyDetail label="Tire Brand" value={policy.tireBrand} icon={Disc3} />
+                                        <PolicyDetail label="Tire Model" value={policy.tireModel} icon={Disc3} />
+                                        <PolicyDetail label="Tire Size" value={policy.tireSize} icon={Disc3} />
                                         <PolicyDetail label="Tires Purchased" value={policy.tireQuantity} icon={Hash} />
                                         <PolicyDetail label="Price Per Tire" value={policy.pricePerTire ? `$${policy.pricePerTire.toFixed(2)}` : 'N/A'} icon={Tag} />
-                                        {allTireDots.map((dot, index) => (
-                                            <PolicyDetail key={index} label={`Tire DOT #${index + 1}`} value={dot} icon={Disc3} />
+                                         {allTireDots.map((dot, index) => (
+                                            <PolicyDetail key={index} label={`Tire DOT #${index + 1}`} value={dot} icon={ShieldCheck} />
                                         ))}
                                     </div>
                                 </div>
@@ -154,20 +167,21 @@ export default function PolicyPage() {
 
 
                                 {policy.receiptUrl && (
-                                     <div>
-                                        <h3 className="font-headline text-lg font-semibold flex items-center gap-2 mb-4">
+                                     <div className="space-y-4">
+                                        <Separator />
+                                        <h3 className="font-headline text-lg font-semibold flex items-center gap-2">
                                             <ImageIcon className="text-primary" />
                                             Purchase Receipt
                                         </h3>
-                                        <div className="border rounded-lg p-4">
-                                            <a href={policy.receiptUrl} target="_blank" rel="noopener noreferrer">
+                                        <div className="border rounded-lg p-2 sm:p-4">
+                                            <a href={policy.receiptUrl} target="_blank" rel="noopener noreferrer" className="block w-full">
                                                 <img 
                                                     src={policy.receiptUrl} 
                                                     alt="Purchase Receipt" 
                                                     className="max-w-full h-auto rounded-md shadow-md hover:opacity-80 transition-opacity"
                                                 />
                                             </a>
-                                            <Button asChild variant="link" className="mt-2">
+                                            <Button asChild variant="link" className="mt-2 px-0">
                                                  <a href={policy.receiptUrl} target="_blank" rel="noopener noreferrer">View Full Size</a>
                                             </Button>
                                         </div>
