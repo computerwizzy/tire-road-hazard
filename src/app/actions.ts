@@ -173,9 +173,12 @@ export async function handleSearch(searchTerm: string): Promise<{
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
+    // Select only the columns needed for the search results display
+    const selectColumns = 'policyNumber, customerName, customerEmail, tireDot1, purchaseDate, warrantyEndDate, receiptUrl, policyDocument';
+
     const { data, error } = await supabase
         .from('policies')
-        .select('*')
+        .select(selectColumns)
         .or(`policyNumber.ilike.%${searchTerm}%,customerName.ilike.%${searchTerm}%,tireDot1.ilike.%${searchTerm}%,customerPhone.ilike.%${searchTerm}%`);
 
     if (error) {
@@ -191,14 +194,7 @@ export async function handleSearch(searchTerm: string): Promise<{
     
     const results = data ? data.map(item => ({
         ...item,
-        policyNumber: item.policyNumber,
-        customerName: item.customerName,
-        customerEmail: item.customerEmail,
         tireDot: item.tireDot1 || '', 
-        purchaseDate: item.purchaseDate,
-        warrantyEndDate: item.warrantyEndDate,
-        receiptUrl: item.receiptUrl,
-        policyDocument: item.policyDocument,
     })) : [];
 
 
@@ -368,5 +364,3 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
-
-    

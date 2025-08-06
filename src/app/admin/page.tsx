@@ -9,29 +9,35 @@ import type { DashboardStats } from '@/app/actions';
 export const revalidate = 0; // Disable caching for this page
 
 export default async function AdminPage() {
-    
-    let policyResponse;
-    let statsResponse;
-    let stats: DashboardStats = { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0 };
     let initialPolicies: Policy[] = [];
     let totalCount = 0;
+    let stats: DashboardStats = { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0 };
     let error: string | null = null;
 
     try {
-        // Fetch policies first, as they are more likely to have RLS issues.
-        policyResponse = await getAllPolicies(1, 10);
+        const [policyResponse, statsResponse] = await Promise.all([
+            getAllPolicies(1, 10),
+            getDashboardStats()
+        ]);
+
         if (!policyResponse.success) {
+            // This error is critical for the main table, so we treat it as a page-level error.
             error = policyResponse.error || 'An unknown error occurred while fetching policies.';
         } else {
-             initialPolicies = policyResponse.data || [];
-             totalCount = policyResponse.count || 0;
-            // Only fetch stats if policies succeed
-            statsResponse = await getDashboardStats();
+            initialPolicies = policyResponse.data || [];
+            totalCount = policyResponse.count || 0;
+        }
+
+        // Stats can be treated as non-critical; the page can still render without them.
+        if (statsResponse) {
             stats = statsResponse;
+        } else {
+            console.warn("Could not fetch dashboard stats, defaulting to zero.");
         }
 
     } catch (e) {
         const caughtError = e as Error;
+        console.error("Failed to load admin dashboard data:", caughtError);
         error = caughtError.message || 'An unexpected error occurred.';
     }
 
