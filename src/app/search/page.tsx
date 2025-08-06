@@ -54,7 +54,7 @@ export default function SearchPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-4xl mx-auto">
          <Button asChild variant="outline" className="mb-4">
             <Link href="/">← Back to Registration</Link>
         </Button>
@@ -67,7 +67,7 @@ export default function SearchPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-start gap-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col sm:flex-row items-start gap-4">
                 <FormField
                   control={form.control}
                   name="searchTerm"
@@ -81,7 +81,7 @@ export default function SearchPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -102,7 +102,7 @@ export default function SearchPage() {
             )}
 
             {results && (
-              <div className="mt-8">
+              <div className="mt-8 overflow-x-auto">
                 {results.results.length > 0 ? (
                   <Table>
                     <TableHeader>
@@ -143,5 +143,3 @@ export default function SearchPage() {
     </main>
   );
 }
-
-    

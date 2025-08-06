@@ -150,8 +150,8 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                         <TableRow>
                             <TableHead>Policy #</TableHead>
                             <TableHead>Customer</TableHead>
-                            <TableHead>Tire DOT</TableHead>
-                            <TableHead>Purchase Date</TableHead>
+                            <TableHead className="hidden md:table-cell">Tire DOT</TableHead>
+                            <TableHead className="hidden lg:table-cell">Purchase Date</TableHead>
                             <TableHead>Expires</TableHead>
                             <TableHead>Status</TableHead>
                         </TableRow>
@@ -165,8 +165,8 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                             >
                             <TableCell className="font-medium">{policy.policyNumber}</TableCell>
                             <TableCell>{policy.customerName}</TableCell>
-                            <TableCell>{policy.tireDot}</TableCell>
-                            <TableCell>{format(parseISO(policy.purchaseDate), 'PPP')}</TableCell>
+                            <TableCell className="hidden md:table-cell">{policy.tireDot}</TableCell>
+                            <TableCell className="hidden lg:table-cell">{format(parseISO(policy.purchaseDate), 'PPP')}</TableCell>
                             <TableCell>{format(parseISO(policy.warrantyEndDate), 'PPP')}</TableCell>
                             <TableCell>{getStatus(policy.warrantyEndDate)}</TableCell>
                             </TableRow>

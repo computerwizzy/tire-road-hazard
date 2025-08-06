@@ -66,7 +66,7 @@ export default function MainPage() {
   if (testResult) {
       return (
         <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
-            <div className="w-full max-w-4xl">
+            <div className="w-full max-w-4xl mx-auto">
                  <WarrantyResult result={testResult} onReset={resetTest} />
             </div>
         </main>
@@ -78,7 +78,7 @@ export default function MainPage() {
        <div className="absolute top-4 right-4">
           <ThemeToggle />
         </div>
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-4xl mx-auto">
         <header className="text-center mb-8">
           <div className="mb-4">
             <Image 
