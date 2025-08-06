@@ -2,7 +2,8 @@
 "use server";
 
 import { z } from "zod";
-import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
+import fs from 'fs/promises';
+import path from 'path';
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb } from "@/data/db-actions";
 import { createClient as createServerClient } from "@/lib/supabase/server";
@@ -43,6 +44,71 @@ const WarrantyClaimSchema = z.object({
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
 
+function compileTemplate(template: string, data: Record<string, any>): string {
+    let compiled = template;
+
+    // Handle {{#each}} blocks
+    const eachRegex = /{{\s*#each\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/each\s*}}/g;
+    compiled = compiled.replace(eachRegex, (match, arrayKey, blockContent) => {
+        const array = data[arrayKey] || [];
+        const parentData = { ...data };
+        delete parentData[arrayKey]; // Avoid deep nesting issues
+
+        return array.map((item: any) => {
+             const itemContext = { ...parentData, 'this': item, '../': parentData };
+             // A simple way to handle basic ../ access
+             let renderedBlock = blockContent;
+             // Replace item-specific placeholders
+             renderedBlock = renderedBlock.replace(/{{this}}/g, String(item));
+
+             // Replace parent-context placeholders
+             return compileTemplate(renderedBlock, itemContext);
+
+        }).join('');
+    });
+    
+    // Handle {{#if}} blocks
+    const ifRegex = /{{\s*#if\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/if\s*}}/g;
+    compiled = compiled.replace(ifRegex, (match, key, content) => {
+        return data[key] ? content : '';
+    });
+
+    // Handle simple {{variable}} replacements
+     const variableRegex = /{{\s*(\.\.\/)?([\w\d\.]+)\s*}}/g;
+     compiled = compiled.replace(variableRegex, (match, parent, key) => {
+         if (parent && data['../'] && data['../'][key]) {
+             return String(data['../'][key]);
+         }
+        return String(data[key] || '');
+    });
+
+
+    return compiled;
+}
+
+async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema>): Promise<{ policyDocument: string }> {
+  const templatePath = path.join(process.cwd(), 'src', 'data', 'policy-template.md');
+  const template = await fs.readFile(templatePath, 'utf-8');
+
+  const allTireDots = [
+      values.tireDot1,
+      values.tireDot2,
+      values.tireDot3,
+      values.tireDot4,
+      values.tireDot5,
+      values.tireDot6
+  ].filter((dot): dot is string => !!dot && dot.length > 0);
+
+  const policyData = {
+      ...values,
+      tireDots: allTireDots,
+      purchaseDate: values.purchaseDate.toISOString().split('T')[0],
+  };
+
+  const policyDocument = compileTemplate(template, policyData);
+  return { policyDocument };
+}
+
 export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
     const cookieStore = cookies();
@@ -73,51 +139,9 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
         receiptUrl = urlData.publicUrl;
     }
 
-    const fullAddress = `${values.customerStreet}, ${values.customerCity}, ${values.customerState} ${values.customerZip}`;
-    
-    const allTireDots = [
-        values.tireDot1,
-        values.tireDot2,
-        values.tireDot3,
-        values.tireDot4,
-        values.tireDot5,
-        values.tireDot6
-    ].filter((dot): dot is string => !!dot && dot.length > 0);
-
-
-    const input: GeneratePolicyDocumentInput = {
-      invoiceNumber: policyNumber,
-      customerName: values.customerName,
-      customerPhone: values.customerPhone,
-      customerEmail: values.customerEmail,
-      customerAddress: fullAddress,
-      vehicleYear: values.vehicleYear,
-      vehicleMake: values.vehicleMake,
-      vehicleModel: values.vehicleModel,
-      vehicleSubmodel: values.vehicleSubmodel,
-      vehicleMileage: values.vehicleMileage,
-      isCommercial: values.isCommercial,
-      tireBrand: values.tireBrand,
-      tireModel: values.tireModel,
-      tireSize: values.tireSize,
-      tireDots: allTireDots,
-      dealerName: values.dealerName,
-      purchaseDate: values.purchaseDate.toISOString().split('T')[0],
-      roadHazardPrice: values.roadHazardPrice,
-      warrantyStartDate: warrantyStartDate.toISOString().split('T')[0],
-      warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
-      termsAndConditions: "This Road Hazard Warranty covers only the tire. Damage to the wheel, TPMS sensors, or any other part of the vehicle is not covered. This warranty is non-transferable and is valid only for the original purchaser. The warranty is void if the tire is used for racing, off-road applications, or has been repaired by an unauthorized facility. A valid proof of purchase is required for all claims.",
-      coverageDetails: [
-        "Repair or replacement of tires damaged due to common road hazards like potholes, nails, glass, and other debris.",
-        "Coverage is valid for 36 months from the date of purchase or until the tire tread depth reaches 2/32\", whichever comes first.",
-        "Labor for mounting and balancing is included for the first 12 months.",
-        "Tire replacement is based on a pro-rated basis determined by remaining tread depth."
-      ],
-    };
-
-    const result = await generatePolicyDocument(input);
+    const result = await generatePolicyDocument(values);
     if (!result?.policyDocument) {
-      throw new Error("The AI failed to generate a policy document. Please try again.");
+      throw new Error("Failed to generate the policy document from the template.");
     }
 
     await savePolicy({

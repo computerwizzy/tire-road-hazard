@@ -1,61 +1,3 @@
-'use server';
-
-/**
- * @fileOverview Policy document generation flow.
- *
- * - generatePolicyDocument - A function that generates a personalized warranty policy document.
- * - GeneratePolicyDocumentInput - The input type for the generatePolicyDocument function.
- * - GeneratePolicyDocumentOutput - The return type for the generatePolicyDocument function.
- */
-
-import {ai} from '@/ai/genkit';
-import { googleAI } from '@genkit-ai/googleai';
-import {z} from 'genkit';
-
-const GeneratePolicyDocumentInputSchema = z.object({
-  invoiceNumber: z.string().describe('The invoice number for the warranty.'),
-  customerName: z.string().describe('The name of the customer.'),
-  customerPhone: z.string().describe('The phone number of the customer.'),
-  customerEmail: z.string().describe('The email address of the customer.'),
-  customerAddress: z.string().describe('The full address of the customer.'),
-  vehicleYear: z.number().describe('The year the vehicle was manufactured.'),
-  vehicleMake: z.string().describe('The make of the vehicle.'),
-  vehicleModel: z.string().describe('The model of the vehicle.'),
-  vehicleSubmodel: z.string().optional().describe('The submodel of the vehicle.'),
-  vehicleMileage: z.number().describe('The current mileage of the vehicle.'),
-  isCommercial: z.boolean().describe('Whether the vehicle is for commercial use.'),
-  tireBrand: z.string().describe('The brand of the tire.'),
-  tireModel: z.string().describe('The model of the tire.'),
-  tireSize: z.string().describe('The size of the tire.'),
-  tireDots: z.array(z.string()).describe('The DOT numbers of the tires.'),
-  purchaseDate: z.string().describe('The date the tire was purchased.'),
-  dealerName: z.string().describe('The name of the dealer.'),
-  roadHazardPrice: z.number().describe('The price of the road hazard warranty.'),
-  warrantyStartDate: z.string().describe('The start date of the warranty.'),
-  warrantyEndDate: z.string().describe('The end date of the warranty.'),
-  termsAndConditions: z.string().describe('The terms and conditions of the warranty.'),
-  coverageDetails: z.array(z.string()).describe('Details of what the warranty covers.'),
-});
-
-export type GeneratePolicyDocumentInput = z.infer<typeof GeneratePolicyDocumentInputSchema>;
-
-const GeneratePolicyDocumentOutputSchema = z.object({
-  policyDocument: z.string().describe('The generated policy document in Markdown format.'),
-});
-
-export type GeneratePolicyDocumentOutput = z.infer<typeof GeneratePolicyDocumentOutputSchema>;
-
-export async function generatePolicyDocument(input: GeneratePolicyDocumentInput): Promise<GeneratePolicyDocumentOutput> {
-  return generatePolicyDocumentFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'generatePolicyDocumentPrompt',
-  model: googleAI.model('gemini-1.5-flash'),
-  input: {schema: GeneratePolicyDocumentInputSchema},
-  output: {schema: GeneratePolicyDocumentOutputSchema},
-  prompt: `You are an expert at writing warranty policy documents. Using the information provided, generate a well-written and easy-to-understand policy document in Markdown format. The document should match the structure and content of the provided example.
-
 # NATIONWIDE LIMITED ROAD HAZARD WARRANTY
 ************************************************************************
 
@@ -91,17 +33,3 @@ Submit the above documentation to: Road Hazard Plan Roadside Assistance, P.O. Bo
 The following vehicles are not eligible for Plan coverage: Vehicles with a manufacturer's load rating capacity of greater than one (1) ton. Vehicles used for farm or agricultural purpose. Any emergency service vehicle, any vehicle used for hire (including Lyft, Uber or similar type of service), towing, construction, postal service, off-road service or commercial purposes.{{#if isCommercial}} **This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**{{/if}} Coverage excludes damage from off-road use, collision, fire, vandalism, theft, snow chains, manufacturer's defects, abuse and neglect (i.e., improper application, improper inflation, overloading, brake lock up, wheel spinning, torque snags, etc.), cosmetic damage, sidewall abrasions or other appearance items that do not affect the safety or performance of the tire. Tires with torn beads. Also excluded are damages or irregular wear caused by misalignment, mechanical failures or interference with vehicle components, tires that have been repaired in a manner other than per manufacturer's guidelines. This Plan covers only the eligible tires installed on the vehicle registered to the customer and listed on the original purchase receipt. **CONSEQUENTIAL AND INCIDENTAL DAMAGES ARE EXCLUDED.** Some states do not allow the exclusion or limitation of consequential and incidental damages; therefore, such limitations or exclusions may not apply to you. No expressed guarantees given other than that stated herein. This Plan gives You specific legal rights; You may have other rights, which vary from state to state.
 
 **THE PROGRAM ADMINISTRATOR RESERVES THE RIGHT TO DENY ANY CLAIM SUBMITTED WITH FALSE OR MISLEADING INFORMATION, OR IF THE DOCUMENTATION DOES NOT CLEARLY IDENTIFY THE ORIGINAL PURCHASER, VEHICLE OR TIRES. ANY PERSON WHO KNOWINGLY AND WITH INTENT TO INJURE, DEFRAUD, OR...**
-`,
-});
-
-const generatePolicyDocumentFlow = ai.defineFlow(
-  {
-    name: 'generatePolicyDocumentFlow',
-    inputSchema: GeneratePolicyDocumentInputSchema,
-    outputSchema: GeneratePolicyDocumentOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
