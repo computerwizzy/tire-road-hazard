@@ -7,6 +7,7 @@
 | **Invoice:** {{invoiceNumber}} | **Name:** {{customerName}} | **Vehicle:** {{fullVehicle}} | **Road Hazard Price:** ${{roadHazardPrice}} |
 | **Plan ID:** TMX1392090 | **Phone:** {{customerPhone}} | **Mileage:** {{vehicleMileage}} | **Tires Purchased:** {{tireQuantity}} |
 | **Date:** {{purchaseDate}} | **Dealer:** {{dealerName}} | | |
+| | **Address:**<br>{{customerFullAddress}} | | |
 
 ---
 

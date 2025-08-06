@@ -49,7 +49,7 @@ function compileTemplate(template: string, data: Record<string, any>): string {
 
     // Handle the simple placeholders
     for (const key in data) {
-        if (key !== 'tireDots' && key !== 'isCommercial') {
+        if (key !== 'tireDots' && key !== 'isCommercial' && key !== 'formData') {
             const regex = new RegExp(`{{${key}}}`, 'g');
             compiled = compiled.replace(regex, String(data[key] || ''));
         }
@@ -59,15 +59,15 @@ function compileTemplate(template: string, data: Record<string, any>): string {
     if (data.tireDots && data.tireDots.length > 0) {
         const tireRows = data.tireDots.map((dot: string) => {
             // Only create a row if the DOT is not empty
-            if(dot) {
+            if(dot && dot.trim()) {
               return `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |`;
             }
             return null;
         }).filter(Boolean).join('\n'); // filter(Boolean) removes nulls
         compiled = compiled.replace('{{#each tireDots}}', tireRows);
     } else {
-        // If there are no tire dots, replace the loop placeholder with an empty string
-        compiled = compiled.replace('{{#each tireDots}}', '');
+        // If there are no tire dots, replace the loop placeholder with an empty string or a placeholder
+        compiled = compiled.replace('{{#each tireDots}}', '| | | |');
     }
 
 
@@ -75,7 +75,9 @@ function compileTemplate(template: string, data: Record<string, any>): string {
     const commercialText = data.isCommercial 
         ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**" 
         : "";
-    compiled = compiled.replace('{{#if isCommercial}}...{{/if}}', commercialText);
+    const commercialRegex = /\{\{#if isCommercial\}\}.*?\{\{\/if\}\}/s;
+    compiled = compiled.replace(commercialRegex, commercialText);
+
 
     return compiled;
 }
@@ -99,6 +101,7 @@ async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema
       tireDots: allTireDots,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       fullVehicle: `${values.vehicleYear} ${values.vehicleMake} ${values.vehicleModel} ${values.vehicleSubmodel || ''}`.trim(),
+      customerFullAddress: `${values.customerStreet}\n${values.customerCity}, ${values.customerState} ${values.customerZip}`
   };
 
   const policyDocument = compileTemplate(template, policyData);
