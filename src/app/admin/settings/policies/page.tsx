@@ -8,14 +8,14 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { handleSearch } from '@/app/actions';
-import type { SearchPoliciesOutput } from '@/ai/flows/search-policies';
+import type { SearchPoliciesOutput } from '@/app/actions';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FileEdit, Loader2, FileQuestion, Search } from 'lucide-react';
+import { FileEdit, Loader2, FileQuestion, Search, AlertCircle } from 'lucide-react';
 
 const SearchSchema = z.object({
   searchTerm: z.string().min(1, { message: 'Please enter a search term.' }),
@@ -62,7 +62,7 @@ export default function PolicyManagementPage() {
                 <CardHeader>
                     <CardTitle>Search Policies</CardTitle>
                     <CardDescription>
-                        Find a specific warranty policy by its policy number or tire DOT number.
+                        Find a specific warranty policy by its policy number, customer name, or tire DOT number.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -75,7 +75,7 @@ export default function PolicyManagementPage() {
                                 <FormItem className="flex-grow">
                                 <FormLabel className="sr-only">Search Term</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Enter Policy Number or Tire DOT Number..." {...field} />
+                                    <Input placeholder="Enter Policy #, Customer Name, or Tire DOT..." {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -99,8 +99,12 @@ export default function PolicyManagementPage() {
 
                      {error && (
                         <Alert variant="destructive" className="mt-6">
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Error Searching Policies</AlertTitle>
+                            <AlertDescription>
+                                {error}
+                                {error.includes("RLS") && <p className="mt-2 text-xs">Please visit your Supabase dashboard and ensure that you have enabled read access for authenticated users on your 'policies' table.</p>}
+                            </AlertDescription>
                         </Alert>
                     )}
 

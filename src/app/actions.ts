@@ -3,13 +3,13 @@
 
 import { z } from "zod";
 import { generatePolicyDocument, type GeneratePolicyDocumentInput } from "@/ai/flows/generate-policy-document";
-import { searchPolicies, type SearchPoliciesOutput, type Policy } from "@/ai/flows/search-policies";
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb } from "@/data/db-actions";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import type { Policy } from "@/ai/flows/search-policies";
 
 
 const WarrantyClaimSchema = z.object({
@@ -131,6 +131,9 @@ const SearchSchema = z.object({
   searchTerm: z.string().min(1, { message: "Please enter a search term." }),
 });
 
+export type SearchPoliciesOutput = {
+  results: Policy[];
+};
 
 export async function handleSearch(values: z.infer<typeof SearchSchema>): Promise<{
   success: boolean;
@@ -138,11 +141,31 @@ export async function handleSearch(values: z.infer<typeof SearchSchema>): Promis
   error?: string;
 }> {
   try {
-    const result = await searchPolicies(values.searchTerm);
-    return { success: true, data: result };
+    const cookieStore = cookies();
+    const supabase = createServerClient(cookieStore);
+    const query = values.searchTerm;
+
+    const { data, error } = await supabase
+        .from('policies')
+        .select('*')
+        .or(`policyNumber.ilike.%${query}%,customerName.ilike.%${query}%,tireDot.ilike.%${query}%`);
+
+    if (error) {
+        console.error('Error searching policies in Supabase:', error);
+        if (error.code === '42501') {
+            throw new Error("Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard.");
+        }
+        if (error.code === '42P01') {
+             throw new Error("The 'policies' table does not exist. Please create it in your Supabase dashboard.");
+        }
+        throw new Error('Failed to search policies. Please check the database connection and permissions.');
+    }
+    
+    return { success: true, data: { results: data || [] } };
   } catch (error) {
-    console.error("Error searching policies:", error);
-    return { success: false, error: "Failed to search policies. Please try again." };
+    console.error("Error in handleSearch:", error);
+    const message = error instanceof Error ? error.message : "An unknown error occurred.";
+    return { success: false, error: message };
   }
 }
 
