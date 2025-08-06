@@ -66,7 +66,7 @@ function compileTemplate(template: string, data: Record<string, any>): string {
         }
     });
 
-    const policyHeader = headerTable + coveredTiresTable;
+    const policyHeader = headerTable + '\n' + coveredTiresTable;
     let compiled = template.replace('{{policyHeader}}', policyHeader);
 
     // Handle isCommercial conditional
@@ -326,3 +326,5 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 
 export { addUser, deleteUser, getUsers };
+
+    
