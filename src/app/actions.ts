@@ -180,8 +180,8 @@ export async function handleSearch(searchTerm: string): Promise<{
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
-    // Select only the columns needed for the search results display
-    const selectColumns = 'policyNumber, customerName, customerEmail, tireDot1, purchaseDate, warrantyEndDate, receiptUrl, policyDocument';
+    // Select all columns to get the full policy details
+    const selectColumns = '*';
 
     const { data, error } = await supabase
         .from('policies')
@@ -371,5 +371,3 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
-
-    
