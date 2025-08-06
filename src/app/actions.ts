@@ -45,20 +45,27 @@ const WarrantyClaimSchema = z.object({
 });
 
 function compileTemplate(template: string, data: Record<string, any>): string {
-    // Replace simple placeholders like {{key}}
-    let compiled = template.replace(/{{(.*?)}}/g, (match, key) => {
-        const value = data[key.trim()];
-        return value !== undefined ? String(value) : match;
-    });
+    let compiled = template;
 
-    // Handle {{#if isCommercial}}...{{/if}}
-    compiled = compiled.replace(/{{#if isCommercial}}([\s\S]*?){{\/if}}/g, (match, content) => {
-        return data.isCommercial ? content : '';
-    });
+    // Handle the simple placeholders
+    for (const key in data) {
+        if (key !== 'tireDots' && key !== 'isCommercial') {
+            const regex = new RegExp(`{{${key}}}`, 'g');
+            compiled = compiled.replace(regex, String(data[key]));
+        }
+    }
     
-    // Handle tire dots
-    const tireDotsContent = data.tireDots.map((dot: string) => `**DOT:** ${dot}`).join('\n');
-    compiled = compiled.replace('{{#each tireDots}}', tireDotsContent);
+    // Handle the tireDots loop
+    const tireRows = data.tireDots.map((dot: string, index: number) => {
+        return `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |`;
+    }).join('\n');
+    compiled = compiled.replace('{{#each tireDots}}', tireRows);
+
+    // Handle isCommercial conditional
+    const commercialText = data.isCommercial 
+        ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**" 
+        : "";
+    compiled = compiled.replace('{{#if isCommercial}}...{{/if}}', commercialText);
 
     return compiled;
 }
