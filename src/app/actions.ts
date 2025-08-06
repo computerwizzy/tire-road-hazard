@@ -106,6 +106,9 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     };
 
     const result = await generatePolicyDocument(input);
+    if (!result?.policyDocument) {
+      throw new Error("The AI failed to generate a policy document. Please try again.");
+    }
 
     await savePolicy({
         policyNumber,
@@ -123,7 +126,8 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
 
   } catch (error) {
     console.error("Error generating policy document:", error);
-    return { success: false, error: "Failed to generate policy document. Please try again." };
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred during policy generation.";
+    return { success: false, error: `Failed to generate policy document. Reason: ${errorMessage}` };
   }
 }
 

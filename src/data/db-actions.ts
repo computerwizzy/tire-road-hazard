@@ -11,9 +11,9 @@ function getSupabase() {
     return createClient(cookieStore);
 }
 
-export async function savePolicy(policy: Omit<Policy, 'id'>): Promise<void> {
+export async function savePolicy(policy: Policy): Promise<void> {
     const supabase = getSupabase();
-    const { error } = await supabase.from('policies').insert([policy]); // Wrap in array for insert
+    const { error } = await supabase.from('policies').insert([policy]);
      if (error) {
          console.error('Error saving policy to Supabase:', error);
          throw new Error(`Failed to save policy. DB Error: ${error.message}`);
