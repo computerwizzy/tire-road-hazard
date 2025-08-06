@@ -53,9 +53,11 @@ export async function searchPolicies(query: string): Promise<SearchPoliciesOutpu
         if (error.code === '42501') {
             throw new Error("Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard.");
         }
-        throw new Error('Failed to search policies.');
+        if (error.code === '42P01') {
+             throw new Error("The 'policies' table does not exist. Please create it in your Supabase dashboard.");
+        }
+        throw new Error('Failed to search policies. Please check the database connection and permissions.');
     }
     
     return { results: data || [] };
 }
-
