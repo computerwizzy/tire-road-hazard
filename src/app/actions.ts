@@ -107,8 +107,8 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const supabase = createClient(cookieStore);
 
     const policyNumber = values.invoiceNumber;
-    const warrantyStartDate = new Date();
-    const warrantyEndDate = new Date();
+    const warrantyStartDate = new Date(values.purchaseDate);
+    const warrantyEndDate = new Date(warrantyStartDate);
     warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3);
 
     let receiptUrl = null;
@@ -196,6 +196,13 @@ export async function handleSearch(searchTerm: string): Promise<{
         warrantyEndDate: item.warrantyEndDate,
         receiptUrl: item.receiptUrl,
         policyDocument: item.policyDocument,
+        vehicleYear: item.vehicleYear,
+        vehicleMake: item.vehicleMake,
+        vehicleModel: item.vehicleModel,
+        vehicleMileage: item.vehicleMileage,
+        dealerName: item.dealerName,
+        invoiceNumber: item.invoiceNumber,
+        roadHazardPrice: item.roadHazardPrice,
     })) : [];
 
 
@@ -365,9 +372,3 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
-
-    
-
-    
-
-    

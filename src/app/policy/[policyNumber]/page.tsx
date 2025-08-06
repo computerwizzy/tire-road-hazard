@@ -8,17 +8,18 @@ import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { Separator } from '@/components/ui/separator';
 
-function PolicyDetail({ label, value, icon: Icon }: { label: string; value: string | null | undefined, icon: React.ElementType }) {
-    if (!value) return null;
+function PolicyDetail({ label, value, icon: Icon }: { label: string; value: string | number | null | undefined, icon: React.ElementType }) {
+    if (!value && typeof value !== 'number') return null;
     return (
         <div className="flex items-start text-sm">
             <Icon className="h-4 w-4 mr-2 mt-1 text-muted-foreground" />
             <div>
                 <p className="font-semibold text-foreground">{label}</p>
-                <p className="text-muted-foreground">{value}</p>
+                <p className="text-muted-foreground">{String(value)}</p>
             </div>
         </div>
     );
@@ -99,14 +100,45 @@ export default function PolicyPage() {
                             </div>
                         )}
                         {policy && (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <PolicyDetail icon={User} label="Customer Name" value={policy.customerName} />
-                                    <PolicyDetail icon={User} label="Customer Email" value={policy.customerEmail} />
-                                    <PolicyDetail icon={Disc3} label="Tire DOT Number" value={policy.tireDot} />
-                                    <PolicyDetail icon={Calendar} label="Purchase Date" value={format(parseISO(policy.purchaseDate), 'PPP')} />
-                                    <PolicyDetail icon={Calendar} label="Warranty End Date" value={format(parseISO(policy.warrantyEndDate), 'PPP')} />
+                            <div className="space-y-8">
+                                <div>
+                                    <h3 className="font-headline text-lg font-semibold flex items-center gap-2 mb-4">
+                                        <User className="text-primary" />
+                                        Customer &amp; Policy
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <PolicyDetail label="Customer Name" value={policy.customerName} icon={User} />
+                                        <PolicyDetail label="Customer Email" value={policy.customerEmail} icon={User} />
+                                        <PolicyDetail label="Warranty End Date" value={format(parseISO(policy.warrantyEndDate), 'PPP')} icon={Calendar} />
+                                    </div>
                                 </div>
+                                <Separator />
+                                <div>
+                                    <h3 className="font-headline text-lg font-semibold flex items-center gap-2 mb-4">
+                                        <Car className="text-primary" />
+                                        Vehicle &amp; Tire
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <PolicyDetail label="Vehicle" value={`${policy.vehicleYear} ${policy.vehicleMake} ${policy.vehicleModel}`} icon={Car} />
+                                        <PolicyDetail label="Mileage" value={policy.vehicleMileage?.toLocaleString()} icon={Milestone} />
+                                        <PolicyDetail label="Tire DOT Number" value={policy.tireDot} icon={Disc3} />
+                                    </div>
+                                </div>
+                                 <Separator />
+                                <div>
+                                    <h3 className="font-headline text-lg font-semibold flex items-center gap-2 mb-4">
+                                        <Store className="text-primary" />
+                                        Purchase Information
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <PolicyDetail label="Dealer Name" value={policy.dealerName} icon={Store} />
+                                        <PolicyDetail label="Invoice Number" value={policy.invoiceNumber} icon={Tag} />
+                                        <PolicyDetail label="Purchase Date" value={format(parseISO(policy.purchaseDate), 'PPP')} icon={Calendar} />
+                                        <PolicyDetail label="Road Hazard Price" value={policy.roadHazardPrice ? `$${policy.roadHazardPrice.toFixed(2)}` : null} icon={Tag} />
+                                    </div>
+                                </div>
+
+
                                 {policy.receiptUrl && (
                                      <div>
                                         <h3 className="font-headline text-lg font-semibold flex items-center gap-2 mb-4">
