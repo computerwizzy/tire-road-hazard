@@ -1,15 +1,116 @@
 
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import WarrantyForm from '@/components/warranty-form';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Image from 'next/image';
+import { WarrantyResult, type PolicyData } from './warranty-result';
+
+
+const sampleResult: PolicyData = {
+  policyDocument: `# Tires & Engine Performance NATIONWIDE LIMITED ROAD HAZARD WARRANTY
+************************************************************************
+
+| Policy Details | Customer Information | Vehicle Information | Tire Information |
+| :--- | :--- | :--- | :--- |
+| **Invoice:** TEST-12345<br>**Road Hazard Price:** $75.00<br>**Plan ID:** TMX1392090<br>**Date:** 2024-08-07 | **Name:** John Doe<br>**Phone:** (555) 123-4567<br>**Address:**<br>123 Main St<br>Anytown, USA 12345 | **Vehicle:** 2023 Toyota Camry SE<br>**Mileage:** 15000 | **Tires Purchased:** 2<br>**Brand & Model:** Michelin Defender<br>**Size:** 235/45R18<br>**DOT Number:** DOTB3RVY8C4223 |
+
+### Covered Tires
+| Brand & Model | Size | DOT Number |
+| :--- | :--- | :--- |
+| Michelin Defender | 235/45R18 | DOTB3RVY8C4223 |
+| Michelin Defender | 235/45R18 | DOTB3RVY8C4224 |
+
+---
+This Road Hazard Plan ("Plan") is afforded to You with the purchase of Your tires provided by ABS Risk, LLC (also referred to herein as "Obligor", "We", "Us", and "Our"), Administrative Office: 10170 Church Ranch Way, Suite 320, Westminster, CO 80021, (888) 268-4888, and administered by Automotive Business Solutions ("Program Administrator") P.O. Box 33535, Denver, CO 80233. This Plan covers only the eligible tires You purchased and installed on the vehicle identified on the original purchase receipt. This Plan only applies to passenger and light truck tires, which become unserviceable because of a road hazard. A road hazard occurs when a tire fails due to a puncture, bruise or break incurred during the course of normal driving on a maintained road. Nails, glass, and potholes would be the most common examples of road hazard damage.
+
+### WHAT YOU MUST DO TO OBTAIN SERVICE
+If possible, you should return to the selling dealer where you originally purchased this Plan, for tire repair or replacement. If you are away from the original selling dealer, you must contact the Program Administrator by calling 866-830-4189 for assistance in locating the nearest participating facility. A prior authorization number must be obtained from the Program Administrator to replace a tire damaged by a road hazard. **YOU MUST PRESENT THE ORIGINAL INVOICE SHOWING THE PURCHASE OF THE TIRE(S).** The damaged tire must be made available for inspection by the repair facility and/or the Program Administrator. All claims and any required documentation must be submitted to the Program Administrator within sixty (60) days of the date of road hazard damage and/or service. This Plan does not have a deductible.
+
+### WHAT IS COVERED BY THE PLAN
+This Plan is valid for thirty-six (36) months from the purchase date of Your eligible tire(s), as stated on the original purchase receipt, or until any portion of the tire treadwear is worn 2/32 of an inch or less, whichever occurs first (the "Coverage Period").
+
+**Tire Replacement:** If an eligible tire becomes unserviceable because of a road hazard, and cannot be safely repaired per the manufacturer's guidelines, during the Coverage Period, this Plan will cover the cost of the replacement as follows:
+- If the tire failure occurs within the first twelve (12) months following the Plan Purchase Date, an exact make and model replacement tire will be installed. If not available, this Plan will cover the cost, up to one hundred percent (100%) of the retail price paid (as stated on the original sales invoice) for the original tire, of a comparable quality tire.
+- If the tire failure occurs after the first twelve (12) months following the Plan Purchase Date, you will be charged for the consumed time (months) on the original tire, times the original selling price of the tire (as stated on the original sales invoice). This plan will cover the remainder of the retail price paid for the original tire (as stated on the original sales invoice) of a comparable quality tire. You will be responsible for any taxes, mounting, balancing, and any other miscellaneous fees. This Plan does not transfer to the replacement tire.
+
+**Tire Repair:** If your tire is damaged due to a road hazard and can be safely repaired, the tire will be repaired per manufacturer's guidelines at any participating facility. The Plan will cover up $20.00 to have the tire repaired. The Plan will remain in effect.
+
+### FLAT TIRE CHANGING ASSISTANCE
+For thirty-six (36) months from the Plan Purchase Date, you may receive flat tire changing assistance by calling the service provider of your choice. If you need assistance in locating a service provider in your area, you may call 866-830-4189. You will be reimbursed up to $75 for eligible expenses incurred for flat tire changing assistance. Flat tire changing assistance is strictly limited to the installation of your useable spare tire. If you require a tow or any other service you are solely responsible for those charges. This benefit applies only to motorized passenger vehicles and specifically excludes trailers or those vehicles listed under the exclusions and limitations. The following documentation must be to the Program Administrator within 60 days of service to receive a reimbursement:
+1. A photocopy of the original invoice showing the purchase of the Plan and your complete name, address, and telephone number.
+2. A photocopy of the paid invoice for spare tire installation from a valid auto service provider. This paid invoice must detail the name, address, and telephone number of the service provider.
+
+Submit the above documentation to: Road Hazard Plan Roadside Assistance, P.O. Box 33535 Denver, CO 80233.
+
+### EXCLUSIONS AND LIMITATIONS
+The following vehicles are not eligible for Plan coverage: Vehicles with a manufacturer's load rating capacity of greater than one (1) ton. Vehicles used for farm or agricultural purpose. Any emergency service vehicle, any vehicle used for hire (including Lyft, Uber or similar type of service), towing, construction, postal service, off-road service or commercial purposes. Coverage excludes damage from off-road use, collision, fire, vandalism, theft, snow chains, manufacturer's defects, abuse and neglect (i.e., improper application, improper inflation, overloading, brake lock up, wheel spinning, torque snags, etc.), cosmetic damage, sidewall abrasions or other appearance items that do not affect the safety or performance of the tire. Tires with torn beads. Also excluded are damages or irregular wear caused by misalignment, mechanical failures or interference with vehicle components, tires that have been repaired in a manner other than per manufacturer's guidelines. This Plan covers only the eligible tires installed on the vehicle registered to the customer and listed on the original purchase receipt. **CONSEQUENTIAL AND INCIDENTAL DAMAGES ARE EXCLUDED.** Some states do not allow the exclusion or limitation of consequential and incidental damages; therefore, such limitations or exclusions may not apply to you. No expressed guarantees given other than that stated herein. This Plan gives You specific legal rights; You may have other rights, which vary from state to state. **THE PROGRAM ADMINISTRATOR RESERVES THE RIGHT TO DENY ANY CLAIM SUBMITTED WITH FALSE OR MISLEADING INFORMATION, OR IF THE DOCUMENTATION DOES NOT CLEARLY IDENTIFY THE ORIGINAL PURCHASER, VEHICLE OR TIRES. ANY PERSON WHO KNOWINGLY AND WITH INTENT TO INJURE, DEFRAUD, OR DECEIVE ANY OBLIGOR OR ADMINISTRATOR, FILES A STATEMENT OF CLAIM OR AN APPLICATION CONTAINING ANY FALSE, INCOMPLETE, OR MISLEADING INFORMATION MAY BE GUILTY OF A CRIME AND SUBJECT TO CIVIL AND/OR CRIMINAL SANCTIONS.**
+
+### LIMITATION OF LIABILITY
+THIS ROAD HAZARD PLAN SETS OUT THE FULL EXTENT OF OUR RESPONSIBILITIES, AND THE EXCLUSIVE REMEDY REGARDING NEW TIRES PURCHASED. NEITHER THE OBLIGOR NOR THE PROGRAM ADMINISTRATOR SHALL BE LIABLE FOR SPECIAL, INDIRECT, INCIDENTAL, PUNITIVE OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, EXPENSES ARISING OUT OF THIRD PARTY CLAIMS, LOSS OF USE OF THE VEHICLE, INCONVENIENCE, OR ANY OTHER LOSS), WHETHER OR NOT CAUSED BY OR RESULTING FROM BREACH OF CONTRACT, NEGLIGENCE, OR OTHER WRONGFUL ACT OR OMISSION, EVEN IF IT HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. NEITHER THE OBLIGOR NOR THE PROGRAM ADMINISTRATOR AUTHORIZE ANY PERSON, ENTITY OR TIRE DEALER TO CREATE FOR THEM ANY OTHER OBLIGATION OR LIABILITY IN CONNECTION WITH THIS PRODUCT.
+
+### CANCELLATION
+You may return this Plan to the Selling Dealer within thirty (30) days of the Plan Purchase Date, if no claim has been made under the Plan. The Plan is void and you shall receive a refund of the full price paid for the Plan. After the first thirty (30) days from the Plan Purchase Date, we or the selling dealer will refund you a pro-rated amount of the Plan Purchase Price, based on the months remaining, if no claim has been made under the Plan. The Obligor may cancel this Plan for non-payment of Plan Purchase Price by the Selling Dealer to Obligor, or for material misrepresentation or fraud at time of sale. If Obligor cancels this Plan, Obligor or the selling dealer will refund you 100% of the Plan Purchase Price, if no claim has been made under the Plan. This Plan is non-transferable.
+
+### DISPUTE RESOLUTION/ARBITRATION AGREEMENT and CLASS ACTION WAIVER
+Arbitration is a method of resolving any Claim without filing a lawsuit. In this Arbitration Agreement and Class Action Waiver, You, We/the Administrator and Obligor (the "Parties") are agreeing to submit any and all Claims to binding arbitration on an individual basis for resolution. This Arbitration Agreement and Class Action Waiver sets forth the terms and conditions of our agreement to binding arbitration. The Parties agree that any and all claims, disputes and controversies related in any way to this Plan, including but not limited to claims related to the underlying transaction giving rise to this Plan, or claims related to the sale, financing or fulfillment of this Plan (collectively, "Claims"), shall be resolved by final and binding arbitration. "Claims" shall be given the broadest meaning possible and includes, without limitation, Claims arising under contract, tort, statute, regulation, rule, ordinance or other rule of law or equity, and Claims against any of Administrator's and Obligor's owners, shareholders, members, affiliates, subsidiaries, divisions, directors, officers, employees, representatives, agents, successors, or assigns. "Claims" does not include a statutory claim for public injunctive relief brought under any California statute enacted for a public reason, provided that you are a California resident or that you received your Plan in California. In arbitration, Claims are resolved by an arbitrator and not by a judge or jury. THE PARTIES, INCLUDING YOU, WAIVE ANY RIGHT TO HAVE CLAIMS DECIDED BY A JUDGE OR JURY. In addition, except as expressly stated in the Class Action Waiver or otherwise expressly stated herein, the arbitrator shall have exclusive authority to decide all issues related to the enforcement, applicability, scope, validity, and interpretation of this Arbitration Agreement, including but not limited to any unconscionability challenge or any other challenge that the Arbitration Agreement is void, voidable or otherwise invalid. Notwithstanding this agreement to arbitrate, each of the Parties retains the right to seek remedies in small claims court to resolve any Claim, on an individual basis, within the jurisdiction of small claims court. You acknowledge your understanding that all Parties hereunder are waiving their rights to go to court, except for small claims court, to resolve any Claims arising under or in connection with this Plan. The Parties agree and acknowledge that the transaction evidenced by this Plan affects interstate commerce. The Parties further agree that all issues relating to this Arbitration Agreement and Class Action Waiver, including its enforcement, scope, validity, interpretation, and implementation, will be determined pursuant to federal substantive law and the substantive and procedural provisions of the Federal Arbitration Act ("Act"), 9 U.S.C. §§ 1-16. If federal substantive law holds that state law should apply to any issue relating to this Arbitration Agreement and Class Action Waiver, then the law of the state where you originally received this Plan shall apply, without regards to conflicts of law.
+
+### CLASS ACTION WAIVER
+All Claims must be brought solely in an individual capacity, and not as a plaintiff or class member in any purported class action, collective action, representative action, mass action, private attorney general action or action on behalf of the general public, or similar proceeding (any such action is referred to herein as a "Class Action"). NO CLAIM WILL BE ARBITRATED ON A CLASS ACTION BASIS. The Parties, including you, expressly waive any right or ability to bring, assert, maintain, or participate as a class member in any Class Action in court, arbitration, or any other forum, and the right for anyone to do so on Your behalf. The arbitrator may not consolidate more than one person or entity's claims, and may not otherwise preside over any Class Action. The arbitrator shall not have the authority to combine or aggregate multiple persons' or entities' Claims or discovery, to conduct a Class Action or to make an award to any person or entity not a party to the arbitration. Notwithstanding anything to the contrary, the Parties agree that the enforcement, applicability, scope, validity, and/or interpretation of this Class Action Waiver shall be decided by a court of competent jurisdiction and not by an arbitrator. If this Class Action Waiver is ruled unenforceable or is interpreted to not prevent a Class Action, then the Arbitration Agreement shall be null and void, and any Claims shall proceed in a court of law and not in arbitration. The Parties agree that if an arbitrator renders a decision regarding the enforcement, applicability, scope, validity, and/or interpretation of this Class Action Waiver, or determines that a Class Action may proceed in arbitration, then: (1) the arbitrator has exceeded his powers, pursuant to §10(a)(4) of the FAA, by taking such action; (2) either party may seek immediate review of that decision by a court of competent jurisdiction; and (3) a court of competent jurisdiction shall apply a "de novo" standard of review of that decision if such standard of review is allowed by the common law or statutes of that state. The Parties, including You, agree that if for any reason a Claim proceeds to Court, rather than arbitration, (1) the Claim will proceed solely on an individual, non-class, non-representative basis, and (2) no Party may be a class representative or class member or otherwise participate in any Class Action. The arbitration shall be administered by the American Arbitration Association ("AAA"). The arbitration shall be conducted pursuant to the AAA Consumer Arbitration Rules (the "Code"). Information on AAA and a copy of the Code may be found at the following number and URL: American Arbitration Association, (800) 778-7879, www.adr.org. The arbitration will be governed by federal substantive law and the substantive and procedural provisions of the Federal Arbitration Act ("Act"), 9 U.S.C. §§ 1-16. If federal substantive law holds that state law should apply to any issue relating to the arbitration, then the law of the state where you originally received this Plan shall apply, without regards to conflicts of law. The arbitration will occur before a single, neutral arbitrator selected in accordance with the Code in effect at the time the arbitration is commenced. If your total damage claims (not including attorney's fees) do not exceed $25,000, then all Claims shall be resolved by the Code's Procedures for the Resolution of Disputes through Document Submission, except that a Party may ask for a hearing or the arbitrator may decide that a hearing is necessary. If a hearing is held, you have a right to attend the arbitration hearing in person, and You may choose to have any arbitration hearing held in the county in which You live, the closest AAA location to Your residence, or via telephone. In the event that the specified arbitration forum is unavailable, the Parties may agree on a substitute arbitration forum. If the Parties cannot agree, a court of competent jurisdiction may appoint a substitute arbitration forum. For information about how to initiate arbitration with the AAA, the Parties may refer to the AAA Code and forms at www.adr.org or call (800) 778-7879. If you initiate arbitration with AAA, You must pay the AAA filing fee in an amount no greater than the fee you would have to pay if you filed a complaint in federal court. The Administrator will pay any remaining Costs of arbitration required by the Code ("Arbitration Costs"); however, if the arbitrator determines that any of your claims are frivolous, You shall bear all of the Arbitration Costs. If the Obligor initiates arbitration against you, the Obligor will pay the AAA filing fee and the Arbitration Costs. Each party will pay his/her/its own attorney's fees, as well as costs relating to proof and witnesses, regardless of who prevails, unless applicable law and/or the Code gives a party the right to recover any of those fees from the other party. An arbitration award may not be set aside except upon the limited circumstances set forth in the Federal Arbitration Act. An award in arbitration will be enforceable under the Federal Arbitration Act by any court having jurisdiction. The time for commencing an arbitration asserting any Claim shall be determined by reference to the applicable statute(s) of limitations, including the applicable rules governing the commencement of the limitations period, and a Claim in arbitration is barred to the same extent it would be barred if it were asserted in court of law or equity rather than in arbitration. If any portion of this Arbitration Agreement is deemed invalid or unenforceable, all the remaining portions of this Arbitration Agreement shall nevertheless remain valid and enforceable, provided, however, that if any portion of the Class Action Waiver is deemed invalid or unenforceable, then this Arbitration Agreement greement shall be invalidated and unenforceable in its entirety. In the event of a conflict or inconsistency between this Arbitration Agreement and Class Action Waiver and the other provisions of this Plan or any other agreement, this Arbitration Agreement and Class Action Waiver governs.
+
+### OPT-OUT PROVISION
+YOU SHALL HAVE THE RIGHT TO OPT OUT OF THIS ARBITRATION AGREEMENT AND CLASS ACTION WAIVER BY PROVIDING WRITTEN NOTICE OF YOUR INTENTION TO DO SO TO THE PROGRAM ADMINISTRATOR OR THE OBLIGOR WITHIN THIRTY (30) DAYS OF THE RECEIPT OF THIS PLAN (THE DATE OF RECEIPT BEING INDICATED ON THE INVOICE FOR YOUR TIRE PURCHASE. To opt out, You must send written notice to either: (1) 10170 Church Ranch Way, Suite 320, Westminster, CO 80021, Attn: Legal or (2) legal@fortegra.com, with the subject line, "Arbitration/Class Action Waiver Opt Out." You must include in your opt out notice: (a) Your name and address; (b) the date you purchased your Plan; and (c) the selling dealer. If you properly and timely opt out, then all Claims will be resolved in court rather than arbitration.
+
+### Privacy Policy
+It is Our policy to respect the privacy of Our customers. For information on Our privacy practices, please review Our privacy policy at www.fortegra.com.
+
+### INSURANCE STATEMENT
+ABS RISK LLC'S OBLIGATIONS TO PERFORM UNDER THIS PLAN ARE INSURED BY LYNDON SOUTHERN INSURANCE COMPANY, 10751 DEERWOOD PARK BLVD., SUITE 200, JACKSONVILLE, FL 32256 (800) 888-2738, EXCEPT IN CALIFORNIA, GEORGIA, NEW YORK AND WISCONSIN.
+**CALIFORNIA** - THE OBLIGOR IS INSURED BY RESPONSE INDEMNITY COMPANY OF CALIFORNIA, 10751 DEERWOOD PARK BLVD., SUITE 200, JACKSONVILLE, FL 32256 (800) 888-2738.
+**GEORGIA** - THE OBLIGOR IS INSURED BY INSURANCE COMPANY OF THE SOUTH, 10751 DEERWOOD PARK BLVD., SUITE 200, JACKSONVILLE, FL 32256 (800) 888-2738
+**NEW YORK AND WISCONSIN** - THE OBLIGOR IS INSURED BY BLUE RIDGE INDEMNITY COMPANY, 10751 DEERWOOD PARK BLVD., SUITE 200, JACKSONVILLE, FL 32256 (800) 888-2738.
+
+IF THE OBLIGOR FAILS TO PAY AN AUTHORIZED CLAIM WITHIN SIXTY (60) DAYS, OR IF THE OBLIGOR BECOMES INSOLVENT OR CEASES TO CONDUCT BUSINESS DURING THE TERM OF THIS PLAN, YOU MAY SUBMIT YOUR CLAIM DIRECTLY TO THE APPLICABLE INSURER ARE THE ABOVE ADDRESS FOR CONSIDERATION.
+
+**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**
+`,
+  customerName: "John Doe",
+  customerEmail: "john.doe@example.com",
+  policyNumber: "TEST-12345",
+  formData: {
+    customerName: "John Doe",
+    customerPhone: "(555) 123-4567",
+    vehicleYear: 2023,
+    vehicleMake: "Toyota",
+    vehicleModel: "Camry",
+    vehicleSubmodel: "SE",
+    vehicleMileage: 15000,
+    tireBrand: "Michelin",
+    tireModel: "Defender",
+    tireSize: "235/45R18",
+    tireDot1: "DOTB3RVY8C4223",
+    purchaseDate: new Date(),
+  },
+};
 
 
 export default function MainPage() {
+  const [showTest, setShowTest] = useState(true);
+
+  if (showTest) {
+    return (
+       <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
+        <div className="w-full max-w-4xl">
+           <WarrantyResult result={sampleResult} onReset={() => setShowTest(false)} />
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
        <div className="absolute top-4 right-4">
