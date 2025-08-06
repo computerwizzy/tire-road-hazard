@@ -181,7 +181,7 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                 </div>
             </CardContent>
             { totalPages > 1 && (
-                 <div className="p-4 border-t flex items-center justify-between">
+                 <div className="p-4 border-t flex flex-col sm:flex-row items-center justify-between gap-2">
                     <p className="text-sm text-muted-foreground">
                         Showing page {currentPage} of {totalPages}
                     </p>

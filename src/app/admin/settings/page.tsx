@@ -12,7 +12,7 @@ export default function SettingsPage() {
                 <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
             </div>
             <div className="grid gap-6 md:grid-cols-2">
-                <Link href="/admin/settings/users">
+                <Link href="/admin/settings/users" className="block">
                     <Card className="hover:bg-muted/50 transition-colors">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div>
@@ -26,7 +26,7 @@ export default function SettingsPage() {
                         </CardHeader>
                     </Card>
                 </Link>
-                <Link href="/admin/settings/policies">
+                <Link href="/admin/settings/policies" className="block">
                      <Card className="hover:bg-muted/50 transition-colors">
                          <CardHeader className="flex flex-row items-center justify-between">
                              <div>

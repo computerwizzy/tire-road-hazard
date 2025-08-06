@@ -138,7 +138,7 @@ export default function UserManagementPage() {
   return (
     <>
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <Users /> User Management
           </h2>
@@ -169,6 +169,7 @@ export default function UserManagementPage() {
               </div>
             )}
             {!isLoading && !error && (
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -187,7 +188,7 @@ export default function UserManagementPage() {
                           {user.role}
                         </Badge>
                       </TableCell>
-                      <TableCell>{format(parseISO(user.created_at), 'PPP')}</TableCell>
+                      <TableCell className="whitespace-nowrap">{format(parseISO(user.created_at), 'PPP')}</TableCell>
                       <TableCell className="text-right">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -216,6 +217,7 @@ export default function UserManagementPage() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             )}
             {users.length === 0 && !isLoading && !error && (
               <div className="text-center py-10 border-2 border-dashed rounded-lg">

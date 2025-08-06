@@ -72,8 +72,8 @@ export default function PolicyManagementPage() {
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-start gap-4">
-                             <div className="relative flex-1">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col sm:flex-row items-start gap-4">
+                             <div className="relative flex-1 w-full">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                 <FormField
                                 control={form.control}
@@ -89,7 +89,7 @@ export default function PolicyManagementPage() {
                                 )}
                                 />
                             </div>
-                             <Button type="submit" disabled={isLoading}>
+                             <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                                 {isLoading ? (
                                     <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -116,7 +116,7 @@ export default function PolicyManagementPage() {
                     )}
 
                     {results && (
-                        <div className="mt-8">
+                        <div className="mt-8 overflow-x-auto">
                             <h3 className="text-lg font-medium mb-4">Search Results</h3>
                             {results.results.length > 0 ? (
                             <Table>
@@ -136,10 +136,10 @@ export default function PolicyManagementPage() {
                                         onClick={() => handleRowClick(policy.policyNumber)}
                                         className="cursor-pointer"
                                     >
-                                    <TableCell className="font-medium">{policy.policyNumber}</TableCell>
+                                    <TableCell className="font-medium whitespace-nowrap">{policy.policyNumber}</TableCell>
                                     <TableCell>{policy.customerName}</TableCell>
                                     <TableCell>{policy.tireDot}</TableCell>
-                                    <TableCell>{format(parseISO(policy.warrantyEndDate), 'PPP')}</TableCell>
+                                    <TableCell className="whitespace-nowrap">{format(parseISO(policy.warrantyEndDate), 'PPP')}</TableCell>
                                     <TableCell className="text-right">
                                         <Button 
                                             variant="outline" 
