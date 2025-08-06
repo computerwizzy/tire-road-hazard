@@ -36,9 +36,12 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState(initialStats);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
+  const [totalPages, setTotalPages] = useState(Math.ceil(initialTotalCount / POLICIES_PER_PAGE));
 
+  useEffect(() => {
+    setTotalPages(Math.ceil(totalCount / POLICIES_PER_PAGE));
+  }, [totalCount]);
 
-  const totalPages = Math.ceil(totalCount / POLICIES_PER_PAGE);
 
   async function goToPage(page: number) {
     if (page < 1 || page > totalPages) return;
@@ -202,7 +205,3 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
       </div>
   );
 }
-
-    
-
-    
