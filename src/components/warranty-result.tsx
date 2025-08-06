@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Mail, Loader2, FileText } from 'lucide-react';
+import { Mail, Loader2, FileText, Printer, Download } from 'lucide-react';
 import { handleSendEmail } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
@@ -74,6 +74,15 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         }
         setIsSendingEmail(false);
     }
+
+    function handlePrint() {
+        const printWindow = window.open(`/policy/${result.policyNumber}/print`, '_blank');
+        printWindow?.addEventListener('load', () => {
+            setTimeout(() => {
+                printWindow?.print();
+            }, 100);
+        });
+    }
   
     return (
         <div className="space-y-8">
@@ -84,16 +93,16 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
                         Your Warranty Policy is Ready
                     </CardTitle>
                     <CardDescription>
-                        Thank you for registering, {result.customerName}. You can email or print the policy document.
+                        Thank you for registering, {result.customerName}. You can email, print, or download the policy document.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg printable-area">
+                    <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg border">
                         <ReactMarkdown>{result.policyDocument}</ReactMarkdown>
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 print-hidden">
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap gap-4">
                         <Button onClick={onSendEmail} disabled={isSendingEmail}>
                             {isSendingEmail ? (
                                 <>
@@ -107,7 +116,14 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
                                 </>
                             )}
                         </Button>
-                        <Button variant="outline" onClick={() => window.print()}>Print Policy</Button>
+                        <Button variant="outline" onClick={handlePrint}>
+                            <Printer className="mr-2 h-4 w-4" />
+                            Print Policy
+                        </Button>
+                         <Button variant="outline" onClick={handlePrint}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download PDF
+                        </Button>
                     </div>
                     <Button variant="secondary" onClick={onReset}>Create New Warranty</Button>
                 </CardFooter>
