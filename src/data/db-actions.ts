@@ -15,8 +15,15 @@ function getSupabase() {
 // The Policy type from search-policies.ts is now just a subset of the data stored.
 export async function savePolicy(policyData: any): Promise<void> {
     const supabase = getSupabase();
+
+    // Ensure the main 'tireDot' field required by older table structures is populated.
+    const dataToSave = {
+        ...policyData,
+        tireDot: policyData.tireDot1,
+    };
+    
     // The policyData object now contains all fields needed for regeneration.
-    const { error } = await supabase.from('policies').insert(policyData);
+    const { error } = await supabase.from('policies').insert(dataToSave);
 
      if (error) {
          console.error('Error saving policy to Supabase:', error);
