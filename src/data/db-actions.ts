@@ -13,9 +13,12 @@ function getSupabase() {
 
 export async function savePolicy(policy: Policy): Promise<void> {
     const supabase = getSupabase();
-    const { error } = await supabase.from('policies').insert([policy]);
+    const { error } = await supabase.from('policies').upsert(policy, { onConflict: 'policyNumber' });
      if (error) {
          console.error('Error saving policy to Supabase:', error);
+         if (error.code === '23505') { // duplicate key
+             throw new Error(`A policy with the invoice number "${policy.policyNumber}" already exists.`);
+         }
          throw new Error(`Failed to save policy. DB Error: ${error.message}`);
      }
 }
