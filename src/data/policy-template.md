@@ -15,7 +15,6 @@
 | Brand & Model | Size | DOT Number |
 | :--- | :--- | :--- |
 {{#each tireDots}}
-| **Tire** | **Size** | **DOT Number** |
 
 ---
 This Road Hazard Plan ("Plan") is afforded to You with the purchase of Your tires provided by ABS Risk, LLC (also referred to herein as "Obligor", "We", "Us", and "Our"), Administrative Office: 10170 Church Ranch Way, Suite 320, Westminster, CO 80021, (888) 268-4888, and administered by Automotive Business Solutions ("Program Administrator") P.O. Box 33535, Denver, CO 80233. This Plan covers only the eligible tires You purchased and installed on the vehicle identified on the original purchase receipt. This Plan only applies to passenger and light truck tires, which become unserviceable because of a road hazard. A road hazard occurs when a tire fails due to a puncture, bruise or break incurred during the course of normal driving on a maintained road. Nails, glass, and potholes would be the most common examples of road hazard damage.

@@ -51,15 +51,25 @@ function compileTemplate(template: string, data: Record<string, any>): string {
     for (const key in data) {
         if (key !== 'tireDots' && key !== 'isCommercial') {
             const regex = new RegExp(`{{${key}}}`, 'g');
-            compiled = compiled.replace(regex, String(data[key]));
+            compiled = compiled.replace(regex, String(data[key] || ''));
         }
     }
     
     // Handle the tireDots loop
-    const tireRows = data.tireDots.map((dot: string, index: number) => {
-        return `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |`;
-    }).join('\n');
-    compiled = compiled.replace('{{#each tireDots}}', tireRows);
+    if (data.tireDots && data.tireDots.length > 0) {
+        const tireRows = data.tireDots.map((dot: string) => {
+            // Only create a row if the DOT is not empty
+            if(dot) {
+              return `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |`;
+            }
+            return null;
+        }).filter(Boolean).join('\n'); // filter(Boolean) removes nulls
+        compiled = compiled.replace('{{#each tireDots}}', tireRows);
+    } else {
+        // If there are no tire dots, replace the loop placeholder with an empty string
+        compiled = compiled.replace('{{#each tireDots}}', '');
+    }
+
 
     // Handle isCommercial conditional
     const commercialText = data.isCommercial 
@@ -82,7 +92,7 @@ async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema
       values.tireDot4,
       values.tireDot5,
       values.tireDot6
-  ].filter((dot): dot is string => !!dot && dot.length > 0);
+  ].filter((dot): dot is string => !!dot && dot.trim().length > 0);
 
   const policyData = {
       ...values,
