@@ -18,8 +18,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from './ui/button';
 
-// This schema is not strictly needed anymore since the invoice is gone,
-// but it doesn't hurt to keep for typing the formData.
 const InvoiceFormDataSchema = z.object({
   customerName: z.string(),
   customerPhone: z.string(),
@@ -40,7 +38,7 @@ export type PolicyData = {
   customerName: string;
   customerEmail: string;
   policyNumber: string;
-  formData: z.infer<typeof InvoiceFormDataSchema> & { [key: string]: any }; // Allow extra fields
+  formData: z.infer<typeof InvoiceFormDataSchema> & { [key: string]: any }; 
 };
 
 interface WarrantyResultProps {
@@ -57,9 +55,6 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         if (!result) return;
         setIsSendingEmail(true);
         const response = await handleSendEmail({
-            customerName: result.customerName,
-            customerEmail: result.customerEmail,
-            policyDocument: result.policyDocument,
             policyNumber: result.policyNumber,
         });
         if (response.success) {
@@ -90,7 +85,7 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         if (!result) return;
         setIsDownloading(true);
         const response = await handleDownloadWord({
-            policyDocument: result.policyDocument,
+            policyNumber: result.policyNumber,
         });
 
         if (response.success && response.data) {
@@ -174,3 +169,5 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         </div>
     );
 }
+
+    

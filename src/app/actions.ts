@@ -151,12 +151,9 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       throw new Error("Failed to generate the policy document from the template.");
     }
     
-    // The policy data saved to the DB includes the raw form values now.
     await savePolicy({
         ...fullPolicyData,
-        // The Policy type from search-policies is now a subset of what we save.
-        // We ensure the saved object contains all fields needed for regeneration.
-        tireDot: values.tireDot1, // Still save primary DOT for simple list display
+        tireDot: values.tireDot1,
         purchaseDate: values.purchaseDate.toISOString().split('T')[0],
         policyDocument: result.policyDocument,
     });
@@ -209,9 +206,6 @@ export async function handleSearch(searchTerm: string): Promise<{
 }
 
 const EmailSchema = z.object({
-  customerName: z.string(),
-  customerEmail: z.string().email(),
-  policyDocument: z.string(),
   policyNumber: z.string(),
 });
 
@@ -220,11 +214,21 @@ export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Prom
   error?: string;
 }> {
   try {
+    const policyData = await getFullPolicyFromDb(values.policyNumber);
+    if (!policyData) {
+        return { success: false, error: 'Policy not found.' };
+    }
+
+    const docResult = await generatePolicyDocument(policyData);
+    if (!docResult.policyDocument) {
+        return { success: false, error: 'Failed to regenerate policy document.'};
+    }
+
     const policyUrl = new URL(`/policy/${values.policyNumber}`, process.env.NEXT_PUBLIC_APP_URL).toString();
     const input: SendPolicyEmailInput = {
-      customerName: values.customerName,
-      customerEmail: values.customerEmail,
-      policyDocument: values.policyDocument,
+      customerName: policyData.customerName,
+      customerEmail: policyData.customerEmail,
+      policyDocument: docResult.policyDocument,
       policyUrl: policyUrl,
     };
     const result = await sendPolicyEmail(input);
@@ -236,19 +240,24 @@ export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Prom
 }
 
 const DownloadSchema = z.object({
-    policyDocument: z.string(),
+    policyNumber: z.string(),
 });
 
 export async function handleDownloadWord(values: z.infer<typeof DownloadSchema>): Promise<{ success: boolean; data?: string; error?: string; }> {
     try {
-        const { policyDocument } = values;
-        // This is a simplified conversion. For complex markdown, a library like 'marked' would be needed.
-        // However, for our specific markdown, simple replacements should suffice.
+        const policyData = await getFullPolicyFromDb(values.policyNumber);
+        if (!policyData) {
+            return { success: false, error: 'Policy not found.' };
+        }
+        
+        const docResult = await generatePolicyDocument(policyData);
+        const { policyDocument } = docResult;
+
         let htmlContent = policyDocument
             .replace(/# (.*)/g, '<h1>$1</h1>')
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\|(.*?)\|/g, '') // Remove table separators from text
-            .replace(/:---/g, '') // Remove table alignment syntax
+            .replace(/\|(.*?)\|/g, '') 
+            .replace(/:---/g, '')
             .replace(/\r\n/g, '<br/>')
             .replace(/<br\/><br\/>/g, '<p>');
 
@@ -354,3 +363,5 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
+
+    
