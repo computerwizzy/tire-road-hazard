@@ -151,19 +151,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       throw new Error("Failed to generate the policy document from the template.");
     }
     
-    // Construct the object with only the columns that exist in the 'policies' table.
-    const policyToSave: Policy = {
-        policyNumber: fullPolicyData.policyNumber,
-        customerName: fullPolicyData.customerName,
-        customerEmail: fullPolicyData.customerEmail,
-        tireDot: fullPolicyData.tireDot1,
-        purchaseDate: fullPolicyData.purchaseDate instanceof Date ? fullPolicyData.purchaseDate.toISOString().split('T')[0] : fullPolicyData.purchaseDate,
-        warrantyEndDate: fullPolicyData.warrantyEndDate,
-        receiptUrl: fullPolicyData.receiptUrl,
-        policyDocument: result.policyDocument,
-    };
-
-    await savePolicy(policyToSave);
+    await savePolicy(fullPolicyData);
 
 
     return { success: true, data: {...result, customerName: values.customerName, customerEmail: values.customerEmail, policyNumber, formData: values} };
@@ -191,7 +179,7 @@ export async function handleSearch(searchTerm: string): Promise<{
     const { data, error } = await supabase
         .from('policies')
         .select('*')
-        .or(`policyNumber.ilike.%${searchTerm}%,customerName.ilike.%${searchTerm}%,tireDot.ilike.%${searchTerm}%`);
+        .or(`policyNumber.ilike.%${searchTerm}%,customerName.ilike.%${searchTerm}%,tireDot1.ilike.%${searchTerm}%`);
 
     if (error) {
         console.error('Error searching policies in Supabase:', error);
@@ -204,7 +192,22 @@ export async function handleSearch(searchTerm: string): Promise<{
         throw new Error('Failed to search policies. Please check the database connection and permissions.');
     }
     
-    return { success: true, data: { results: data || [] } };
+    // The search results might not match the slim 'Policy' type anymore,
+    // so we cast it for now. A more robust solution might involve a dedicated search result type.
+    const results = data ? data.map(item => ({
+        policyNumber: item.policyNumber,
+        customerName: item.customerName,
+        customerEmail: item.customerEmail,
+        // The main DOT number to display can be tireDot1
+        tireDot: item.tireDot1 || '', 
+        purchaseDate: item.purchaseDate,
+        warrantyEndDate: item.warrantyEndDate,
+        receiptUrl: item.receiptUrl,
+        policyDocument: item.policyDocument,
+    })) : [];
+
+
+    return { success: true, data: { results: results as Policy[] } };
   } catch (error) {
     console.error("Error in handleSearch:", error);
     const message = error instanceof Error ? error.message : "An unknown error occurred.";
@@ -370,8 +373,5 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
-
-    
-    
 
     
