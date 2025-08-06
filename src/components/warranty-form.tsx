@@ -93,7 +93,13 @@ const FormSchema = z.object({
 const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+    reader.onload = () => {
+        const result = reader.result as string;
+        // The result includes the data URL prefix (e.g., "data:image/png;base64,"), 
+        // which needs to be removed before sending it to the server.
+        const base64 = result.split(',')[1];
+        resolve(base64);
+    };
     reader.onerror = error => reject(error);
 });
 
@@ -133,7 +139,7 @@ export default function WarrantyForm() {
       tireDot5: "",
       tireDot6: "",
       dealerName: "",
-      vehicleYear: new Date().getFullYear(),
+      vehicleYear: undefined,
     },
   });
   
