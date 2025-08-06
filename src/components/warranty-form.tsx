@@ -220,7 +220,7 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="e.g. John Doe" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -233,7 +233,7 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="you@example.com" {...field} />
+                        <Input placeholder="e.g. john.doe@email.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -246,7 +246,7 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="(123) 456-7890" {...field} />
+                        <Input placeholder="e.g. (123) 456-7890" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -259,7 +259,7 @@ export default function WarrantyForm() {
                     <FormItem className="md:col-span-2">
                       <FormLabel>Street Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="123 Main St" {...field} />
+                        <Input placeholder="e.g. 123 Main Street" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -286,7 +286,7 @@ export default function WarrantyForm() {
                         <FormItem>
                         <FormLabel>State</FormLabel>
                         <FormControl>
-                            <Input placeholder="CA" {...field} />
+                            <Input placeholder="e.g. CA" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -299,7 +299,7 @@ export default function WarrantyForm() {
                         <FormItem>
                         <FormLabel>Zip Code</FormLabel>
                         <FormControl>
-                            <Input placeholder="12345" {...field} />
+                            <Input placeholder="e.g. 90210" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
