@@ -67,7 +67,7 @@ export default function PolicyManagementPage() {
                 <CardHeader>
                     <CardTitle>Search Policies</CardTitle>
                     <CardDescription>
-                        Find a specific warranty policy by its policy number, customer name, or tire DOT number.
+                        Find a specific warranty policy by its policy number, customer name, phone number, or tire DOT number.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -80,7 +80,7 @@ export default function PolicyManagementPage() {
                                 <FormItem className="flex-grow">
                                 <FormLabel className="sr-only">Search Term</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Enter Policy #, Customer Name, or Tire DOT..." {...field} />
+                                    <Input placeholder="Enter Policy #, Name, Phone, or Tire DOT..." {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -166,3 +166,5 @@ export default function PolicyManagementPage() {
         </div>
     );
 }
+
+    

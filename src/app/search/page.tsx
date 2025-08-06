@@ -75,7 +75,7 @@ export default function SearchPage() {
                     <FormItem className="flex-grow">
                       <FormLabel className="sr-only">Search Term</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter Policy Number, Customer Name, or Tire DOT..." {...field} />
+                        <Input placeholder="Enter Policy #, Name, Phone, or Tire DOT..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -143,3 +143,5 @@ export default function SearchPage() {
     </main>
   );
 }
+
+    

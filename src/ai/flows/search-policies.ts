@@ -13,6 +13,7 @@ const PolicySchema = z.object({
     policyNumber: z.string(),
     customerName: z.string(),
     customerEmail: z.string(),
+    customerPhone: z.string().optional(),
     tireDot: z.string(),
     purchaseDate: z.string(),
     warrantyEndDate: z.string(),
@@ -26,5 +27,15 @@ const PolicySchema = z.object({
     dealerName: z.string().optional(),
     invoiceNumber: z.string().optional(),
     roadHazardPrice: z.number().optional(),
+    pricePerTire: z.number().optional(),
+    tireQuantity: z.number().optional(),
+    tireDot1: z.string().optional(),
+    tireDot2: z.string().optional(),
+    tireDot3: z.string().optional(),
+    tireDot4: z.string().optional(),
+    tireDot5: z.string().optional(),
+    tireDot6: z.string().optional(),
 });
 export type Policy = z.infer<typeof PolicySchema>;
+
+    

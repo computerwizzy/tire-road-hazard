@@ -8,7 +8,7 @@ import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone, Phone, Hash } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 
@@ -63,11 +63,20 @@ export default function PolicyPage() {
         });
     }
 
+    const allTireDots = policy ? [
+        policy.tireDot1,
+        policy.tireDot2,
+        policy.tireDot3,
+        policy.tireDot4,
+        policy.tireDot5,
+        policy.tireDot6
+    ].filter(dot => dot && dot.trim()) : [];
+
     return (
         <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
             <div className="w-full max-w-4xl">
                  <Button asChild variant="outline" className="mb-4 print-hidden">
-                    <Link href="/search">← Back to Search</Link>
+                    <Link href="/admin/settings/policies">← Back to Search</Link>
                 </Button>
                 <Card>
                     <CardHeader className="sm:flex-row sm:items-start sm:justify-between">
@@ -109,6 +118,7 @@ export default function PolicyPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <PolicyDetail label="Customer Name" value={policy.customerName} icon={User} />
                                         <PolicyDetail label="Customer Email" value={policy.customerEmail} icon={User} />
+                                        <PolicyDetail label="Customer Phone" value={policy.customerPhone} icon={Phone} />
                                         <PolicyDetail label="Warranty End Date" value={format(parseISO(policy.warrantyEndDate), 'PPP')} icon={Calendar} />
                                     </div>
                                 </div>
@@ -121,7 +131,11 @@ export default function PolicyPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <PolicyDetail label="Vehicle" value={`${policy.vehicleYear} ${policy.vehicleMake} ${policy.vehicleModel}`} icon={Car} />
                                         <PolicyDetail label="Mileage" value={policy.vehicleMileage?.toLocaleString()} icon={Milestone} />
-                                        <PolicyDetail label="Tire DOT Number" value={policy.tireDot} icon={Disc3} />
+                                        <PolicyDetail label="Tires Purchased" value={policy.tireQuantity} icon={Hash} />
+                                        <PolicyDetail label="Price Per Tire" value={policy.pricePerTire ? `$${policy.pricePerTire.toFixed(2)}` : 'N/A'} icon={Tag} />
+                                        {allTireDots.map((dot, index) => (
+                                            <PolicyDetail key={index} label={`Tire DOT #${index + 1}`} value={dot} icon={Disc3} />
+                                        ))}
                                     </div>
                                 </div>
                                  <Separator />
@@ -167,3 +181,5 @@ export default function PolicyPage() {
         </main>
     );
 }
+
+    
