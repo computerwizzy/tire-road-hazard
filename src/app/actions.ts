@@ -76,19 +76,13 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
       customerFullAddress: `${values.customerStreet}<br>${values.customerCity}, ${values.customerState} ${values.customerZip}`
   };
 
-  // Main information table
   const headerTable = `
-| **Policy Details** | **Customer Information** | **Vehicle Information** | **Tire Information** |
+| Policy Details | Customer Information | Vehicle Information | Tire Information |
 | :--- | :--- | :--- | :--- |
-| **Invoice:** ${policyData.invoiceNumber}<br>**Road Hazard Price:** $${policyData.roadHazardPrice}<br>**Plan ID:** TMX1392090<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
+| **Invoice:** ${policyData.invoiceNumber}<br>**Road Hazard Price:** $${policyData.roadHazardPrice.toFixed(2)}<br>**Plan ID:** TMX1392090<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
 `;
   
-  // Covered tires table
-  let coveredTiresTable = `
-### Covered Tires
-| Brand & Model | Size | DOT Number |
-| :--- | :--- | :--- |
-`;
+  let coveredTiresTable = `\n### Covered Tires\n\n| Brand & Model | Size | DOT Number |\n| :--- | :--- | :--- |\n`;
   allTireDots.forEach((dot: string) => {
       if (dot && dot.trim()) {
           coveredTiresTable += `| ${policyData.tireBrand} ${policyData.tireModel} | ${policyData.tireSize} | ${dot.trim()} |\n`;
@@ -98,7 +92,6 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
   const policyHeader = headerTable + '\n' + coveredTiresTable;
   let compiled = template.replace('{{policyHeader}}', policyHeader);
 
-  // Handle isCommercial conditional
   const commercialText = policyData.isCommercial 
       ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**"
       : "";
@@ -151,7 +144,10 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       throw new Error("Failed to generate the policy document from the template.");
     }
     
-    await savePolicy(fullPolicyData);
+    await savePolicy({
+        ...fullPolicyData,
+        policyDocument: result.policyDocument,
+    });
 
 
     return { success: true, data: {...result, customerName: values.customerName, customerEmail: values.customerEmail, policyNumber, formData: values} };
@@ -192,13 +188,10 @@ export async function handleSearch(searchTerm: string): Promise<{
         throw new Error('Failed to search policies. Please check the database connection and permissions.');
     }
     
-    // The search results might not match the slim 'Policy' type anymore,
-    // so we cast it for now. A more robust solution might involve a dedicated search result type.
     const results = data ? data.map(item => ({
         policyNumber: item.policyNumber,
         customerName: item.customerName,
         customerEmail: item.customerEmail,
-        // The main DOT number to display can be tireDot1
         tireDot: item.tireDot1 || '', 
         purchaseDate: item.purchaseDate,
         warrantyEndDate: item.warrantyEndDate,
