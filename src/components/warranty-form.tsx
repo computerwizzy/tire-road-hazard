@@ -354,7 +354,7 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Mileage</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 54000" {...field} />
+                        <Input type="text" placeholder="e.g. 54000" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -438,7 +438,7 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Quantity (Max 6)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 4" {...field} min={1} max={6} />
+                        <Input type="text" placeholder="e.g. 4" {...field} min={1} max={6} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -451,7 +451,7 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Price Per Tire</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 250" {...field} />
+                        <Input type="text" placeholder="e.g. 250" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -621,7 +621,7 @@ export default function WarrantyForm() {
                     <FormItem>
                       <FormLabel>Road Hazard Price</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="e.g. 50" {...field} />
+                        <Input type="text" placeholder="e.g. 50" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
