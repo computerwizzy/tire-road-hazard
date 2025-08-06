@@ -66,7 +66,7 @@ const FormSchema = z.object({
   vehicleModel: z.string().min(1, { message: "Vehicle model is required." }),
   vehicleSubmodel: z.string().optional(),
   vehicleMileage: z.coerce
-    .number()
+    .number({invalid_type_error: "Mileage must be a number."})
     .min(0, { message: "Mileage must be a positive number." }),
   isCommercial: z.boolean().default(false),
   tireBrand: z.string().min(2, { message: "Tire brand is required." }),
@@ -117,7 +117,7 @@ export default function WarrantyForm() {
       vehicleMake: "",
       vehicleModel: "",
       vehicleSubmodel: "",
-      vehicleMileage: 0,
+      vehicleMileage: undefined,
       isCommercial: false,
       tireBrand: "",
       tireModel: "",
@@ -693,3 +693,5 @@ export default function WarrantyForm() {
     </>
   );
 }
+
+    
