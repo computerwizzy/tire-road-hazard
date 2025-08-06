@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import ReactMarkdown from 'react-markdown';
 import { notFound } from 'next/navigation';
 import { handleGetPolicyByNumber } from '@/app/actions';
+import rehypeRaw from 'rehype-raw';
 
 
 export default async function PrintPolicyPage({ params }: { params: { policyNumber: string } }) {
@@ -81,7 +82,7 @@ export default async function PrintPolicyPage({ params }: { params: { policyNumb
             </head>
             <body>
                 <div className="prose">
-                    <ReactMarkdown>{policyDocument}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{policyDocument}</ReactMarkdown>
                 </div>
             </body>
         </html>

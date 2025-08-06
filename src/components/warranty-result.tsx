@@ -7,6 +7,7 @@ import { Mail, Loader2, FileText, Printer, Download } from 'lucide-react';
 import { handleSendEmail, handleDownloadWord } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import rehypeRaw from 'rehype-raw';
 
 import {
   Card,
@@ -127,7 +128,7 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
                 </CardHeader>
                 <CardContent>
                     <div className="prose prose-sm max-w-none bg-muted p-4 rounded-lg border">
-                        <ReactMarkdown>{result.policyDocument}</ReactMarkdown>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{result.policyDocument}</ReactMarkdown>
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 print-hidden">
@@ -169,5 +170,3 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         </div>
     );
 }
-
-    
