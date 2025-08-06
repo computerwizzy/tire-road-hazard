@@ -1,4 +1,3 @@
-
 "use server";
 
 import { z } from "zod";
@@ -60,14 +59,14 @@ function compileTemplate(template: string, data: Record<string, any>): string {
         const tireRows = data.tireDots.map((dot: string) => {
             // Only create a row if the DOT is not empty
             if(dot && dot.trim()) {
-              return `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |`;
+              return `**Brand & Model:** ${data.tireBrand} ${data.tireModel}<br>**Size:** ${data.tireSize}<br>**DOT Number:** ${dot}`
             }
             return null;
-        }).filter(Boolean).join('\n'); // filter(Boolean) removes nulls
+        }).filter(Boolean).join('<br><br>'); // filter(Boolean) removes nulls
         compiled = compiled.replace('{{#each tireDots}}', tireRows);
     } else {
         // If there are no tire dots, replace the loop placeholder with an empty string or a placeholder
-        compiled = compiled.replace('{{#each tireDots}}', '| | | |');
+        compiled = compiled.replace('{{#each tireDots}}', '');
     }
 
 
@@ -101,7 +100,7 @@ async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema
       tireDots: allTireDots,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       fullVehicle: `${values.vehicleYear} ${values.vehicleMake} ${values.vehicleModel} ${values.vehicleSubmodel || ''}`.trim(),
-      customerFullAddress: `${values.customerStreet}\n${values.customerCity}, ${values.customerState} ${values.customerZip}`
+      customerFullAddress: `${values.customerStreet}<br>${values.customerCity}, ${values.customerState} ${values.customerZip}`
   };
 
   const policyDocument = compileTemplate(template, policyData);
