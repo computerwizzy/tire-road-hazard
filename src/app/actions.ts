@@ -129,7 +129,14 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
             throw new Error("Failed to upload receipt.");
         }
 
-        const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
+        const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path, {
+            transform: {
+                // This ensures the URL is immediately available and bypasses cache.
+                // It's a common requirement for newly uploaded files.
+                // The 't' parameter is a cache-busting token.
+                download: true,
+            }
+        });
         receiptUrl = urlData.publicUrl;
     }
 
@@ -364,3 +371,5 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
+
+    
