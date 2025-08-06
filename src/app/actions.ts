@@ -45,44 +45,22 @@ const WarrantyClaimSchema = z.object({
 });
 
 function compileTemplate(template: string, data: Record<string, any>): string {
-  let compiled = template;
+    // Replace simple placeholders like {{key}}
+    let compiled = template.replace(/{{(.*?)}}/g, (match, key) => {
+        const value = data[key.trim()];
+        return value !== undefined ? String(value) : match;
+    });
 
-  // Handle {{#if}} blocks first
-  const ifRegex = /{{\s*#if\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/if\s*}}/g;
-  compiled = compiled.replace(ifRegex, (match, key, content) => {
-    return data[key] ? content : '';
-  });
+    // Handle {{#if isCommercial}}...{{/if}}
+    compiled = compiled.replace(/{{#if isCommercial}}([\s\S]*?){{\/if}}/g, (match, content) => {
+        return data.isCommercial ? content : '';
+    });
+    
+    // Handle tire dots
+    const tireDotsContent = data.tireDots.map((dot: string) => `**DOT:** ${dot}`).join('\n');
+    compiled = compiled.replace('{{#each tireDots}}', tireDotsContent);
 
-  // Handle {{#each}} blocks
-  const eachRegex = /{{\s*#each\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/each\s*}}/g;
-  compiled = compiled.replace(eachRegex, (match, arrayKey, blockContent) => {
-    const array = data[arrayKey] || [];
-    return array.map((item: any) => {
-      // Create a context for the item
-      const itemContext = { ...data, 'this': item };
-      // Replace simple {{this}} placeholders within the block
-      let renderedBlock = blockContent.replace(/{{this}}/g, String(item));
-      // Replace other placeholders from the main data context
-      return compileTemplate(renderedBlock, itemContext);
-    }).join('');
-  });
-  
-  // Handle simple {{variable}} replacements
-  const variableRegex = /{{\s*([\w\d\.]+)\s*}}/g;
-  compiled = compiled.replace(variableRegex, (match, key) => {
-    const keys = key.split('.');
-    let val = data;
-    for (const k of keys) {
-      if (val && typeof val === 'object' && k in val) {
-        val = val[k];
-      } else {
-        return ''; // Return empty string if key not found
-      }
-    }
-    return String(val);
-  });
-
-  return compiled;
+    return compiled;
 }
 
 

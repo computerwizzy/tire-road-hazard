@@ -1,18 +1,29 @@
 # NATIONWIDE LIMITED ROAD HAZARD WARRANTY
 ************************************************************************
 
-| Info Left             | Info Center           | Info Right                           | Info Far Right         |
-| :-------------------- | :-------------------- | :----------------------------------- | :--------------------- |
-| **Invoice:** {{invoiceNumber}} | **Covered Tires**         | **Plan ID:** TMX1392090                | **Road Hazard**        |
-| **Issuing Dealer:**   |                       | **Date:** {{purchaseDate}}               | **Purchase Price**     |
-| {{dealerName}}          | *Tire Brand & Model*      | **Name:** {{customerName}}             | \${{roadHazardPrice}}    |
-| 3031 Pelham PKWY      | {{tireBrand}} {{tireModel}} | **Phone:** {{customerPhone}}           |                        |
-| Pelham, AL 35124      | *Tire Size*               | **Vehicle:** {{fullVehicle}}           |                        |
-| (205) 620-3311        | {{tireSize}}              | **Mileage:** {{vehicleMileage}}        |                        |
-{{#each tireDots}}
-|                       | **DOT:** {{this}}     |                                      |                        |
-{{/each}}
+### Policy Details
+- **Invoice:** {{invoiceNumber}}
+- **Plan ID:** TMX1392090
+- **Date:** {{purchaseDate}}
+- **Road Hazard Purchase Price:** ${{roadHazardPrice}}
 
+### Customer Information
+- **Name:** {{customerName}}
+- **Phone:** {{customerPhone}}
+- **Issuing Dealer:** {{dealerName}}
+- **Dealer Address:** 3031 Pelham PKWY, Pelham, AL 35124
+- **Dealer Phone:** (205) 620-3311
+
+### Vehicle Information
+- **Vehicle:** {{fullVehicle}}
+- **Mileage:** {{vehicleMileage}}
+
+### Covered Tire Information
+- **Brand & Model:** {{tireBrand}} {{tireModel}}
+- **Tire Size:** {{tireSize}}
+{{#each tireDots}}
+
+---
 This Road Hazard Plan ("Plan") is afforded to You with the purchase of Your tires provided by ABS Risk, LLC (also referred to herein as "Obligor", "We", "Us", and "Our"), Administrative Office: 10170 Church Ranch Way, Suite 320, Westminster, CO 80021, (888) 268-4888, and administered by Automotive Business Solutions ("Program Administrator") P.O. Box 33535, Denver, CO 80233. This Plan covers only the eligible tires You purchased and installed on the vehicle identified on the original purchase receipt. This Plan only applies to passenger and light truck tires, which become unserviceable because of a road hazard. A road hazard occurs when a tire fails due to a puncture, bruise or break incurred during the course of normal driving on a maintained road. Nails, glass, and potholes would be the most common examples of road hazard damage.
 
 ### WHAT YOU MUST DO TO OBTAIN SERVICE
