@@ -6,7 +6,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb, getFullPolicyFromDb } from "@/data/db-actions";
-import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -89,7 +89,7 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
       }
   });
 
-  const policyHeader = headerTable + '\n' + coveredTiresTable;
+  const policyHeader = headerTable + (allTireDots.length > 0 ? coveredTiresTable : '');
   let compiled = template.replace('{{policyHeader}}', policyHeader);
 
   const commercialText = policyData.isCommercial 
@@ -104,7 +104,7 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
 export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
     const cookieStore = cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createClient(cookieStore);
 
     const policyNumber = values.invoiceNumber;
     const warrantyStartDate = new Date();
@@ -169,7 +169,7 @@ export async function handleSearch(searchTerm: string): Promise<{
     }
 
     const cookieStore = cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createClient(cookieStore);
 
     const { data, error } = await supabase
         .from('policies')
@@ -311,7 +311,7 @@ const LoginSchema = z.object({
 
 export async function handleLogin(values: z.infer<typeof LoginSchema>) {
   const cookieStore = cookies();
-  const supabase = createServerClient(cookieStore);
+  const supabase = createClient(cookieStore);
 
   const { error } = await supabase.auth.signInWithPassword({
     email: values.email,
@@ -329,7 +329,7 @@ export async function handleLogin(values: z.infer<typeof LoginSchema>) {
 
 export async function handleLogout() {
   const cookieStore = cookies();
-  const supabase = createServerClient(cookieStore);
+  const supabase = createClient(cookieStore);
   await supabase.auth.signOut();
   redirect('/login');
 }
@@ -365,6 +365,8 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
+
+    
 
     
 
