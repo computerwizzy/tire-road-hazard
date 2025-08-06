@@ -13,11 +13,14 @@ function getSupabase() {
 
 export async function savePolicy(policy: Policy): Promise<void> {
     const supabase = getSupabase();
-    const { error } = await supabase.from('policies').upsert(policy, { onConflict: 'policyNumber' });
+    // Use insert instead of upsert to catch duplicate invoice numbers.
+    const { error } = await supabase.from('policies').insert(policy);
+
      if (error) {
          console.error('Error saving policy to Supabase:', error);
-         if (error.code === '23505') { // duplicate key
-             throw new Error(`A policy with the invoice number "${policy.policyNumber}" already exists.`);
+         // Check for the unique constraint violation code for PostgreSQL.
+         if (error.code === '23505') { 
+             throw new Error(`A policy with the invoice number "${policy.policyNumber}" already exists. Please use a different invoice number.`);
          }
          throw new Error(`Failed to save policy. DB Error: ${error.message}`);
      }
