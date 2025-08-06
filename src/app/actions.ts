@@ -44,46 +44,10 @@ const WarrantyClaimSchema = z.object({
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
 
-function compileTemplate(template: string, data: Record<string, any>): string {
-    const allTireDots = data.tireDots || [];
-    
-    // Main information table
-    const headerTable = `
-| **Policy Details** | **Customer Information** | **Vehicle Information** | **Tire Information** |
-| :--- | :--- | :--- | :--- |
-| **Invoice:** ${data.invoiceNumber}<br>**Road Hazard Price:** $${data.roadHazardPrice}<br>**Plan ID:** TMX1392090<br>**Date:** ${data.purchaseDate} | **Name:** ${data.customerName}<br>**Phone:** ${data.customerPhone}<br>**Address:**<br>${data.customerFullAddress} | **Vehicle:** ${data.fullVehicle}<br>**Mileage:** ${data.vehicleMileage} | **Tires Purchased:** ${data.tireQuantity}<br>**Brand & Model:** ${data.tireBrand} ${data.tireModel}<br>**Size:** ${data.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
-`;
-
-    // Covered tires table
-    let coveredTiresTable = `
-### Covered Tires
-| Brand & Model | Size | DOT Number |
-| :--- | :--- | :--- |
-`;
-    allTireDots.forEach((dot: string) => {
-        if (dot && dot.trim()) {
-            coveredTiresTable += `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |\n`;
-        }
-    });
-
-    const policyHeader = headerTable + '\n' + coveredTiresTable;
-    let compiled = template.replace('{{policyHeader}}', policyHeader);
-
-    // Handle isCommercial conditional
-    const commercialText = data.isCommercial 
-        ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**"
-        : "";
-    const commercialRegex = /\{\{\#if isCommercial\}\}.*?\{\{\/if\}\}/s;
-    compiled = compiled.replace(commercialRegex, commercialText);
-
-    return compiled;
-}
-
-
 async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema>): Promise<{ policyDocument: string }> {
   const templatePath = path.join(process.cwd(), 'src', 'data', 'policy-template.md');
   const template = await fs.readFile(templatePath, 'utf-8');
-
+  
   const allTireDots = [
       values.tireDot1,
       values.tireDot2,
@@ -95,15 +59,43 @@ async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema
 
   const policyData = {
       ...values,
-      tireDots: allTireDots,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       fullVehicle: `${values.vehicleYear} ${values.vehicleMake} ${values.vehicleModel} ${values.vehicleSubmodel || ''}`.trim(),
       customerFullAddress: `${values.customerStreet}<br>${values.customerCity}, ${values.customerState} ${values.customerZip}`
   };
 
-  const policyDocument = compileTemplate(template, policyData);
-  return { policyDocument };
+  // Main information table
+  const headerTable = `
+| **Policy Details** | **Customer Information** | **Vehicle Information** | **Tire Information** |
+| :--- | :--- | :--- | :--- |
+| **Invoice:** ${policyData.invoiceNumber}<br>**Road Hazard Price:** $${policyData.roadHazardPrice}<br>**Plan ID:** TMX1392090<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
+`;
+  
+  // Covered tires table
+  let coveredTiresTable = `
+### Covered Tires
+| Brand & Model | Size | DOT Number |
+| :--- | :--- | :--- |
+`;
+  allTireDots.forEach((dot: string) => {
+      if (dot && dot.trim()) {
+          coveredTiresTable += `| ${policyData.tireBrand} ${policyData.tireModel} | ${policyData.tireSize} | ${dot.trim()} |\n`;
+      }
+  });
+
+  const policyHeader = headerTable + '\n' + coveredTiresTable;
+  let compiled = template.replace('{{policyHeader}}', policyHeader);
+
+  // Handle isCommercial conditional
+  const commercialText = policyData.isCommercial 
+      ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**"
+      : "";
+  const commercialRegex = /\{\{\#if isCommercial\}\}(.|\n)*?\{\{\/if\}\}/;
+  compiled = compiled.replace(commercialRegex, commercialText);
+
+  return { policyDocument: compiled };
 }
+
 
 export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
@@ -326,3 +318,5 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 
 export { addUser, deleteUser, getUsers };
+
+    
