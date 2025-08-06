@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { handleSearch } from '@/app/actions';
-import type { SearchPoliciesOutput } from '@/app/actions';
+import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,7 @@ const SearchSchema = z.object({
 export default function PolicyManagementPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [results, setResults] = useState<SearchPoliciesOutput | null>(null);
+    const [results, setResults] = useState<{ results: Policy[] } | null>(null);
     const router = useRouter();
 
     const form = useForm<z.infer<typeof SearchSchema>>({
@@ -38,7 +38,7 @@ export default function PolicyManagementPage() {
         setIsLoading(true);
         setError(null);
         setResults(null);
-        const response = await handleSearch(values);
+        const response = await handleSearch(values.searchTerm);
         if (response.success && response.data) {
         setResults(response.data);
         } else {

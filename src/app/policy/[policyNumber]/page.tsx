@@ -36,7 +36,7 @@ export default function PolicyPage() {
         async function fetchPolicy() {
             if (!policyNumber) return;
             setIsLoading(true);
-            const response = await handleSearch({ searchTerm: policyNumber });
+            const response = await handleSearch(policyNumber);
             if (response.success && response.data?.results && response.data.results.length > 0) {
                 const foundPolicy = response.data.results.find(p => p.policyNumber === policyNumber);
                 if (foundPolicy) {

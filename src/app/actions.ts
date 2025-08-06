@@ -141,11 +141,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
   }
 }
 
-const SearchSchema = z.object({
-  searchTerm: z.string().min(1, { message: "Please enter a search term." }),
-});
-
-export async function handleSearch(values: z.infer<typeof SearchSchema>): Promise<{
+export async function handleSearch(searchTerm: string): Promise<{
   success: boolean;
   data?: { results: Policy[] };
   error?: string;
@@ -153,12 +149,11 @@ export async function handleSearch(values: z.infer<typeof SearchSchema>): Promis
   try {
     const cookieStore = cookies();
     const supabase = createServerClient(cookieStore);
-    const query = values.searchTerm;
 
     const { data, error } = await supabase
         .from('policies')
         .select('*')
-        .or(`policyNumber.ilike.%${query}%,customerName.ilike.%${query}%,tireDot.ilike.%${query}%`);
+        .or(`policyNumber.ilike.%${searchTerm}%,customerName.ilike.%${searchTerm}%,tireDot.ilike.%${searchTerm}%`);
 
     if (error) {
         console.error('Error searching policies in Supabase:', error);
