@@ -95,8 +95,7 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
   const commercialText = policyData.isCommercial 
       ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**"
       : "";
-  const commercialRegex = /\{\{\#if isCommercial\}\}(.|\n)*?\{\{\/if\}\}/;
-  compiled = compiled.replace(commercialRegex, commercialText);
+  compiled = compiled.replace('{{commercialExclusion}}', commercialText);
 
   return { policyDocument: compiled };
 }
