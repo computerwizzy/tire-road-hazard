@@ -149,6 +149,7 @@ const EmailSchema = z.object({
   customerName: z.string(),
   customerEmail: z.string().email(),
   policyDocument: z.string(),
+  policyNumber: z.string(),
 });
 
 export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Promise<{
@@ -156,10 +157,12 @@ export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Prom
   error?: string;
 }> {
   try {
+    const policyUrl = new URL(`/policy/${values.policyNumber}`, process.env.NEXT_PUBLIC_APP_URL).toString();
     const input: SendPolicyEmailInput = {
       customerName: values.customerName,
       customerEmail: values.customerEmail,
       policyDocument: values.policyDocument,
+      policyUrl: policyUrl,
     };
     const result = await sendPolicyEmail(input);
     return { success: result.success };
@@ -224,4 +227,3 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 
 export { addUser, deleteUser, getUsers };
-export type { User } from "@/data/db-actions";

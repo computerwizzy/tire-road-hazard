@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -17,13 +18,13 @@ import ReactMarkdown from 'react-markdown';
 const SendPolicyEmailInputSchema = z.object({
   customerName: z.string().describe('The name of the customer.'),
   customerEmail: z.string().describe('The email address of the customer.'),
+  policyUrl: z.string().url().describe('The unique URL to the customer\'s warranty policy page.'),
   policyDocument: z.string().describe('The full text of the warranty policy document in Markdown format.'),
 });
 export type SendPolicyEmailInput = z.infer<typeof SendPolicyEmailInputSchema>;
 
 const SendPolicyEmailOutputSchema = z.object({
   success: z.boolean().describe("Whether the email was sent successfully."),
-  emailContent: z.string().describe("The generated content of the email body (for logging)."),
 });
 export type SendPolicyEmailOutput = z.infer<typeof SendPolicyEmailOutputSchema>;
 
@@ -38,13 +39,13 @@ const emailPrompt = ai.definePrompt({
     // We ask the LLM just for the subject and body, not the full email.
     output: { schema: z.object({
         subject: z.string().describe("The subject line for the email."),
-        body: z.string().describe("The body of the email in Markdown format. This should be a friendly message informing the user that their policy document is included below."),
+        body: z.string().describe("The body of the email in Markdown format. This should be a friendly message informing the user that their policy document is ready and link to it."),
     })},
     prompt: `You are an assistant for a tire warranty company. Your task is to compose a friendly and professional email to a customer, informing them that their new warranty policy document is ready.
 
     The customer's name is {{customerName}}.
 
-    Generate a suitable subject line and a brief, friendly body for the email. The full policy document will be appended after your generated text.
+    Generate a suitable subject line and a brief, friendly body for the email. The email MUST include a prominent link to the customer's policy page using the following URL: {{policyUrl}}. Encourage them to view, download, or print it for their records.
     `,
 });
 
@@ -57,27 +58,25 @@ const sendPolicyEmailFlow = ai.defineFlow(
   async (input) => {
     const resend = new Resend(process.env.RESEND_API_KEY);
     
-    // 1. Generate the email subject and introductory body text.
+    // 1. Generate the email subject and body text.
     const llmResponse = await emailPrompt(input);
     const { subject, body } = llmResponse.output!;
 
-    // 2. Combine the generated body with the full policy document.
-    const fullEmailMarkdown = `${body}\n\n---\n\n${input.policyDocument}`;
-
     try {
-      // 3. Send the email using Resend.
+      // 2. Send the email using Resend.
       await resend.emails.send({
         from: 'TireSafe Warranty <onboarding@resend.dev>', // Replace with your desired "from" address
         to: [input.customerEmail],
         subject: subject,
         // Using Markdown directly in the html field. Resend handles conversion.
         // For more complex templates, you'd use a React component.
-        html: `<div style="font-family: sans-serif; line-height: 1.6;">${new ReactMarkdown({children: fullEmailMarkdown}).props.children}</div>`, 
+        html: `<div style="font-family: sans-serif; line-height: 1.6;">${new ReactMarkdown({children: body}).props.children}</div>`, 
+        // As an alternative to sending the full markdown, you could attach a generated PDF.
+        // For this implementation, we are sending a link to the printable page.
       });
 
       return {
           success: true,
-          emailContent: fullEmailMarkdown, // Return the full content for logging/debugging
       };
 
     } catch (error) {

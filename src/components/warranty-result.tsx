@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -59,6 +58,7 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
             customerName: result.customerName,
             customerEmail: result.customerEmail,
             policyDocument: result.policyDocument,
+            policyNumber: result.policyNumber,
         });
         if (response.success) {
             toast({
