@@ -272,7 +272,7 @@ export default function WarrantyForm() {
                         <FormItem>
                         <FormLabel>City</FormLabel>
                         <FormControl>
-                            <Input placeholder="Anytown" {...field} />
+                            <Input placeholder="City/Town" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -695,4 +695,6 @@ export default function WarrantyForm() {
 }
 
     
+    
+
     
