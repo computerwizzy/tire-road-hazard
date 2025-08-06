@@ -151,12 +151,19 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       throw new Error("Failed to generate the policy document from the template.");
     }
     
-    await savePolicy({
-        ...fullPolicyData,
-        tireDot: values.tireDot1,
-        purchaseDate: values.purchaseDate.toISOString().split('T')[0],
+    // Construct the object with only the columns that exist in the 'policies' table.
+    const policyToSave: Policy = {
+        policyNumber: fullPolicyData.policyNumber,
+        customerName: fullPolicyData.customerName,
+        customerEmail: fullPolicyData.customerEmail,
+        tireDot: fullPolicyData.tireDot1,
+        purchaseDate: fullPolicyData.purchaseDate instanceof Date ? fullPolicyData.purchaseDate.toISOString().split('T')[0] : fullPolicyData.purchaseDate,
+        warrantyEndDate: fullPolicyData.warrantyEndDate,
+        receiptUrl: fullPolicyData.receiptUrl,
         policyDocument: result.policyDocument,
-    });
+    };
+
+    await savePolicy(policyToSave);
 
 
     return { success: true, data: {...result, customerName: values.customerName, customerEmail: values.customerEmail, policyNumber, formData: values} };
@@ -365,4 +372,6 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 export { addUser, deleteUser, getUsers };
 
     
+    
+
     
