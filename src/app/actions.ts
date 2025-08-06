@@ -116,7 +116,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     let receiptUrl = null;
 
     if (receiptData) {
-        const filePath = `public/${policyNumber}-${receiptData.fileName}`;
+        const filePath = `${policyNumber}-${receiptData.fileName}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
             .from('receipts')
             .upload(filePath, Buffer.from(receiptData.buffer, 'base64'), {
