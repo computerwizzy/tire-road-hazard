@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const GeneratePolicyDocumentInputSchema = z.object({
@@ -50,6 +51,7 @@ export async function generatePolicyDocument(input: GeneratePolicyDocumentInput)
 
 const prompt = ai.definePrompt({
   name: 'generatePolicyDocumentPrompt',
+  model: googleAI.model('gemini-1.5-flash'),
   input: {schema: GeneratePolicyDocumentInputSchema},
   output: {schema: GeneratePolicyDocumentOutputSchema},
   prompt: `You are an expert at writing warranty policy documents. Using the information provided, generate a well-written and easy-to-understand policy document in Markdown format. The document should match the structure and content of the provided example.
