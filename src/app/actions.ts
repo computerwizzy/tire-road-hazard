@@ -112,7 +112,7 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
 export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
     const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = createServerClient(cookieStore);
 
     const policyNumber = values.invoiceNumber;
     const warrantyStartDate = new Date();
@@ -364,4 +364,5 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 export { addUser, deleteUser, getUsers };
 
+    
     
