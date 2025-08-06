@@ -73,7 +73,7 @@ export default function PolicyPage() {
     ].filter(dot => dot && dot.trim()) : [];
 
     return (
-        <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
+        <main className="flex min-h-screen flex-col items-center p-4 sm:p-6 md:p-8 lg:p-12 bg-background">
             <div className="w-full max-w-4xl">
                  <Button asChild variant="outline" className="mb-4 print-hidden">
                     <Link href="/admin/settings/policies">← Back to Search</Link>

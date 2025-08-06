@@ -76,7 +76,7 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
 
   return (
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
            <Button asChild>
                 <Link href="/">
@@ -139,7 +139,7 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                 <CardDescription>A complete list of all registered warranties.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="min-h-[460px] relative">
+                <div className="relative min-h-[460px] overflow-x-auto">
                     {isLoading && (
                         <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
