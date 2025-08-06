@@ -19,7 +19,7 @@ function PolicyDetail({ label, value, icon: Icon }: { label: string; value: stri
             <Icon className="h-4 w-4 mr-2 mt-1 text-muted-foreground" />
             <div>
                 <p className="font-semibold text-foreground">{label}</p>
-                <p className="text-muted-foreground">{String(value)}</p>
+                <p className="text-muted-foreground break-words">{String(value)}</p>
             </div>
         </div>
     );
@@ -84,7 +84,7 @@ export default function PolicyPage() {
                             <CardTitle className="font-headline text-2xl flex items-center gap-2">
                             <FileText className="text-primary" /> Warranty Policy Details
                             </CardTitle>
-                            <CardDescription>
+                            <CardDescription className="break-all">
                                 Viewing details for policy number: <span className="font-mono text-primary">{policyNumber}</span>
                             </CardDescription>
                         </div>
@@ -181,5 +181,3 @@ export default function PolicyPage() {
         </main>
     );
 }
-
-    

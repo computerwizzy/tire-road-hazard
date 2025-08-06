@@ -95,14 +95,14 @@ export default function MainPage() {
           <p className="text-muted-foreground mt-2 text-lg">
             Register your tire road hazard warranty and secure your peace of mind.
           </p>
-          <div className="mt-6 space-x-4">
-            <Button asChild>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button asChild className="w-full sm:w-auto">
                 <Link href="/search">
                     <Search className="mr-2 h-4 w-4" />
                     Search for a Warranty
                 </Link>
             </Button>
-            <Button onClick={runTest} variant="outline">
+            <Button onClick={runTest} variant="outline" className="w-full sm:w-auto">
                 Run Layout Test
             </Button>
           </div>
