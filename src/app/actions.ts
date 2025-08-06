@@ -75,6 +75,16 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
 
     const fullAddress = `${values.customerStreet}, ${values.customerCity}, ${values.customerState} ${values.customerZip}`;
     
+    const allTireDots = [
+        values.tireDot1,
+        values.tireDot2,
+        values.tireDot3,
+        values.tireDot4,
+        values.tireDot5,
+        values.tireDot6
+    ].filter((dot): dot is string => !!dot && dot.length > 0);
+
+
     const input: GeneratePolicyDocumentInput = {
       invoiceNumber: policyNumber,
       customerName: values.customerName,
@@ -90,7 +100,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
       tireBrand: values.tireBrand,
       tireModel: values.tireModel,
       tireSize: values.tireSize,
-      tireDot: values.tireDot1,
+      tireDots: allTireDots,
       dealerName: values.dealerName,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
       roadHazardPrice: values.roadHazardPrice,
@@ -114,11 +124,11 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
         policyNumber,
         customerName: values.customerName,
         customerEmail: values.customerEmail,
-        tireDot: values.tireDot1,
+        tireDot: values.tireDot1, // Keep the primary DOT for simple display
         purchaseDate: values.purchaseDate.toISOString().split('T')[0],
         warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
         receiptUrl: receiptUrl,
-        policyDocument: result.policyDocument // Save the generated document
+        policyDocument: result.policyDocument
     });
 
 
@@ -135,13 +145,9 @@ const SearchSchema = z.object({
   searchTerm: z.string().min(1, { message: "Please enter a search term." }),
 });
 
-export type SearchPoliciesOutput = {
-  results: Policy[];
-};
-
 export async function handleSearch(values: z.infer<typeof SearchSchema>): Promise<{
   success: boolean;
-  data?: SearchPoliciesOutput;
+  data?: { results: Policy[] };
   error?: string;
 }> {
   try {
