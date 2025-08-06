@@ -5,28 +5,17 @@ import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import ReactMarkdown from 'react-markdown';
 import { notFound } from 'next/navigation';
-
-async function getPolicyDocument(policyNumber: string) {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const { data, error } = await supabase
-        .from('policies')
-        .select('policyDocument')
-        .eq('policyNumber', policyNumber)
-        .single();
-    
-    if (error || !data || !data.policyDocument) {
-        console.error('Error fetching policy document for print:', error);
-        return null;
-    }
-
-    return data.policyDocument;
-}
+import { handleGetPolicyByNumber } from '@/app/actions';
 
 
 export default async function PrintPolicyPage({ params }: { params: { policyNumber: string } }) {
-    const policyDocument = await getPolicyDocument(params.policyNumber);
+    const policyResult = await handleGetPolicyByNumber(params.policyNumber);
+
+    if (!policyResult.success || !policyResult.data) {
+        return notFound();
+    }
+    
+    const policyDocument = policyResult.data.policyDocument;
 
     if (!policyDocument) {
         return notFound();

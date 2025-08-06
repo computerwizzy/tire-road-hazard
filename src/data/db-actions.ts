@@ -11,20 +11,39 @@ function getSupabase() {
     return createClient(cookieStore);
 }
 
-export async function savePolicy(policy: Policy): Promise<void> {
+// We are now saving the entire form data blob, which includes all fields from WarrantyClaimSchema.
+// The Policy type from search-policies.ts is now just a subset of the data stored.
+export async function savePolicy(policyData: any): Promise<void> {
     const supabase = getSupabase();
-    // Use insert instead of upsert to catch duplicate invoice numbers.
-    const { error } = await supabase.from('policies').insert(policy);
+    // The policyData object now contains all fields needed for regeneration.
+    const { error } = await supabase.from('policies').insert(policyData);
 
      if (error) {
          console.error('Error saving policy to Supabase:', error);
-         // Check for the unique constraint violation code for PostgreSQL.
          if (error.code === '23505') { 
-             throw new Error(`A policy with the invoice number "${policy.policyNumber}" already exists. Please use a different invoice number.`);
+             throw new Error(`A policy with the invoice number "${policyData.policyNumber}" already exists. Please use a different invoice number.`);
          }
          throw new Error(`Failed to save policy. DB Error: ${error.message}`);
      }
 }
+
+
+export async function getFullPolicyFromDb(policyNumber: string): Promise<any | null> {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+        .from('policies')
+        .select('*')
+        .eq('policyNumber', policyNumber)
+        .single();
+    
+    if (error) {
+        console.error('Error fetching full policy data:', error);
+        return null;
+    }
+
+    return data;
+}
+
 
 // User Management Actions
 export type User = {

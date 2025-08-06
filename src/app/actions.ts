@@ -5,7 +5,7 @@ import { z } from "zod";
 import fs from 'fs/promises';
 import path from 'path';
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb } from "@/data/db-actions";
+import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb, getFullPolicyFromDb } from "@/data/db-actions";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -44,7 +44,17 @@ const WarrantyClaimSchema = z.object({
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
 });
 
-async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema>): Promise<{ policyDocument: string }> {
+// This new schema defines the full data needed for regeneration.
+const FullPolicyDataSchema = WarrantyClaimSchema.extend({
+    policyNumber: z.string(),
+    warrantyEndDate: z.string(),
+    receiptUrl: z.string().nullable(),
+});
+
+type FullPolicyData = z.infer<typeof FullPolicyDataSchema>;
+
+
+async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyDocument: string }> {
   const templatePath = path.join(process.cwd(), 'src', 'data', 'policy-template.md');
   const template = await fs.readFile(templatePath, 'utf-8');
   
@@ -57,9 +67,11 @@ async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema
       values.tireDot6
   ].filter((dot): dot is string => !!dot && dot.trim().length > 0);
 
+  const purchaseDate = values.purchaseDate instanceof Date ? values.purchaseDate : new Date(values.purchaseDate);
+
   const policyData = {
       ...values,
-      purchaseDate: values.purchaseDate.toISOString().split('T')[0],
+      purchaseDate: purchaseDate.toISOString().split('T')[0],
       fullVehicle: `${values.vehicleYear} ${values.vehicleMake} ${values.vehicleModel} ${values.vehicleSubmodel || ''}`.trim(),
       customerFullAddress: `${values.customerStreet}<br>${values.customerCity}, ${values.customerState} ${values.customerZip}`
   };
@@ -100,7 +112,7 @@ async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema
 export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
     const cookieStore = cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createClient(cookieStore);
 
     const policyNumber = values.invoiceNumber;
     const warrantyStartDate = new Date();
@@ -127,20 +139,26 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
         receiptUrl = urlData.publicUrl;
     }
 
-    const result = await generatePolicyDocument(values);
+    const fullPolicyData: FullPolicyData = {
+        ...values,
+        policyNumber,
+        warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
+        receiptUrl: receiptUrl,
+    };
+
+    const result = await generatePolicyDocument(fullPolicyData);
     if (!result?.policyDocument) {
       throw new Error("Failed to generate the policy document from the template.");
     }
-
+    
+    // The policy data saved to the DB includes the raw form values now.
     await savePolicy({
-        policyNumber,
-        customerName: values.customerName,
-        customerEmail: values.customerEmail,
-        tireDot: values.tireDot1, // Keep the primary DOT for simple display
+        ...fullPolicyData,
+        // The Policy type from search-policies is now a subset of what we save.
+        // We ensure the saved object contains all fields needed for regeneration.
+        tireDot: values.tireDot1, // Still save primary DOT for simple list display
         purchaseDate: values.purchaseDate.toISOString().split('T')[0],
-        warrantyEndDate: warrantyEndDate.toISOString().split('T')[0],
-        receiptUrl: receiptUrl,
-        policyDocument: result.policyDocument
+        policyDocument: result.policyDocument,
     });
 
 
@@ -316,7 +334,23 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return getDashboardStatsFromDb();
 }
 
+export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
+    success: boolean;
+    data?: { policyDocument: string };
+    error?: string;
+}> {
+    try {
+        const fullPolicyData = await getFullPolicyFromDb(policyNumber);
+        if (!fullPolicyData) {
+            return { success: false, error: 'Policy not found.' };
+        }
+        const result = await generatePolicyDocument(fullPolicyData);
+        return { success: true, data: result };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+        return { success: false, error: message };
+    }
+}
+
 
 export { addUser, deleteUser, getUsers };
-
-    
