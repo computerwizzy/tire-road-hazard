@@ -8,7 +8,7 @@ import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 function PolicyDetail({ label, value, icon: Icon }: { label: string; value: string | null | undefined, icon: React.ElementType }) {
@@ -54,6 +54,15 @@ export default function PolicyPage() {
         }
     }, [policyNumber]);
 
+    function handleReprint() {
+        const printWindow = window.open(`/policy/${policyNumber}/print`, '_blank');
+        printWindow?.addEventListener('load', () => {
+            setTimeout(() => {
+                printWindow?.print();
+            }, 100);
+        });
+    }
+
     return (
         <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
             <div className="w-full max-w-4xl">
@@ -61,13 +70,21 @@ export default function PolicyPage() {
                     <Link href="/search">← Back to Search</Link>
                 </Button>
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline text-2xl flex items-center gap-2">
-                           <FileText className="text-primary" /> Warranty Policy Details
-                        </CardTitle>
-                        <CardDescription>
-                            Viewing details for policy number: <span className="font-mono text-primary">{policyNumber}</span>
-                        </CardDescription>
+                    <CardHeader className="sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                            <FileText className="text-primary" /> Warranty Policy Details
+                            </CardTitle>
+                            <CardDescription>
+                                Viewing details for policy number: <span className="font-mono text-primary">{policyNumber}</span>
+                            </CardDescription>
+                        </div>
+                         {policy && (
+                            <Button variant="outline" onClick={handleReprint} className="mt-4 sm:mt-0">
+                                <Printer className="mr-2 h-4 w-4" />
+                                Reprint Policy
+                            </Button>
+                        )}
                     </CardHeader>
                     <CardContent>
                         {isLoading && (
