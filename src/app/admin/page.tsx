@@ -37,7 +37,7 @@ export default async function AdminPage() {
 
      if (error) {
          return (
-            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+            <div className="max-w-7xl mx-auto flex-1 space-y-4 p-4 md:p-8 pt-6">
                  <Card>
                     <CardHeader>
                         <CardTitle>Error</CardTitle>
@@ -55,5 +55,9 @@ export default async function AdminPage() {
         )
     }
 
-    return <AdminDashboard initialPolicies={initialPolicies} totalCount={totalCount} initialStats={stats} />;
+    return (
+      <div className="max-w-7xl mx-auto">
+        <AdminDashboard initialPolicies={initialPolicies} totalCount={totalCount} initialStats={stats} />
+      </div>
+    );
 }
