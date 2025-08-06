@@ -73,19 +73,22 @@ export default function PolicyManagementPage() {
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-start gap-4">
-                            <FormField
-                            control={form.control}
-                            name="searchTerm"
-                            render={({ field }) => (
-                                <FormItem className="flex-grow">
-                                <FormLabel className="sr-only">Search Term</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="2052203698" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
+                             <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <FormField
+                                control={form.control}
+                                name="searchTerm"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel className="sr-only">Search Term</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Search policies..." {...field} className="pl-10" />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            </div>
                              <Button type="submit" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
@@ -94,7 +97,6 @@ export default function PolicyManagementPage() {
                                     </>
                                 ) : (
                                     <>
-                                    <Search className="mr-2 h-4 w-4" />
                                     Search
                                     </>
                                 )}

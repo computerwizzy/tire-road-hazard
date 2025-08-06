@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -15,7 +15,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, Settings, LogOut, User as UserIcon } from 'lucide-react';
+import { Home, Settings, LogOut, User as UserIcon, Search } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -34,6 +34,19 @@ export default function AdminLayout({
   user: User;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const searchTerm = formData.get('search') as string;
+    if (searchTerm) {
+        router.push(`/admin/settings/policies?q=${encodeURIComponent(searchTerm)}`);
+    } else {
+        router.push(`/admin/settings/policies`);
+    }
+  };
+
 
   return (
     <SidebarProvider>
@@ -52,6 +65,19 @@ export default function AdminLayout({
              </div>
           </SidebarHeader>
           <SidebarContent>
+             { pathname.startsWith('/admin/settings') ? (
+                <form className="px-2" onSubmit={handleSearchSubmit}>
+                    <div className="relative">
+                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            name="search"
+                            type="search"
+                            placeholder="Search Policies"
+                            className="w-full rounded-lg bg-background pl-8"
+                        />
+                    </div>
+                </form>
+             ) : null}
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === '/admin'}>
@@ -79,19 +105,11 @@ export default function AdminLayout({
           </SidebarFooter>
         </Sidebar>
         <SidebarInset className="flex-1">
-            <header className="flex items-center justify-between p-4 border-b">
+            <header className="flex items-center justify-between p-4 border-b h-[57px]">
                 <div className="md:hidden">
                     <SidebarTrigger />
                 </div>
-                 <div className="flex-1">
-                    <div className="relative max-w-md">
-                         <Input
-                            type="search"
-                            placeholder="Search Policies"
-                            className="w-full rounded-lg bg-background pl-8"
-                        />
-                    </div>
-                 </div>
+                 <div className="flex-1" />
                  <div className="flex items-center gap-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
