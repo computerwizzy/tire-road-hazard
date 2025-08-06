@@ -28,7 +28,7 @@ export async function savePolicy(policyData: any): Promise<void> {
      if (error) {
          console.error('Error saving policy to Supabase:', error);
          if (error.code === '23505') { 
-             throw new Error(`A policy with the invoice number "${policyData.policyNumber}" already exists. Please use a different invoice number.`);
+             throw new Error(`A policy with the policy number "${policyData.policyNumber}" already exists.`);
          }
          throw new Error(`Failed to save policy. DB Error: ${error.message}`);
      }
@@ -199,3 +199,5 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
         totalCustomers: totalCustomers ?? 0,
     }
 }
+
+    

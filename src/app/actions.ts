@@ -79,7 +79,7 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
   const headerTable = `
 | Policy Details | Customer Information | Vehicle Information | Tire Information |
 | :--- | :--- | :--- | :--- |
-| **Invoice:** ${policyData.invoiceNumber}<br>**Road Hazard Price:** $${policyData.roadHazardPrice.toFixed(2)}<br>**Plan ID:** TMX1392090<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
+| **Policy #:** ${policyData.policyNumber}<br>**Invoice:** ${policyData.invoiceNumber}<br>**Road Hazard Price:** $${policyData.roadHazardPrice.toFixed(2)}<br>**Plan ID:** TMX1392090<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
 `;
   
   let coveredTiresTable = `\n### Covered Tires\n\n| Brand & Model | Size | DOT Number |\n| :--- | :--- | :--- |\n`;
@@ -106,7 +106,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
-    const policyNumber = values.invoiceNumber;
+    const policyNumber = `TS-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     const warrantyStartDate = new Date(values.purchaseDate);
     const warrantyEndDate = new Date(warrantyStartDate);
     warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3);
@@ -372,3 +372,5 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
+
+    
