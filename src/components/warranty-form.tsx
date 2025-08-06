@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -137,6 +137,26 @@ export default function WarrantyForm() {
   });
   
   const tireQuantity = form.watch('tireQuantity');
+  const tireDot1Value = form.watch('tireDot1');
+  const prevTireDot1Value = useRef<string>();
+
+  useEffect(() => {
+    const updateOtherDots = () => {
+        if (tireDot1Value && tireDot1Value !== prevTireDot1Value.current) {
+            for (let i = 2; i <= tireQuantity; i++) {
+                const fieldName = `tireDot${i}` as const;
+                const currentValue = form.getValues(fieldName);
+                // Only update if the field is empty or was previously synced
+                if (!currentValue || currentValue === prevTireDot1Value.current) {
+                    form.setValue(fieldName, tireDot1Value, { shouldValidate: true, shouldDirty: true });
+                }
+            }
+        }
+        prevTireDot1Value.current = tireDot1Value;
+    };
+    updateOtherDots();
+  }, [tireDot1Value, tireQuantity, form]);
+
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     setIsLoading(true);
