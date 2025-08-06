@@ -1,105 +1,82 @@
 
--- 1. Create Tables
--- Create 'users' table
-create table if not exists users (
-  id serial primary key,
-  email text not null unique,
-  role text not null default 'member',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+-- Create Users Table
+CREATE TABLE IF NOT EXISTS public.users (
+    id SERIAL PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    role TEXT NOT NULL DEFAULT 'member',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Create 'policies' table
-create table if not exists policies (
-  "policyNumber" text primary key,
-  "customerName" text not null,
-  "customerEmail" text not null,
-  "customerPhone" text,
-  "customerStreet" text,
-  "customerCity" text,
-  "customerState" text,
-  "customerZip" text,
-  "vehicleYear" integer,
-  "vehicleMake" text,
-  "vehicleModel" text,
-  "vehicleSubmodel" text,
-  "vehicleMileage" integer,
-  "isCommercial" boolean default false,
-  "tireBrand" text,
-  "tireModel" text,
-  "tireSize" text,
-  "tireQuantity" integer,
-  "pricePerTire" numeric,
-  "roadHazardPrice" numeric,
-  "tireDot1" text,
-  "tireDot2" text,
-  "tireDot3" text,
-  "tireDot4" text,
-  "tireDot5" text,
-  "tireDot6" text,
-  "purchaseDate" date not null,
-  "dealerName" text,
-  "invoiceNumber" text,
-  "warrantyEndDate" date not null,
-  "receiptUrl" text,
-  "policyDocument" text,
-  "created_at" timestamp with time zone default timezone('utc'::text, now()) not null
+-- Create Policies Table
+CREATE TABLE IF NOT EXISTS public.policies (
+    "policyNumber" TEXT NOT NULL,
+    "customerName" TEXT NOT NULL,
+    "customerEmail" TEXT NOT NULL,
+    "customerPhone" TEXT,
+    "customerStreet" TEXT,
+    "customerCity" TEXT,
+    "customerState" TEXT,
+    "customerZip" TEXT,
+    "vehicleYear" INTEGER,
+    "vehicleMake" TEXT,
+    "vehicleModel" TEXT,
+    "vehicleSubmodel" TEXT,
+    "vehicleMileage" INTEGER,
+    "isCommercial" BOOLEAN,
+    "tireBrand" TEXT,
+    "tireModel" TEXT,
+    "tireSize" TEXT,
+    "tireQuantity" INTEGER,
+    "pricePerTire" REAL,
+    "roadHazardPrice" REAL,
+    "tireDot1" TEXT,
+    "tireDot2" TEXT,
+    "tireDot3" TEXT,
+    "tireDot4" TEXT,
+    "tireDot5" TEXT,
+    "tireDot6" TEXT,
+    "purchaseDate" DATE,
+    "dealerName" TEXT,
+    "invoiceNumber" TEXT NOT NULL,
+    "warrantyEndDate" DATE,
+    "receiptUrl" TEXT,
+    "policyDocument" TEXT,
+    "tireDot" TEXT,
+    "created_at" TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY ("policyNumber")
 );
 
-
--- 2. Create Storage Bucket
--- Create 'receipts' bucket if it doesn't exist
-insert into storage.buckets (id, name, public)
-values ('receipts', 'receipts', true)
-on conflict (id) do nothing;
+-- Create Storage Bucket for Receipts
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('receipts', 'receipts', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
 
 
--- 3. Row Level Security (RLS) Policies
--- Enable RLS
-alter table policies enable row level security;
-alter table users enable row level security;
-
--- Policies for 'policies' table
--- First, drop existing policies if they exist to avoid errors on re-run
-drop policy if exists "Authenticated users can do anything on policies" on policies;
-drop policy if exists "Enable read access for all users" on policies;
-
--- Create policies for 'policies' table
-create policy "Authenticated users can do anything on policies"
-  on policies for all
-  using (auth.role() = 'authenticated');
-
-create policy "Enable read access for all users"
-  on policies for select
-  using (true);
-
--- Policies for 'users' table
--- First, drop existing policies if they exist
-drop policy if exists "Allow admin users to manage users" on users;
-drop policy if exists "Allow individual users to view their own data" on users;
-
--- Create policies for 'users' table
-create policy "Allow admin users to manage users"
-  on users for all
-  using (
-    (select role from public.users where email = auth.email()) = 'admin'
-  );
-
-create policy "Allow individual users to view their own data"
-  on users for select
-  using (auth.email() = email);
+-- RLS Policies for Users table
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all users to view users" ON public.users;
+CREATE POLICY "Allow all users to view users" ON public.users FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow admin users to manage users" ON public.users;
+CREATE POLICY "Allow admin users to manage users" ON public.users FOR ALL
+USING (auth.jwt() ->> 'email' IN (SELECT email FROM public.users WHERE role = 'admin'))
+WITH CHECK (auth.jwt() ->> 'email' IN (SELECT email FROM public.users WHERE role = 'admin'));
 
 
--- 4. Storage Policies
--- Policies for 'receipts' bucket
--- First, drop existing policies if they exist
-drop policy if exists "Allow authenticated users to upload receipts" on storage.objects;
-drop policy if exists "Allow public read access to receipts" on storage.objects;
+-- RLS Policies for Policies table
+ALTER TABLE public.policies ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow authenticated users to manage policies" ON public.policies;
+CREATE POLICY "Allow authenticated users to manage policies" ON public.policies FOR ALL
+USING (auth.role() = 'authenticated')
+WITH CHECK (auth.role() = 'authenticated');
 
--- Create policies for 'receipts' bucket
-create policy "Allow authenticated users to upload receipts"
-  on storage.objects for insert to authenticated
-  with check (bucket_id = 'receipts');
 
-create policy "Allow public read access to receipts"
-  on storage.objects for select
-  using (bucket_id = 'receipts');
+-- Storage Policies for Receipts bucket
+DROP POLICY IF EXISTS "Allow authenticated users to upload receipts" ON storage.objects;
+CREATE POLICY "Allow authenticated users to upload receipts" ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'receipts');
+
+DROP POLICY IF EXISTS "Allow public read access to receipts" ON storage.objects;
+CREATE POLICY "Allow public read access to receipts" ON storage.objects
+FOR SELECT
+USING (bucket_id = 'receipts');
