@@ -28,13 +28,14 @@ interface AdminDashboardProps {
 
 const POLICIES_PER_PAGE = 10;
 
-export default function AdminDashboard({ initialPolicies, totalCount, initialStats }: AdminDashboardProps) {
+export default function AdminDashboard({ initialPolicies, totalCount: initialTotalCount, initialStats }: AdminDashboardProps) {
   const router = useRouter();
 
   const [policies, setPolicies] = useState<Policy[]>(initialPolicies);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState(initialStats);
+  const [totalCount, setTotalCount] = useState(initialTotalCount);
 
 
   const totalPages = Math.ceil(totalCount / POLICIES_PER_PAGE);
@@ -46,6 +47,9 @@ export default function AdminDashboard({ initialPolicies, totalCount, initialSta
     if (response.success && response.data) {
         setPolicies(response.data);
         setCurrentPage(page);
+        if (response.count !== undefined) {
+          setTotalCount(response.count);
+        }
     } else {
         // You might want to show a toast notification here
         console.error("Failed to fetch page:", response.error);
@@ -198,5 +202,7 @@ export default function AdminDashboard({ initialPolicies, totalCount, initialSta
       </div>
   );
 }
+
+    
 
     
