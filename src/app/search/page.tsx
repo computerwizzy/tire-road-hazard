@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Search, Loader2, FileQuestion } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { SearchPoliciesOutput } from '@/ai/flows/search-policies';
+import type { Policy } from '@/ai/flows/search-policies';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
@@ -25,7 +25,7 @@ const SearchSchema = z.object({
 export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<SearchPoliciesOutput | null>(null);
+  const [results, setResults] = useState<{ results: Policy[] } | null>(null);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof SearchSchema>>({
@@ -39,7 +39,7 @@ export default function SearchPage() {
     setIsLoading(true);
     setError(null);
     setResults(null);
-    const response = await handleSearch(values);
+    const response = await handleSearch(values.searchTerm);
     if (response.success && response.data) {
       setResults(response.data);
     } else {
@@ -75,7 +75,7 @@ export default function SearchPage() {
                     <FormItem className="flex-grow">
                       <FormLabel className="sr-only">Search Term</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter Policy Number or Tire DOT Number..." {...field} />
+                        <Input placeholder="Enter Policy Number, Customer Name, or Tire DOT..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
