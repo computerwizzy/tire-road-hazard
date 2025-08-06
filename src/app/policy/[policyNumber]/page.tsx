@@ -34,6 +34,7 @@ export default function PolicyPage() {
 
     useEffect(() => {
         async function fetchPolicy() {
+            if (!policyNumber) return;
             setIsLoading(true);
             const response = await handleSearch({ searchTerm: policyNumber });
             if (response.success && response.data?.results && response.data.results.length > 0) {
@@ -49,9 +50,7 @@ export default function PolicyPage() {
             setIsLoading(false);
         }
 
-        if (policyNumber) {
-            fetchPolicy();
-        }
+        fetchPolicy();
     }, [policyNumber]);
 
     function handleReprint() {
@@ -66,7 +65,7 @@ export default function PolicyPage() {
     return (
         <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
             <div className="w-full max-w-4xl">
-                 <Button asChild variant="outline" className="mb-4">
+                 <Button asChild variant="outline" className="mb-4 print-hidden">
                     <Link href="/search">← Back to Search</Link>
                 </Button>
                 <Card>
@@ -80,7 +79,7 @@ export default function PolicyPage() {
                             </CardDescription>
                         </div>
                          {policy && (
-                            <Button variant="outline" onClick={handleReprint} className="mt-4 sm:mt-0">
+                            <Button variant="outline" onClick={handleReprint} className="mt-4 sm:mt-0 print-hidden">
                                 <Printer className="mr-2 h-4 w-4" />
                                 Reprint Policy
                             </Button>

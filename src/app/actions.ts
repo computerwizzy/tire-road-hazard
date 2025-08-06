@@ -138,7 +138,7 @@ export async function handleSearch(values: z.infer<typeof SearchSchema>): Promis
   error?: string;
 }> {
   try {
-    const result = await searchPolicies({ query: values.searchTerm });
+    const result = await searchPolicies(values.searchTerm);
     return { success: true, data: result };
   } catch (error) {
     console.error("Error searching policies:", error);
