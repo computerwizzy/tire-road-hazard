@@ -45,46 +45,46 @@ const WarrantyClaimSchema = z.object({
 });
 
 function compileTemplate(template: string, data: Record<string, any>): string {
-    let compiled = template;
+  let compiled = template;
 
-    // Handle {{#each}} blocks
-    const eachRegex = /{{\s*#each\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/each\s*}}/g;
-    compiled = compiled.replace(eachRegex, (match, arrayKey, blockContent) => {
-        const array = data[arrayKey] || [];
-        const parentData = { ...data };
-        delete parentData[arrayKey]; // Avoid deep nesting issues
+  // Handle {{#if}} blocks first
+  const ifRegex = /{{\s*#if\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/if\s*}}/g;
+  compiled = compiled.replace(ifRegex, (match, key, content) => {
+    return data[key] ? content : '';
+  });
 
-        return array.map((item: any) => {
-             const itemContext = { ...parentData, 'this': item, '../': parentData };
-             // A simple way to handle basic ../ access
-             let renderedBlock = blockContent;
-             // Replace item-specific placeholders
-             renderedBlock = renderedBlock.replace(/{{this}}/g, String(item));
+  // Handle {{#each}} blocks
+  const eachRegex = /{{\s*#each\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/each\s*}}/g;
+  compiled = compiled.replace(eachRegex, (match, arrayKey, blockContent) => {
+    const array = data[arrayKey] || [];
+    return array.map((item: any) => {
+      // Create a context for the item
+      const itemContext = { ...data, 'this': item };
+      // Replace simple {{this}} placeholders within the block
+      let renderedBlock = blockContent.replace(/{{this}}/g, String(item));
+      // Replace other placeholders from the main data context
+      return compileTemplate(renderedBlock, itemContext);
+    }).join('');
+  });
+  
+  // Handle simple {{variable}} replacements
+  const variableRegex = /{{\s*([\w\d\.]+)\s*}}/g;
+  compiled = compiled.replace(variableRegex, (match, key) => {
+    const keys = key.split('.');
+    let val = data;
+    for (const k of keys) {
+      if (val && typeof val === 'object' && k in val) {
+        val = val[k];
+      } else {
+        return ''; // Return empty string if key not found
+      }
+    }
+    return String(val);
+  });
 
-             // Replace parent-context placeholders
-             return compileTemplate(renderedBlock, itemContext);
-
-        }).join('');
-    });
-    
-    // Handle {{#if}} blocks
-    const ifRegex = /{{\s*#if\s+([\w\d\.]+)\s*}}([\s\S]*?){{\s*\/if\s*}}/g;
-    compiled = compiled.replace(ifRegex, (match, key, content) => {
-        return data[key] ? content : '';
-    });
-
-    // Handle simple {{variable}} replacements
-     const variableRegex = /{{\s*(\.\.\/)?([\w\d\.]+)\s*}}/g;
-     compiled = compiled.replace(variableRegex, (match, parent, key) => {
-         if (parent && data['../'] && data['../'][key]) {
-             return String(data['../'][key]);
-         }
-        return String(data[key] || '');
-    });
-
-
-    return compiled;
+  return compiled;
 }
+
 
 async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema>): Promise<{ policyDocument: string }> {
   const templatePath = path.join(process.cwd(), 'src', 'data', 'policy-template.md');
@@ -103,6 +103,7 @@ async function generatePolicyDocument(values: z.infer<typeof WarrantyClaimSchema
       ...values,
       tireDots: allTireDots,
       purchaseDate: values.purchaseDate.toISOString().split('T')[0],
+      fullVehicle: `${values.vehicleYear} ${values.vehicleMake} ${values.vehicleModel} ${values.vehicleSubmodel || ''}`.trim(),
   };
 
   const policyDocument = compileTemplate(template, policyData);
