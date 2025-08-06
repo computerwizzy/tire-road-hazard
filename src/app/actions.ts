@@ -46,38 +46,51 @@ const WarrantyClaimSchema = z.object({
 
 function compileTemplate(template: string, data: Record<string, any>): string {
     let compiled = template;
+    const allTireDots = data.tireDots || [];
 
-    // Handle the simple placeholders
+    // First handle the simple placeholders, but not the tire data yet
     for (const key in data) {
-        if (key !== 'tireDots' && key !== 'isCommercial' && key !== 'formData') {
+        if (key !== 'tireDots' && key !== 'isCommercial' && key !== 'formData' && key !== 'tireBrand' && key !== 'tireModel' && key !== 'tireSize') {
             const regex = new RegExp(`{{${key}}}`, 'g');
             compiled = compiled.replace(regex, String(data[key] || ''));
         }
     }
-    
-    // Handle the tireDots loop
-    if (data.tireDots && data.tireDots.length > 0) {
-        const tireRows = data.tireDots.map((dot: string) => {
-            // Only create a row if the DOT is not empty
-            if(dot && dot.trim()) {
-              return `**Brand & Model:** ${data.tireBrand} ${data.tireModel}<br>**Size:** ${data.tireSize}<br>**DOT Number:** ${dot}`
-            }
-            return null;
-        }).filter(Boolean).join('<br><br>'); // filter(Boolean) removes nulls
-        compiled = compiled.replace('{{#each tireDots}}', tireRows);
+
+    // Now, handle the tire information.
+    // If there's at least one tire, populate the first tire's data in the main table.
+    if (allTireDots.length > 0) {
+        const firstTireDot = allTireDots[0];
+        compiled = compiled.replace('{{tireBrand}}', data.tireBrand || '');
+        compiled = compiled.replace('{{tireModel}}', data.tireModel || '');
+        compiled = compiled.replace('{{tireSize}}', data.tireSize || '');
+        compiled = compiled.replace('{{tireDot}}', firstTireDot || '');
     } else {
-        // If there are no tire dots, replace the loop placeholder with an empty string or a placeholder
-        compiled = compiled.replace('{{#each tireDots}}', 'N/A');
+         // If no tires, clear the placeholders
+        compiled = compiled.replace('{{tireBrand}}', '');
+        compiled = compiled.replace('{{tireModel}}', '');
+        compiled = compiled.replace('{{tireSize}}', '');
+        compiled = compiled.replace('{{tireDot}}', '');
     }
 
+    // Generate the additional tire rows for the "Covered Tires" table
+    if (data.tireDots && data.tireDots.length > 0) {
+        const tireRows = data.tireDots.map((dot: string) => {
+            if(dot && dot.trim()) {
+              return `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |`;
+            }
+            return null;
+        }).filter(Boolean).join('\n');
+        compiled = compiled.replace('{{#each tireDots}}', tireRows);
+    } else {
+        compiled = compiled.replace('{{#each tireDots}}', '| N/A | N/A | N/A |');
+    }
 
     // Handle isCommercial conditional
-    const commercialText = data.isCommercial 
-        ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**" 
+    const commercialText = data.isCommercial
+        ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**"
         : "";
     const commercialRegex = /\{\{\#if isCommercial\}\}.*?\{\{\/if\}\}/s;
     compiled = compiled.replace(commercialRegex, commercialText);
-
 
     return compiled;
 }
