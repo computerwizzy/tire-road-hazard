@@ -1,3 +1,4 @@
+
 "use server";
 
 import { z } from "zod";
@@ -66,7 +67,7 @@ function compileTemplate(template: string, data: Record<string, any>): string {
         compiled = compiled.replace('{{#each tireDots}}', tireRows);
     } else {
         // If there are no tire dots, replace the loop placeholder with an empty string or a placeholder
-        compiled = compiled.replace('{{#each tireDots}}', '');
+        compiled = compiled.replace('{{#each tireDots}}', 'N/A');
     }
 
 
@@ -74,7 +75,7 @@ function compileTemplate(template: string, data: Record<string, any>): string {
     const commercialText = data.isCommercial 
         ? "**This vehicle has been registered as a commercial vehicle and is therefore excluded from coverage under this plan.**" 
         : "";
-    const commercialRegex = /\{\{#if isCommercial\}\}.*?\{\{\/if\}\}/s;
+    const commercialRegex = /\{\{\#if isCommercial\}\}.*?\{\{\/if\}\}/s;
     compiled = compiled.replace(commercialRegex, commercialText);
 
 
@@ -169,6 +170,10 @@ export async function handleSearch(searchTerm: string): Promise<{
   error?: string;
 }> {
   try {
+    if (typeof searchTerm !== 'string' || !searchTerm.trim()) {
+        return { success: false, error: "Invalid search term provided." };
+    }
+
     const cookieStore = cookies();
     const supabase = createServerClient(cookieStore);
 
@@ -221,6 +226,52 @@ export async function handleSendEmail(values: z.infer<typeof EmailSchema>): Prom
     console.error("Error sending email:", error);
     return { success: false, error: "Failed to send email. Please try again." };
   }
+}
+
+const DownloadSchema = z.object({
+    policyDocument: z.string(),
+});
+
+export async function handleDownloadWord(values: z.infer<typeof DownloadSchema>): Promise<{ success: boolean; data?: string; error?: string; }> {
+    try {
+        const { policyDocument } = values;
+        // This is a simplified conversion. For complex markdown, a library like 'marked' would be needed.
+        // However, for our specific markdown, simple replacements should suffice.
+        let htmlContent = policyDocument
+            .replace(/# (.*)/g, '<h1>$1</h1>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\|(.*?)\|/g, '') // Remove table separators from text
+            .replace(/:---/g, '') // Remove table alignment syntax
+            .replace(/\r\n/g, '<br/>')
+            .replace(/<br\/><br\/>/g, '<p>');
+
+        const styledHtml = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Warranty Policy</title>
+                    <style>
+                        body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; }
+                        h1 { text-align: center; font-size: 16pt; }
+                        strong { font-weight: bold; }
+                        hr { border: 1px solid #ccc; }
+                        p { margin: 1em 0; }
+                    </style>
+                </head>
+                <body>
+                    ${htmlContent}
+                </body>
+            </html>
+        `;
+        
+        const base64 = Buffer.from(styledHtml).toString('base64');
+        return { success: true, data: base64 };
+
+    } catch (error) {
+        console.error("Error generating Word document:", error);
+        return { success: false, error: "Failed to generate document." };
+    }
 }
 
 

@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Mail, Loader2, FileText, Printer, Download } from 'lucide-react';
-import { handleSendEmail } from '@/app/actions';
+import { handleSendEmail, handleDownloadWord } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
@@ -49,6 +50,7 @@ interface WarrantyResultProps {
 
 export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
     const [isSendingEmail, setIsSendingEmail] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const { toast } = useToast();
 
     async function onSendEmail() {
@@ -82,6 +84,38 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
                 printWindow?.print();
             }, 100);
         });
+    }
+
+    async function handleDownload() {
+        if (!result) return;
+        setIsDownloading(true);
+        const response = await handleDownloadWord({
+            policyDocument: result.policyDocument,
+        });
+
+        if (response.success && response.data) {
+            const byteCharacters = atob(response.data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/msword' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Warranty-Policy-${result.policyNumber}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Error",
+                description: response.error || "Failed to download document.",
+            });
+        }
+        setIsDownloading(false);
     }
   
     return (
@@ -120,9 +154,18 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
                             <Printer className="mr-2 h-4 w-4" />
                             Print Policy
                         </Button>
-                         <Button variant="outline" onClick={handlePrint}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download PDF
+                         <Button variant="outline" onClick={handleDownload} disabled={isDownloading}>
+                            {isDownloading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Downloading...
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download Word Doc
+                                </>
+                            )}
                         </Button>
                     </div>
                     <Button variant="secondary" onClick={onReset}>Create New Warranty</Button>
