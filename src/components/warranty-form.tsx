@@ -123,8 +123,8 @@ export default function WarrantyForm() {
       tireModel: "",
       tireSize: "",
       tireQuantity: 1,
-      pricePerTire: 0,
-      roadHazardPrice: 0,
+      pricePerTire: undefined,
+      roadHazardPrice: undefined,
       tireDot1: "",
       tireDot2: "",
       tireDot3: "",
@@ -694,4 +694,5 @@ export default function WarrantyForm() {
   );
 }
 
+    
     
