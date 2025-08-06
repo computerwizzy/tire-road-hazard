@@ -45,40 +45,29 @@ const WarrantyClaimSchema = z.object({
 });
 
 function compileTemplate(template: string, data: Record<string, any>): string {
-    let compiled = template;
     const allTireDots = data.tireDots || [];
-
-    // Handle all simple placeholders
-    for (const key in data) {
-        if (key !== 'tireDots' && key !== 'isCommercial' && typeof data[key] !== 'object') {
-            const regex = new RegExp(`{{${key}}}`, 'g');
-            compiled = compiled.replace(regex, String(data[key] || ''));
-        }
-    }
-
-    // Handle the primary tire info in the top table
-    if (allTireDots.length > 0) {
-        compiled = compiled.replace('{{tireBrand}}', data.tireBrand || '');
-        compiled = compiled.replace('{{tireModel}}', data.tireModel || '');
-        compiled = compiled.replace('{{tireSize}}', data.tireSize || '');
-        compiled = compiled.replace('{{tireDot}}', allTireDots[0] || '');
-    } else {
-        // Clear tire placeholders if no tires exist
-        compiled = compiled.replace('{{tireBrand}}', '');
-        compiled = compiled.replace('{{tireModel}}', '');
-        compiled = compiled.replace('{{tireSize}}', '');
-        compiled = compiled.replace('{{tireDot}}', '');
-    }
     
-    // Generate the additional tire rows for the "Covered Tires" table
-    const tireRows = allTireDots.map((dot: string) => {
-        if(dot && dot.trim()) {
-            return `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |`;
+    // Main information table
+    const headerTable = `
+| **Policy Details** | **Customer Information** | **Vehicle Information** | **Tire Information** |
+| :--- | :--- | :--- | :--- |
+| **Invoice:** ${data.invoiceNumber}<br>**Road Hazard Price:** $${data.roadHazardPrice}<br>**Plan ID:** TMX1392090<br>**Date:** ${data.purchaseDate} | **Name:** ${data.customerName}<br>**Phone:** ${data.customerPhone}<br>**Address:**<br>${data.customerFullAddress} | **Vehicle:** ${data.fullVehicle}<br>**Mileage:** ${data.vehicleMileage} | **Tires Purchased:** ${data.tireQuantity}<br>**Brand & Model:** ${data.tireBrand} ${data.tireModel}<br>**Size:** ${data.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
+`;
+
+    // Covered tires table
+    let coveredTiresTable = `
+### Covered Tires
+| Brand & Model | Size | DOT Number |
+| :--- | :--- | :--- |
+`;
+    allTireDots.forEach((dot: string) => {
+        if (dot && dot.trim()) {
+            coveredTiresTable += `| ${data.tireBrand} ${data.tireModel} | ${data.tireSize} | ${dot} |\n`;
         }
-        return null;
-    }).filter(Boolean).join('\n');
-    
-    compiled = compiled.replace('{{#each tireDots}}', tireRows);
+    });
+
+    const policyHeader = headerTable + coveredTiresTable;
+    let compiled = template.replace('{{policyHeader}}', policyHeader);
 
     // Handle isCommercial conditional
     const commercialText = data.isCommercial 
