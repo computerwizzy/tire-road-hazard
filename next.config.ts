@@ -39,4 +39,5 @@ const nextConfig: NextConfig = {
   },
 };
 
+// Triggering a rebuild to clear cache.
 export default nextConfig;
