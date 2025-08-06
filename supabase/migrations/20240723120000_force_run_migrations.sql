@@ -1,0 +1,3 @@
+-- This is an empty migration file.
+-- Its purpose is to trigger the Supabase migration system to run any pending migrations
+-- that may not have been applied, such as the initial schema setup.
