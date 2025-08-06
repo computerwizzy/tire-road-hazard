@@ -107,7 +107,10 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10)
         if (error) {
             console.error('Error fetching policies from Supabase:', error);
             if (error.code === '42501') { // RLS error
-                 return { success: false, error: "Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard." };
+                 return { success: false, error: "Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard. You may need to create a policy that allows authenticated users to select data." };
+            }
+             if (error.code === '42P01') { // Table does not exist
+                return { success: false, error: "The 'policies' table does not exist. Please create it in your Supabase dashboard."};
             }
             throw error; // Re-throw other errors
         }
@@ -117,7 +120,7 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10)
         const error = e as Error;
         console.error('A critical error occurred while trying to load policies:', error.message);
         let errorMessage = 'An unexpected error occurred. Please check the server console for more details.';
-         if (error.message.includes("relation \"policies\" does not exist")) {
+         if (error.message.includes("relation \"public.policies\" does not exist")) {
             errorMessage = "The 'policies' table does not exist. Please create it in your Supabase dashboard to continue.";
         }
         return { success: false, error: errorMessage, data: [], count: 0 };

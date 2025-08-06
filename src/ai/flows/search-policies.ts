@@ -50,12 +50,12 @@ export async function searchPolicies(query: string): Promise<SearchPoliciesOutpu
 
     if (error) {
         console.error('Error searching policies in Supabase:', error);
+        if (error.code === '42501') {
+            throw new Error("Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard.");
+        }
         throw new Error('Failed to search policies.');
     }
-
-    // The data should match the Policy type, but we avoid strict parsing here
-    // to prevent issues with large policy documents or minor schema mismatches.
-    const policies: Policy[] = data || [];
     
-    return { results: policies };
+    return { results: data || [] };
 }
+
