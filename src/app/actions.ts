@@ -76,10 +76,12 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
       customerFullAddress: `${values.customerStreet}<br>${values.customerCity}, ${values.customerState} ${values.customerZip}`
   };
 
+  const planId = `TMX${Math.floor(1000000 + Math.random() * 9000000)}`;
+
   const headerTable = `
 | Policy Details | Customer Information | Vehicle Information | Tire Information |
 | :--- | :--- | :--- | :--- |
-| **Policy #:** ${policyData.policyNumber}<br>**Invoice:** ${policyData.invoiceNumber}<br>**Road Hazard Price:** $${policyData.roadHazardPrice.toFixed(2)}<br>**Plan ID:** TMX1392090<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
+| **Policy #:** ${policyData.policyNumber}<br>**Invoice:** ${policyData.invoiceNumber}<br>**Road Hazard Price:** $${policyData.roadHazardPrice.toFixed(2)}<br>**Plan ID:** ${planId}<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**DOT Number:** ${allTireDots[0] || ''} |
 `;
   
   let coveredTiresTable = `\n### Covered Tires\n\n| Brand & Model | Size | DOT Number |\n| :--- | :--- | :--- |\n`;
