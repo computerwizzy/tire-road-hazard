@@ -161,7 +161,6 @@ export default function PolicyPage() {
                                         <PolicyDetail label="Dealer Name" value={policy.dealerName} icon={Store} />
                                         <PolicyDetail label="Invoice Number" value={policy.invoiceNumber} icon={Tag} />
                                         <PolicyDetail label="Purchase Date" value={format(parseISO(policy.purchaseDate), 'PPP')} icon={Calendar} />
-                                        <PolicyDetail label="Road Hazard Price" value={policy.roadHazardPrice ? `$${policy.roadHazardPrice.toFixed(2)}` : null} icon={Tag} />
                                     </div>
                                 </div>
 
