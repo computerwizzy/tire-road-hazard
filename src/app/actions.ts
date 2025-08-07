@@ -80,13 +80,22 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
   const planId = `TMX${Math.floor(1000000 + Math.random() * 9000000)}`;
 
   const headerDetails = `
-**Policy #:** ${policyData.policyNumber} | **Invoice:** ${policyData.invoiceNumber} | **Plan ID:** ${planId} | **Date:** ${policyData.purchaseDate}
+**Policy #:** ${policyData.policyNumber}
+**Invoice:** ${policyData.invoiceNumber}
+**Plan ID:** ${planId}
+**Date:** ${policyData.purchaseDate}
 
-**Name:** ${policyData.customerName} | **Phone:** ${policyData.customerPhone} | **Address:** ${policyData.customerFullAddress}
+**Name:** ${policyData.customerName}
+**Phone:** ${policyData.customerPhone}
+**Address:** ${policyData.customerFullAddress}
 
-**Vehicle:** ${policyData.fullVehicle} | **Mileage:** ${policyData.vehicleMileage?.toLocaleString() || 'N/A'}
+**Vehicle:** ${policyData.fullVehicle}
+**Mileage:** ${policyData.vehicleMileage?.toLocaleString() || 'N/A'}
 
-**Tires Purchased:** ${policyData.tireQuantity} | **Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel} | **Size:** ${policyData.tireSize} | **Price per tire:** $${policyData.pricePerTire?.toFixed(2) || 'N/A'}
+**Tires Purchased:** ${policyData.tireQuantity}
+**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}
+**Size:** ${policyData.tireSize}
+**Price per tire:** $${policyData.pricePerTire?.toFixed(2) || 'N/A'}
 `;
   
   let coveredTiresTable = `\n### Covered Tires\n\n| Brand & Model | Size | DOT Number |\n| :--- | :--- | :--- |\n`;
@@ -369,5 +378,6 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
+    
 
     
