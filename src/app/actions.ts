@@ -42,6 +42,7 @@ const WarrantyClaimSchema = z.object({
   tireDot6: z.string().optional(),
   purchaseDate: z.date(),
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
+  policyDuration: z.coerce.number().min(1).max(3),
 });
 
 // This new schema defines the full data needed for regeneration.
@@ -111,7 +112,7 @@ export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSc
     const policyNumber = `TS-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     const warrantyStartDate = new Date(values.purchaseDate);
     const warrantyEndDate = new Date(warrantyStartDate);
-    warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 3);
+    warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + values.policyDuration);
 
     let receiptUrl = null;
 

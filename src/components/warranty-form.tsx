@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { WarrantyResult, type PolicyData } from "./warranty-result";
 import { Checkbox } from "./ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 
 const FormSchema = z.object({
@@ -88,6 +89,7 @@ const FormSchema = z.object({
     required_error: "A purchase date is required.",
   }),
   dealerName: z.string().min(2, { message: "Dealer name is required." }),
+  policyDuration: z.coerce.number().min(1).max(3),
 });
 
 const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
@@ -140,6 +142,7 @@ export default function WarrantyForm() {
       tireDot6: "",
       dealerName: "",
       vehicleYear: undefined,
+      policyDuration: 3,
     },
   });
   
@@ -589,7 +592,7 @@ export default function WarrantyForm() {
             <fieldset className="space-y-4">
               <legend className="font-headline text-xl font-semibold flex items-center gap-2 mb-4">
                 <Store className="text-primary" />
-                Purchase Information
+                Purchase &amp; Policy Information
               </legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -661,6 +664,28 @@ export default function WarrantyForm() {
                 />
                 <FormField
                   control={form.control}
+                  name="policyDuration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Policy Duration</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select duration" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1">1 Year</SelectItem>
+                          <SelectItem value="2">2 Years</SelectItem>
+                          <SelectItem value="3">3 Years</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="roadHazardPrice"
                   render={({ field }) => (
                     <FormItem>
@@ -718,9 +743,3 @@ export default function WarrantyForm() {
     </>
   );
 }
-
-    
-    
-
-    
-

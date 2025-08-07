@@ -8,7 +8,7 @@ import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone, Phone, Hash, ShieldCheck, Truck, Mail } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone, Phone, Hash, ShieldCheck, Truck, Mail, Clock } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -128,6 +128,7 @@ export default function PolicyPage() {
                                         <PolicyDetail label="Customer Name" value={policy.customerName} icon={User} />
                                         <PolicyDetail label="Customer Email" value={policy.customerEmail} icon={Mail} />
                                         <PolicyDetail label="Customer Phone" value={policy.customerPhone} icon={Phone} />
+                                        <PolicyDetail label="Policy Duration" value={policy.policyDuration ? `${policy.policyDuration} Year(s)`: 'N/A'} icon={Clock} />
                                         <PolicyDetail label="Warranty End Date" value={format(parseISO(policy.warrantyEndDate), 'PPP')} icon={Calendar} />
                                         <PolicyDetail label="Commercial Vehicle" value={policy.isCommercial ? 'Yes' : 'No'} icon={Truck} />
                                     </div>
