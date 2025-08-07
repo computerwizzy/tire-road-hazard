@@ -144,8 +144,26 @@ export default function WarrantyForm() {
   });
   
   const tireQuantity = form.watch('tireQuantity');
+  const pricePerTire = form.watch('pricePerTire');
   const tireDot1Value = form.watch('tireDot1');
   const prevTireDot1Value = useRef<string>();
+  
+  useEffect(() => {
+    const calculateRoadHazardPrice = () => {
+        const price = parseFloat(String(pricePerTire)) || 0;
+        const quantity = parseInt(String(tireQuantity), 10) || 0;
+
+        if (price > 0 && quantity > 0) {
+            const totalTireCost = price * quantity;
+            const hazardPrice = totalTireCost * 0.10;
+            form.setValue('roadHazardPrice', parseFloat(hazardPrice.toFixed(2)), { shouldValidate: true, shouldDirty: true });
+        } else {
+             // Use setValue to clear the value if conditions aren't met
+            form.setValue('roadHazardPrice', undefined, { shouldValidate: true, shouldDirty: true });
+        }
+    };
+    calculateRoadHazardPrice();
+  }, [pricePerTire, tireQuantity, form]);
 
   useEffect(() => {
     const updateOtherDots = () => {
@@ -646,9 +664,9 @@ export default function WarrantyForm() {
                   name="roadHazardPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Road Hazard Price</FormLabel>
+                      <FormLabel>Road Hazard Price (10% of Total)</FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="e.g. 50" {...field} />
+                        <Input type="text" placeholder="Calculated automatically" {...field} readOnly className="bg-muted" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -705,3 +723,4 @@ export default function WarrantyForm() {
     
 
     
+
