@@ -33,7 +33,7 @@ const WarrantyClaimSchema = z.object({
   tireSize: z.string().min(5, { message: "Tire size is required." }),
   tireQuantity: z.coerce.number().min(1).max(6),
   pricePerTire: z.coerce.number().min(0),
-  roadHazardPrice: z.coerce.number().min(0, { message: "Price must be a positive number."}),
+  roadHazardPrice: z.coerce.number().min(0, { message: "Price must be a positive number."}).optional(),
   tireDot1: z.string().min(7).max(13),
   tireDot2: z.string().optional(),
   tireDot3: z.string().optional(),
@@ -79,10 +79,14 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
 
   const planId = `TMX${Math.floor(1000000 + Math.random() * 9000000)}`;
 
-  const headerTable = `
-| Policy Details | Customer Information | Vehicle Information | Tire Information |
-| :--- | :--- | :--- | :--- |
-| **Policy #:** ${policyData.policyNumber}<br>**Invoice:** ${policyData.invoiceNumber}<br>**Plan ID:** ${planId}<br>**Date:** ${policyData.purchaseDate} | **Name:** ${policyData.customerName}<br>**Phone:** ${policyData.customerPhone}<br>**Address:**<br>${policyData.customerFullAddress} | **Vehicle:** ${policyData.fullVehicle}<br>**Mileage:** ${policyData.vehicleMileage} | **Tires Purchased:** ${policyData.tireQuantity}<br>**Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel}<br>**Size:** ${policyData.tireSize}<br>**Price per tire:** $${policyData.pricePerTire.toFixed(2)} |
+  const headerDetails = `
+**Policy #:** ${policyData.policyNumber} | **Invoice:** ${policyData.invoiceNumber} | **Plan ID:** ${planId} | **Date:** ${policyData.purchaseDate}
+
+**Name:** ${policyData.customerName} | **Phone:** ${policyData.customerPhone} | **Address:** ${policyData.customerFullAddress}
+
+**Vehicle:** ${policyData.fullVehicle} | **Mileage:** ${policyData.vehicleMileage?.toLocaleString() || 'N/A'}
+
+**Tires Purchased:** ${policyData.tireQuantity} | **Brand & Model:** ${policyData.tireBrand} ${policyData.tireModel} | **Size:** ${policyData.tireSize} | **Price per tire:** $${policyData.pricePerTire?.toFixed(2) || 'N/A'}
 `;
   
   let coveredTiresTable = `\n### Covered Tires\n\n| Brand & Model | Size | DOT Number |\n| :--- | :--- | :--- |\n`;
@@ -92,7 +96,7 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
       }
   });
 
-  const policyHeader = headerTable + (allTireDots.length > 0 ? coveredTiresTable : '');
+  const policyHeader = headerDetails + (allTireDots.length > 0 ? coveredTiresTable : '');
   let compiled = template.replace('{{policyHeader}}', policyHeader);
 
   const commercialText = policyData.isCommercial 
@@ -365,3 +369,5 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
+
+    
