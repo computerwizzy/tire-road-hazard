@@ -79,7 +79,7 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
            <Button asChild>
-                <Link href="/">
+                <Link href="/admin/registration">
                     <PlusCircle className="mr-2" />
                     New Warranty
                 </Link>
