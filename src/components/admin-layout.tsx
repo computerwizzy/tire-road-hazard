@@ -15,7 +15,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, Settings, LogOut, User as UserIcon, Search } from 'lucide-react';
+import { Home, Settings, LogOut, User as UserIcon, Search, PlusCircle } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -87,6 +87,14 @@ export default function AdminLayout({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/admin/registration'}>
+                    <Link href="/admin/registration">
+                        <PlusCircle />
+                        New Warranty
+                    </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/settings')}>
                   <Link href="/admin/settings">
@@ -99,9 +107,6 @@ export default function AdminLayout({
           </SidebarContent>
           <SidebarFooter className="flex-col !items-start gap-2">
             <ThemeToggle />
-            <Button variant="link" asChild className="text-muted-foreground p-0 h-auto">
-                <Link href="/">← Back to App</Link>
-            </Button>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset className="flex-1">

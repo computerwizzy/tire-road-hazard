@@ -61,14 +61,16 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  
+  const { pathname } = request.nextUrl;
 
-  // if user is not signed in and the current path starts with /admin, redirect the user to /login
-  if (!user && request.nextUrl.pathname.startsWith('/admin')) {
+  // if user is not signed in and trying to access a protected route, redirect to login
+  if (!user && pathname !== '/login') {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
    // if user is signed in and the current path is /login, redirect the user to /admin
-  if (user && request.nextUrl.pathname === '/login') {
+  if (user && pathname === '/login') {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
 
@@ -77,5 +79,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
