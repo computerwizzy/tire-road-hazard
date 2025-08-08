@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { Policy } from '@/ai/flows/search-policies';
+import type { Policy, Claim } from '@/ai/flows/search-policies';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import type { DashboardStats } from '@/app/actions';
@@ -39,7 +39,7 @@ export async function getFullPolicyFromDb(policyNumber: string): Promise<any | n
     const supabase = getSupabase();
     const { data, error } = await supabase
         .from('policies')
-        .select('*')
+        .select('*, claims(*)')
         .eq('policyNumber', policyNumber)
         .single();
     
@@ -200,4 +200,22 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     }
 }
 
-    
+export async function saveClaimToDb(claimData: {
+  policy_number: string;
+  incident_description: string;
+  photo_urls: string[];
+}): Promise<number> {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+        .from('claims')
+        .insert(claimData)
+        .select('id')
+        .single();
+
+    if (error) {
+        console.error('Error saving claim to Supabase:', error);
+        throw new Error(`Failed to save claim. DB Error: ${error.message}`);
+    }
+
+    return data.id;
+}

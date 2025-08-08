@@ -5,7 +5,7 @@ import { z } from "zod";
 import fs from 'fs/promises';
 import path from 'path';
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb, getFullPolicyFromDb } from "@/data/db-actions";
+import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb, getFullPolicyFromDb, saveClaimToDb } from "@/data/db-actions";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -190,7 +190,7 @@ export async function handleSearch(searchTerm: string): Promise<{
 
     const { data, error } = await supabase
         .from('policies')
-        .select(selectColumns)
+        .select(`${selectColumns}, claims(*)`)
         .or(`policyNumber.ilike.%${searchTerm}%,customerName.ilike.%${searchTerm}%,tireDot1.ilike.%${searchTerm}%,customerPhone.ilike.%${searchTerm}%`);
 
     if (error) {
@@ -383,21 +383,18 @@ const NewClaimSchema = z.object({
 export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, photosData: { buffer: string, contentType: string, fileName: string }[]) {
   try {
     const supabase = createClient();
-
-    // Explicitly get the user to ensure the session is attached to the client
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
         throw new Error("Authentication error: User not found. Please log in again.");
     }
-    
-    console.log("New Claim Submitted for user:", user.id);
 
+    const photoUrls: string[] = [];
     for (const [index, photoData] of photosData.entries()) {
         if (photoData) {
-            const filePath = `claims/${values.policyNumber}-${index + 1}-${photoData.fileName}`;
+            const filePath = `claims/${values.policyNumber}-${Date.now()}-${index + 1}-${photoData.fileName}`;
             const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('receipts') // Use the same bucket as receipts for simplicity
+                .from('receipts')
                 .upload(filePath, Buffer.from(photoData.buffer, 'base64'), {
                     contentType: photoData.contentType,
                     upsert: true,
@@ -405,7 +402,7 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
 
             if (uploadError) {
                 console.error("Error uploading claim photo to Supabase:", uploadError);
-                if (uploadError.message.includes("bucket not found")) {
+                 if (uploadError.message.includes("bucket not found")) {
                      throw new Error("Storage bucket 'receipts' not found. Please ensure it exists in your Supabase project.");
                 }
                  if (uploadError.message.includes("policy requires authentication")) {
@@ -413,14 +410,20 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
                 }
                 throw new Error("Failed to upload claim photo.");
             }
-            console.log("Claim photo uploaded:", uploadData.path);
+            const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
+            if (urlData) {
+                photoUrls.push(urlData.publicUrl);
+            }
         }
     }
     
-    // Here you would typically save the claim details to the database.
-    // e.g., await saveClaimToDb(values);
+    const claimId = await saveClaimToDb({
+      policy_number: values.policyNumber,
+      incident_description: values.incidentDescription,
+      photo_urls: photoUrls,
+    });
 
-    return { success: true, data: { claimId: `CL-${Date.now()}` } };
+    return { success: true, data: { claimId: `CL-${claimId}` } };
 
   } catch (error) {
     console.error("Error handling new claim:", error);
@@ -428,5 +431,3 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
-
-    

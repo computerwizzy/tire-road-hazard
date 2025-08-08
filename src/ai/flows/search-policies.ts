@@ -5,9 +5,21 @@
  * @fileOverview Defines the types for warranty policies.
  *
  * - Policy - The type definition for a policy object.
+ * - Claim - The type definition for a claim object.
  */
 
 import { z } from 'zod';
+
+const ClaimSchema = z.object({
+    id: z.bigint(),
+    created_at: z.string(),
+    policy_number: z.string(),
+    incident_description: z.string(),
+    photo_urls: z.array(z.string()).nullable(),
+    status: z.string(),
+});
+export type Claim = z.infer<typeof ClaimSchema>;
+
 
 const PolicySchema = z.object({
     policyNumber: z.string(),
@@ -41,6 +53,7 @@ const PolicySchema = z.object({
     tireDot4: z.string().optional(),
     tireDot5: z.string().optional(),
     tireDot6: z.string().optional(),
+    claims: z.array(ClaimSchema).optional(),
 });
 export type Policy = z.infer<typeof PolicySchema>;
 

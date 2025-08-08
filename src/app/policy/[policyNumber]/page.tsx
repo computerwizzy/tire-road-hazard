@@ -4,14 +4,21 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { handleSearch } from '@/app/actions';
-import type { Policy } from '@/ai/flows/search-policies';
+import type { Policy, Claim } from '@/ai/flows/search-policies';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone, Phone, Hash, ShieldCheck, Truck, Mail, Clock } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, User, Car, Disc3, Calendar, Tag, Image as ImageIcon, Printer, Store, Milestone, Phone, Hash, ShieldCheck, Truck, Mail, Clock, MessageSquare, Camera } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 
 function PolicyDetail({ label, value, icon: Icon }: { label: string; value: string | number | null | undefined, icon: React.ElementType }) {
     if (!value && typeof value !== 'number') return null;
@@ -25,6 +32,51 @@ function PolicyDetail({ label, value, icon: Icon }: { label: string; value: stri
         </div>
     );
 }
+
+function ClaimHistory({ claims }: { claims: Claim[] }) {
+    if (!claims || claims.length === 0) return null;
+
+    return (
+        <div>
+            <Separator className="my-8" />
+            <h3 className="font-headline text-lg font-semibold flex items-center gap-2 mb-4">
+                <MessageSquare className="text-primary" />
+                Claims History ({claims.length})
+            </h3>
+            <Accordion type="single" collapsible className="w-full">
+                 {claims.map((claim, index) => (
+                    <AccordionItem value={`item-${index}`} key={String(claim.id)}>
+                        <AccordionTrigger>
+                            <div className="flex justify-between w-full pr-4">
+                                <span>Claim submitted on {format(parseISO(claim.created_at), 'PPP')}</span>
+                                <Badge>{claim.status}</Badge>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4">
+                             <PolicyDetail label="Incident Description" value={claim.incident_description} icon={MessageSquare} />
+                            {claim.photo_urls && claim.photo_urls.length > 0 && (
+                                <div className="space-y-2">
+                                     <div className="flex items-start text-sm">
+                                         <Camera className="h-4 w-4 mr-2 mt-1 text-muted-foreground shrink-0" />
+                                        <p className="font-semibold text-foreground">Evidence Photos</p>
+                                     </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pl-6">
+                                        {claim.photo_urls.map((url, i) => (
+                                            <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                                <img src={url} alt={`Claim evidence ${i + 1}`} className="rounded-md object-cover aspect-square hover:opacity-80 transition-opacity" />
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
+                 ))}
+            </Accordion>
+        </div>
+    );
+}
+
 
 export default function PolicyPage() {
     const params = useParams();
@@ -187,6 +239,7 @@ export default function PolicyPage() {
                                         </div>
                                     </div>
                                 )}
+                                <ClaimHistory claims={policy.claims || []} />
                             </div>
                         )}
                     </CardContent>
