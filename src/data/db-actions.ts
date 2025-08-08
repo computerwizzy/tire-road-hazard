@@ -123,14 +123,14 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
     try {
         const from = (page - 1) * limit;
         const to = from + limit - 1;
-        const today = new Date().toISOString();
+        const today = new Date().toISOString().split('T')[0];
 
         let query = supabase
             .from('policies')
             .select('*', { count: 'exact' });
 
         if (status === 'active') {
-            query = query.gt('warrantyEndDate', today);
+            query = query.gte('warrantyEndDate', today);
         } else if (status === 'expired') {
             query = query.lt('warrantyEndDate', today);
         }
@@ -165,7 +165,7 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
-    const today = new Date().toISOString();
+    const today = new Date().toISOString().split('T')[0];
 
     const { count: totalPolicies, error: totalError } = await supabase
         .from('policies')
@@ -176,7 +176,7 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const { count: activePolicies, error: activeError } = await supabase
         .from('policies')
         .select('*', { count: 'exact', head: true })
-        .gt('warrantyEndDate', today);
+        .gte('warrantyEndDate', today);
     
     if (activeError) throw activeError;
 
