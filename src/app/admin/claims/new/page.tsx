@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { handleSearch, handleNewClaim } from '@/app/actions';
 import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ function NewClaimForm() {
     const [error, setError] = useState<string | null>(null);
     const [policy, setPolicy] = useState<Policy | null>(null);
     const [submissionResult, setSubmissionResult] = useState<{ success: boolean; data?: any; error?: string} | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const form = useForm<z.infer<typeof NewClaimSchema>>({
         resolver: zodResolver(NewClaimSchema),
@@ -82,17 +82,20 @@ function NewClaimForm() {
         setIsSubmitting(true);
         setError(null);
 
-        let photoData = null;
-        const photoFile = fileInputRef.current?.files?.[0];
-        if (photoFile) {
-            const buffer = await toBase64(photoFile);
-            photoData = {
-                buffer,
-                contentType: photoFile.type,
-                fileName: photoFile.name
+        const photosData: { buffer: string, contentType: string, fileName: string }[] = [];
+        for (const fileInput of fileInputRefs.current) {
+            const photoFile = fileInput?.files?.[0];
+            if (photoFile) {
+                const buffer = await toBase64(photoFile);
+                photosData.push({
+                    buffer,
+                    contentType: photoFile.type,
+                    fileName: photoFile.name
+                });
             }
         }
-        const response = await handleNewClaim(values, photoData);
+        
+        const response = await handleNewClaim(values, photosData);
         setSubmissionResult(response);
         if(response.error) {
             setError(response.error);
@@ -181,25 +184,31 @@ function NewClaimForm() {
                                             {...field}
                                         />
                                     </FormControl>
-                                    <FormDescription>
-                                        Provide as much detail as possible about the road hazard incident.
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                         <FormItem>
-                            <FormLabel className="text-base">Upload Photo (Optional)</FormLabel>
-                             <FormControl>
-                                <div className="flex items-center gap-2">
-                                    <Upload className="text-muted-foreground" />
-                                    <Input type="file" ref={fileInputRef} accept="image/*" />
-                                </div>
-                            </FormControl>
-                            <FormDescription>
-                                Upload a clear photo of the damaged tire.
-                            </FormDescription>
-                        </FormItem>
+                         <div className="space-y-4">
+                            <FormLabel className="text-base">Upload Photos (Optional, up to 6)</FormLabel>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {Array.from({ length: 6 }).map((_, index) => (
+                                    <FormItem key={index}>
+                                        <FormLabel className="text-xs text-muted-foreground">Photo {index + 1}</FormLabel>
+                                        <FormControl>
+                                            <div className="flex items-center gap-2 p-2 border rounded-md">
+                                                <Upload className="text-muted-foreground h-4 w-4" />
+                                                <Input 
+                                                    type="file" 
+                                                    ref={el => fileInputRefs.current[index] = el} 
+                                                    accept="image/*"
+                                                    className="text-xs file:mr-2 file:text-xs"
+                                                />
+                                            </div>
+                                        </FormControl>
+                                    </FormItem>
+                                ))}
+                            </div>
+                        </div>
                         
                         {error && (
                             <Alert variant="destructive">

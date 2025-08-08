@@ -384,29 +384,29 @@ const NewClaimSchema = z.object({
   incidentDescription: z.string().min(10, { message: "Please provide a detailed description of the incident." }),
 });
 
-export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, photoData: { buffer: string, contentType: string, fileName: string } | null) {
+export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, photosData: { buffer: string, contentType: string, fileName: string }[]) {
   try {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
-    // For now, we'll just log the data.
-    // In a real application, you would save this to a 'claims' table in your database.
     console.log("New Claim Submitted:", values);
 
-    if (photoData) {
-        const filePath = `claims/${values.policyNumber}-${photoData.fileName}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('receipts') // You might want a different bucket for claims
-            .upload(filePath, Buffer.from(photoData.buffer, 'base64'), {
-                contentType: photoData.contentType,
-                upsert: true,
-            });
+    for (const [index, photoData] of photosData.entries()) {
+        if (photoData) {
+            const filePath = `claims/${values.policyNumber}-${index + 1}-${photoData.fileName}`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('receipts') // You might want a different bucket for claims
+                .upload(filePath, Buffer.from(photoData.buffer, 'base64'), {
+                    contentType: photoData.contentType,
+                    upsert: true,
+                });
 
-        if (uploadError) {
-            console.error("Error uploading claim photo to Supabase:", uploadError);
-            throw new Error("Failed to upload claim photo.");
+            if (uploadError) {
+                console.error("Error uploading claim photo to Supabase:", uploadError);
+                throw new Error("Failed to upload claim photo.");
+            }
+            console.log("Claim photo uploaded:", uploadData.path);
         }
-        console.log("Claim photo uploaded:", uploadData.path);
     }
     
     // Here you would typically save the claim details to the database.
@@ -420,5 +420,3 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
-
-    
