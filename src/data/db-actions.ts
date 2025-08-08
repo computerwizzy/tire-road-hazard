@@ -129,10 +129,15 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .from('policies')
             .select('*', { count: 'exact' });
 
-        if (status === 'active') {
-            query = query.gte('warrantyEndDate', new Date().toISOString());
-        } else if (status === 'expired') {
-            query = query.lt('warrantyEndDate', new Date().toISOString());
+        if (status === 'active' || status === 'expired') {
+            // Get today's date in YYYY-MM-DD format for correct 'date' type comparison.
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (status === 'active') {
+                query = query.gte('warrantyEndDate', today);
+            } else if (status === 'expired') {
+                query = query.lt('warrantyEndDate', today);
+            }
         }
         
         const { data, error, count } = await query
