@@ -6,15 +6,10 @@ import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import type { DashboardStats } from '@/app/actions';
 
-function getSupabase() {
-    const cookieStore = cookies();
-    return createClient(cookieStore);
-}
-
 // We are now saving the entire form data blob, which includes all fields from WarrantyClaimSchema.
 // The Policy type from search-policies.ts is now just a subset of the data stored.
 export async function savePolicy(policyData: any): Promise<void> {
-    const supabase = getSupabase();
+    const supabase = createClient();
 
     // Ensure the main 'tireDot' field required by older table structures is populated.
     const dataToSave = {
@@ -36,7 +31,7 @@ export async function savePolicy(policyData: any): Promise<void> {
 
 
 export async function getFullPolicyFromDb(policyNumber: string): Promise<any | null> {
-    const supabase = getSupabase();
+    const supabase = createClient();
     const { data, error } = await supabase
         .from('policies')
         .select('*, claims(*)')
@@ -61,7 +56,7 @@ export type User = {
 }
 
 export async function getUsers(): Promise<User[]> {
-    const supabase = getSupabase();
+    const supabase = createClient();
     const { data, error } = await supabase
         .from('users')
         .select('*');
@@ -80,7 +75,7 @@ export async function getUsers(): Promise<User[]> {
 }
 
 export async function addUser(email: string, role: 'admin' | 'member'): Promise<User> {
-    const supabase = getSupabase();
+    const supabase = createClient();
     const { data, error } = await supabase
         .from('users')
         .insert([{ email, role }])
@@ -104,7 +99,7 @@ export async function addUser(email: string, role: 'admin' | 'member'): Promise<
 }
 
 export async function deleteUser(id: number): Promise<void> {
-    const supabase = getSupabase();
+    const supabase = createClient();
     const { error } = await supabase
         .from('users')
         .delete()
@@ -125,7 +120,7 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10)
   count?: number;
   error?: string;
 }> {
-    const supabase = getSupabase();
+    const supabase = createClient();
     try {
         const from = (page - 1) * limit;
         const to = from + limit - 1;
@@ -161,7 +156,7 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10)
 
 
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
-    const supabase = getSupabase();
+    const supabase = createClient();
     const today = new Date().toISOString();
 
     const { count: totalPolicies, error: totalError } = await supabase
@@ -205,7 +200,7 @@ export async function saveClaimToDb(claimData: {
   incident_description: string;
   photo_urls: string[];
 }): Promise<number> {
-    const supabase = getSupabase();
+    const supabase = createClient();
     const { data, error } = await supabase
         .from('claims')
         .insert(claimData)
@@ -219,3 +214,5 @@ export async function saveClaimToDb(claimData: {
 
     return data.id;
 }
+
+    

@@ -384,7 +384,6 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
   try {
     const supabase = createClient();
     
-    // Explicitly check for user session to provide a clear error message.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         throw new Error("Authentication error: User not found. Please log in again.");
@@ -406,7 +405,7 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
                  if (uploadError.message.includes("bucket not found")) {
                      throw new Error("Storage bucket 'receipts' not found. Please ensure it exists in your Supabase project.");
                 }
-                 if (uploadError.message.includes("policy requires authentication")) {
+                 if (uploadError.message.includes("could not be found") || uploadError.message.includes("Auth") || uploadError.message.includes("policy")) {
                      throw new Error("Failed to upload claim photo. The storage bucket has restrictive policies. Please check your Supabase RLS policies for storage.");
                 }
                 throw new Error("Failed to upload claim photo.");
@@ -432,3 +431,5 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
+
+    
