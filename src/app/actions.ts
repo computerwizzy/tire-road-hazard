@@ -119,8 +119,7 @@ async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyD
 
 export async function handleWarrantyClaim(values: z.infer<typeof WarrantyClaimSchema>, receiptData: { buffer: string, contentType: string, fileName: string } | null) {
   try {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = createClient();
 
     const policyNumber = `TS-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     const warrantyStartDate = new Date(values.purchaseDate);
@@ -184,8 +183,7 @@ export async function handleSearch(searchTerm: string): Promise<{
         return { success: false, error: "Invalid search term provided." };
     }
 
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = createClient();
 
     // Select all columns to get the full policy details
     const selectColumns = '*';
@@ -323,8 +321,7 @@ const LoginSchema = z.object({
 });
 
 export async function handleLogin(values: z.infer<typeof LoginSchema>) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email: values.email,
@@ -341,8 +338,7 @@ export async function handleLogin(values: z.infer<typeof LoginSchema>) {
 
 
 export async function handleLogout() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   await supabase.auth.signOut();
   redirect('/');
 }
@@ -386,8 +382,7 @@ const NewClaimSchema = z.object({
 
 export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, photosData: { buffer: string, contentType: string, fileName: string }[]) {
   try {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = createClient();
 
     // Explicitly get the user to ensure the session is attached to the client
     const { data: { user } } = await supabase.auth.getUser();
@@ -433,3 +428,5 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
+
+    
