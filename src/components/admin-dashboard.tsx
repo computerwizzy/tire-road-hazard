@@ -99,7 +99,7 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                     </CardContent>
                 </Card>
             </Link>
-            <Link href="/admin/settings/policies">
+            <Link href="/admin/settings/policies?status=active">
                  <Card className="hover:bg-muted/50 transition-colors">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Active Policies</CardTitle>
@@ -111,7 +111,7 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
                     </CardContent>
                 </Card>
             </Link>
-             <Link href="/admin/settings/policies">
+             <Link href="/admin/settings/policies?status=expired">
                  <Card className="hover:bg-muted/50 transition-colors">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Expired Policies</CardTitle>

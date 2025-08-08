@@ -113,7 +113,7 @@ export async function deleteUser(id: number): Promise<void> {
     }
 }
 
-export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10): Promise<{
+export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10, status: 'all' | 'active' | 'expired' | null = 'all'): Promise<{
   success: boolean;
   data?: Policy[];
   count?: number;
@@ -123,10 +123,19 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10)
     try {
         const from = (page - 1) * limit;
         const to = from + limit - 1;
+        const today = new Date().toISOString();
 
-        const { data, error, count } = await supabase
+        let query = supabase
             .from('policies')
-            .select('*', { count: 'exact' })
+            .select('*', { count: 'exact' });
+
+        if (status === 'active') {
+            query = query.gt('warrantyEndDate', today);
+        } else if (status === 'expired') {
+            query = query.lt('warrantyEndDate', today);
+        }
+
+        const { data, error, count } = await query
             .order('purchaseDate', { ascending: false })
             .range(from, to);
 

@@ -303,13 +303,13 @@ export async function handleDownloadWord(values: z.infer<typeof DownloadSchema>)
 }
 
 
-export async function getAllPolicies(page: number = 1, limit: number = 10): Promise<{
+export async function getAllPolicies(page: number = 1, limit: number = 10, status: 'all' | 'active' | 'expired' | null = 'all'): Promise<{
   success: boolean;
   data?: Policy[];
   count?: number;
   error?: string;
 }> {
-    return getAllPoliciesFromDb(page, limit);
+    return getAllPoliciesFromDb(page, limit, status);
 }
 
 
@@ -383,12 +383,6 @@ const NewClaimSchema = z.object({
 export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, photosData: { buffer: string, contentType: string, fileName: string }[]) {
   try {
     const supabase = createClient();
-    
-    // This check is now required because Supabase client is correctly authenticated.
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        throw new Error("Authentication error: User not found. Please log in again.");
-    }
 
     const photoUrls: string[] = [];
     for (const [index, photoData] of photosData.entries()) {
@@ -432,6 +426,12 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     
     if (claimError) {
         console.error('Error saving claim to Supabase:', claimError);
+        if (claimError.code === '23503') { // foreign key violation
+            throw new Error(`The policy number "${values.policyNumber}" does not exist. Please verify the policy number.`);
+        }
+        if (claimError.code === '42501') {
+            throw new Error("Permission denied. Please check your Row Level Security (RLS) policies on the 'claims' table in your Supabase dashboard.");
+        }
         throw new Error(`Failed to save claim. DB Error: ${claimError.message}`);
     }
 

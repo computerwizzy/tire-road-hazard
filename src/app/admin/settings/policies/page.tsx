@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { handleSearch, getAllPolicies } from '@/app/actions';
 import type { Policy } from '@/ai/flows/search-policies';
@@ -24,7 +24,10 @@ const SearchSchema = z.object({
 
 const POLICIES_PER_PAGE = 10;
 
-export default function PolicyManagementPage() {
+function PolicyManagementComponent() {
+    const searchParams = useSearchParams();
+    const filterStatus = searchParams.get('status') as 'all' | 'active' | 'expired' | null;
+
     const [isLoading, setIsLoading] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -43,10 +46,10 @@ export default function PolicyManagementPage() {
         },
     });
 
-    async function loadPolicies(page: number) {
+    async function loadPolicies(page: number, status: 'all' | 'active' | 'expired' | null = 'all') {
         setIsLoading(true);
         setError(null);
-        const response = await getAllPolicies(page, POLICIES_PER_PAGE);
+        const response = await getAllPolicies(page, POLICIES_PER_PAGE, status);
         if (response.success && response.data) {
             setPolicies(response.data);
             setTotalCount(response.count || 0);
@@ -58,13 +61,13 @@ export default function PolicyManagementPage() {
     }
     
     useEffect(() => {
-        loadPolicies(1);
-    }, []);
+        loadPolicies(1, filterStatus || 'all');
+    }, [filterStatus]);
 
     async function onSearch(values: z.infer<typeof SearchSchema>) {
         if (!values.searchTerm) {
             setSearchResults(null);
-            loadPolicies(1);
+            loadPolicies(1, filterStatus);
             return;
         }
         setIsSearching(true);
@@ -90,6 +93,19 @@ export default function PolicyManagementPage() {
             return <Badge variant="destructive">Expired</Badge>;
         }
         return <Badge variant="secondary">Active</Badge>;
+    }
+
+    const getTitle = () => {
+        if (searchResults) return 'Search Results';
+        if (filterStatus === 'active') return 'Active Policies';
+        if (filterStatus === 'expired') return 'Expired Policies';
+        return 'All Policies';
+    }
+
+    const getDescription = () => {
+        if (searchResults) return `Found ${searchResults.results.length} policies matching your search.`;
+        if (filterStatus) return `Showing all ${filterStatus} policies.`;
+        return `Showing page ${currentPage} of ${totalPages}`;
     }
     
     const policiesToShow = searchResults ? searchResults.results : policies;
@@ -147,10 +163,10 @@ export default function PolicyManagementPage() {
             <Card>
                 <CardHeader>
                      <CardTitle>
-                        {searchResults ? 'Search Results' : 'All Policies'}
+                        {getTitle()}
                     </CardTitle>
                      <CardDescription>
-                        {searchResults ? `Found ${searchResults.results.length} policies matching your search.` : `Showing page ${currentPage} of ${totalPages}`}
+                        {getDescription()}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -219,14 +235,14 @@ export default function PolicyManagementPage() {
                         <div className="flex gap-2">
                             <Button
                                 variant="outline"
-                                onClick={() => loadPolicies(currentPage - 1)}
+                                onClick={() => loadPolicies(currentPage - 1, filterStatus)}
                                 disabled={currentPage === 1 || isLoading}
                             >
                                 Previous
                             </Button>
                             <Button
                                 variant="outline"
-                                onClick={() => loadPolicies(currentPage + 1)}
+                                onClick={() => loadPolicies(currentPage + 1, filterStatus)}
                                 disabled={currentPage === totalPages || isLoading}
                             >
                                 Next
@@ -237,4 +253,12 @@ export default function PolicyManagementPage() {
             </Card>
         </div>
     );
+}
+
+export default function PolicyManagementPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+            <PolicyManagementComponent />
+        </Suspense>
+    )
 }
