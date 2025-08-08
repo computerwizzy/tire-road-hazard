@@ -175,38 +175,31 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayISO = today.toISOString().split('T')[0];
-
 
     try {
-        const { count: totalPolicies, error: totalError } = await supabase
+        const { data: allPolicies, error: totalError } = await supabase
             .from('policies')
-            .select('*', { count: 'exact', head: true });
+            .select('customerEmail, warrantyEndDate');
 
         if (totalError) throw totalError;
 
-        const { count: activePolicies, error: activeError } = await supabase
-            .from('policies')
-            .select('*', { count: 'exact', head: true })
-            .gte('warrantyEndDate', todayISO);
-            
-        if (activeError) throw activeError;
+        if (!allPolicies) {
+             return { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0 };
+        }
 
-        const { count: expiredPolicies, error: expiredError } = await supabase
-            .from('policies')
-            .select('*', { count: 'exact', head: true })
-            .lt('warrantyEndDate', todayISO);
+        let activePolicies = 0;
+        let expiredPolicies = 0;
 
-        if (expiredError) throw expiredError;
+        for (const policy of allPolicies) {
+            const warrantyEndDate = parseISO(policy.warrantyEndDate);
+            if (isAfter(warrantyEndDate, today)) {
+                activePolicies++;
+            } else {
+                expiredPolicies++;
+            }
+        }
         
-        // This is not perfectly efficient, but it's reliable for smaller datasets
-        const { data: customerData, error: customerError } = await supabase
-            .from('policies')
-            .select('customerEmail');
-        
-        if (customerError) throw customerError;
-        
-        const totalCustomers = new Set(customerData.map(c => c.customerEmail)).size;
+        const totalCustomers = new Set(allPolicies.map(c => c.customerEmail)).size;
         
         const { count: totalClaims, error: claimsError } = await supabase
             .from('claims')
@@ -215,9 +208,9 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
         if (claimsError) throw claimsError;
 
         return {
-            totalPolicies: totalPolicies ?? 0,
-            activePolicies: activePolicies ?? 0,
-            expiredPolicies: expiredPolicies ?? 0,
+            totalPolicies: allPolicies.length,
+            activePolicies: activePolicies,
+            expiredPolicies: expiredPolicies,
             totalCustomers: totalCustomers,
             totalClaims: totalClaims ?? 0,
         };
