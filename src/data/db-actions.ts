@@ -4,7 +4,7 @@
 import type { Policy, Claim } from '@/ai/flows/search-policies';
 import { createClient } from '@/lib/supabase/server';
 import type { DashboardStats } from '@/app/actions';
-import { parseISO, isAfter } from 'date-fns';
+import { parseISO, isAfter, isBefore, isEqual } from 'date-fns';
 
 // We are now saving the entire form data blob, which includes all fields from WarrantyClaimSchema.
 // The Policy type from search-policies.ts is now just a subset of the data stored.
@@ -122,24 +122,23 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 }> {
     const supabase = createClient();
     try {
-        const from = (page - 1) * limit;
-        const to = from + limit - 1;
-
         let query = supabase
             .from('policies')
             .select('*', { count: 'exact' });
-
-        if (status && status !== 'all') {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const todayISO = today.toISOString().split('T')[0];
             
-            if (status === 'active') {
-                query = query.gte('warrantyEndDate', todayISO);
-            } else if (status === 'expired') {
-                query = query.lt('warrantyEndDate', todayISO);
-            }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of today for consistent comparison
+
+        if (status === 'active') {
+            const todayISO = today.toISOString().split('T')[0];
+            query = query.gte('warrantyEndDate', todayISO);
+        } else if (status === 'expired') {
+            const todayISO = today.toISOString().split('T')[0];
+            query = query.lt('warrantyEndDate', todayISO);
         }
+
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
         
         const { data, error, count } = await query
             .order('purchaseDate', { ascending: false })
@@ -173,9 +172,6 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     try {
         const { data: allPolicies, error: totalError } = await supabase
             .from('policies')
@@ -189,13 +185,18 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
 
         let activePolicies = 0;
         let expiredPolicies = 0;
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
 
         for (const policy of allPolicies) {
             const warrantyEndDate = parseISO(policy.warrantyEndDate);
-            if (isAfter(warrantyEndDate, today)) {
-                activePolicies++;
-            } else {
+            // A policy is active if its end date is today or in the future.
+            // It is expired only if the end date is *before* today.
+            if (isBefore(warrantyEndDate, today)) {
                 expiredPolicies++;
+            } else {
+                activePolicies++;
             }
         }
         
@@ -205,7 +206,12 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
             .from('claims')
             .select('*', { count: 'exact', head: true });
 
-        if (claimsError) throw claimsError;
+        if (claimsError) {
+             // If claims table doesn't exist, don't throw, just return 0
+            if (claimsError.code !== '42P01') {
+                throw claimsError;
+            }
+        }
 
         return {
             totalPolicies: allPolicies.length,
