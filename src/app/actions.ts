@@ -382,8 +382,6 @@ const NewClaimSchema = z.object({
 
 export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, photosData: { buffer: string, contentType: string, fileName: string }[]) {
   try {
-    // Note: createClient() from server correctly handles auth using cookies.
-    // No need to pass cookieStore.
     const supabase = createClient();
     
     // Explicitly check for user session to provide a clear error message.
