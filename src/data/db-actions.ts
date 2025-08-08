@@ -4,7 +4,7 @@
 import type { Policy, Claim } from '@/ai/flows/search-policies';
 import { createClient } from '@/lib/supabase/server';
 import type { DashboardStats } from '@/app/actions';
-import { parseISO } from 'date-fns';
+import { parseISO, isAfter } from 'date-fns';
 
 // We are now saving the entire form data blob, which includes all fields from WarrantyClaimSchema.
 // The Policy type from search-policies.ts is now just a subset of the data stored.
@@ -130,9 +130,9 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .select('*', { count: 'exact' });
 
         if (status === 'active') {
-            query = query.gte('warrantyEndDate', 'now()');
+            query = query.gte('warrantyEndDate', new Date().toISOString());
         } else if (status === 'expired') {
-            query = query.lt('warrantyEndDate', 'now()');
+            query = query.lt('warrantyEndDate', new Date().toISOString());
         }
 
         const { data, error, count } = await query
@@ -166,22 +166,31 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
 
+    // Fetch all policies to manually count active/expired
     const { data: allPolicies, error: policiesError } = await supabase
         .from('policies')
         .select('warrantyEndDate, customerEmail');
 
-    if (policiesError) throw policiesError;
+    if (policiesError) {
+        console.error("Error fetching policies for stats:", policiesError);
+        // Return zeroed-out stats on critical error
+        return { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0 };
+    }
 
     let activePolicies = 0;
     let expiredPolicies = 0;
     const today = new Date();
     
     allPolicies.forEach(policy => {
-        const endDate = parseISO(policy.warrantyEndDate);
-        if (today > endDate) {
-            expiredPolicies++;
-        } else {
-            activePolicies++;
+        try {
+            const endDate = parseISO(policy.warrantyEndDate);
+            if (isAfter(today, endDate)) {
+                expiredPolicies++;
+            } else {
+                activePolicies++;
+            }
+        } catch(e) {
+            console.error(`Could not parse date for policy: ${policy.warrantyEndDate}`);
         }
     });
     
