@@ -55,9 +55,7 @@ export default function ClaimsPage() {
     
     function handleFileClaim() {
         if (policy) {
-            // Placeholder for navigation to the actual claim filing form
-            alert(`Filing claim for policy: ${policy.policyNumber}`);
-            // router.push(`/admin/claims/new?policyNumber=${policy.policyNumber}`);
+            router.push(`/admin/claims/new?policyNumber=${policy.policyNumber}`);
         }
     }
 
@@ -149,3 +147,4 @@ export default function ClaimsPage() {
         </div>
     );
 }
+```
