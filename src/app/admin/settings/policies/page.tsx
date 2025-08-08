@@ -25,16 +25,16 @@ const SearchSchema = z.object({
 const POLICIES_PER_PAGE = 10;
 
 function PolicyManagementComponent() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const filterStatus = searchParams.get('status') as 'all' | 'active' | 'expired' | null;
 
+    const [policies, setPolicies] = useState<Policy[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchResults, setSearchResults] = useState<{ results: Policy[] } | null>(null);
-    const router = useRouter();
-
-    const [policies, setPolicies] = useState<Policy[]>([]);
+    
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const totalPages = Math.ceil(totalCount / POLICIES_PER_PAGE);
@@ -46,10 +46,11 @@ function PolicyManagementComponent() {
         },
     });
 
-    async function loadPolicies(page: number, status: 'all' | 'active' | 'expired' | null = 'all') {
+    async function loadPolicies(page: number, status: 'all' | 'active' | 'expired' | null) {
         setIsLoading(true);
         setError(null);
-        setSearchResults(null);
+        setSearchResults(null); // Clear search results when loading policies by status/page
+        form.reset({ searchTerm: '' }); // Clear search input
         const response = await getAllPolicies(page, POLICIES_PER_PAGE, status);
         if (response.success && response.data) {
             setPolicies(response.data);
@@ -62,6 +63,7 @@ function PolicyManagementComponent() {
     }
     
     useEffect(() => {
+        // This effect runs when the filterStatus from the URL changes.
         loadPolicies(1, filterStatus || 'all');
     }, [filterStatus]);
 
@@ -79,8 +81,11 @@ function PolicyManagementComponent() {
             setSearchResults(response.data);
             setPolicies([]); // Clear main policies when showing search results
             setTotalCount(response.data.results.length);
+            setCurrentPage(1); // Reset to page 1 for search results
         } else {
             setError(response.error || 'An unknown error occurred.');
+            setPolicies([]);
+            setTotalCount(0);
         }
         setIsSearching(false);
     }
@@ -107,11 +112,9 @@ function PolicyManagementComponent() {
 
     const getDescription = () => {
         if (searchResults) return `Found ${searchResults.results.length} policies matching your search.`;
-        if (filterStatus) {
-            const statusText = filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1);
-            return `Showing all ${statusText} policies.`;
-        }
-        return `A list of all registered warranties.`;
+        const statusText = filterStatus ? filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1) : 'All';
+        const descriptionText = statusText === 'All' ? 'A list of all registered warranties.' : `Showing all ${statusText} policies.`
+        return descriptionText;
     }
     
     const policiesToShow = searchResults ? searchResults.results : policies;
@@ -236,7 +239,7 @@ function PolicyManagementComponent() {
                                 <FileQuestion className="mx-auto h-12 w-12 text-muted-foreground" />
                                 <h3 className="mt-2 text-sm font-semibold text-foreground">No policies found</h3>
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                    {searchResults ? 'Your search did not match any policies.' : `There are no ${filterStatus || ''} policies in the system yet.`.trim()}
+                                    {searchResults ? 'Your search did not match any policies.' : `There are no ${filterStatus || 'All'} policies in the system matching the criteria.`.trim()}
                                 </p>
                             </div>
                         )

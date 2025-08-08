@@ -130,9 +130,9 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .select('*', { count: 'exact' });
 
         if (status === 'active') {
-            query = query.gte('warrantyEndDate', new Date().toISOString().split('T')[0]);
+            query = query.gte('warrantyEndDate', new Date().toISOString());
         } else if (status === 'expired') {
-            query = query.lt('warrantyEndDate', new Date().toISOString().split('T')[0]);
+            query = query.lt('warrantyEndDate', new Date().toISOString());
         }
 
         const { data, error, count } = await query
