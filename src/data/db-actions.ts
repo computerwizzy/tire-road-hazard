@@ -129,12 +129,15 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .from('policies')
             .select('*', { count: 'exact' });
 
-        if (status === 'active' || status === 'expired') {
-            const today = new Date().toISOString().split('T')[0];
+        if (status && status !== 'all') {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayISO = today.toISOString().split('T')[0];
+            
             if (status === 'active') {
-                query = query.gte('warrantyEndDate', today);
+                query = query.gte('warrantyEndDate', todayISO);
             } else if (status === 'expired') {
-                query = query.lt('warrantyEndDate', today);
+                query = query.lt('warrantyEndDate', todayISO);
             }
         }
         
@@ -170,7 +173,10 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayISO = today.toISOString().split('T')[0];
+
 
     try {
         const { count: totalPolicies, error: totalError } = await supabase
@@ -182,14 +188,14 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
         const { count: activePolicies, error: activeError } = await supabase
             .from('policies')
             .select('*', { count: 'exact', head: true })
-            .gte('warrantyEndDate', today);
+            .gte('warrantyEndDate', todayISO);
             
         if (activeError) throw activeError;
 
         const { count: expiredPolicies, error: expiredError } = await supabase
             .from('policies')
             .select('*', { count: 'exact', head: true })
-            .lt('warrantyEndDate', today);
+            .lt('warrantyEndDate', todayISO);
 
         if (expiredError) throw expiredError;
         
