@@ -123,26 +123,20 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
     const supabase = createClient();
     try {
         const from = (page - 1) * limit;
-        const to = from + limit - 1;
 
-        let query = supabase
-            .from('policies')
-            .select('*', { count: 'exact' });
-
-        if (status === 'active') {
-            query = query.gte('warrantyEndDate', new Date().toISOString());
-        } else if (status === 'expired') {
-            query = query.lt('warrantyEndDate', new Date().toISOString());
-        }
-
-        const { data, error, count } = await query
-            .order('purchaseDate', { ascending: false })
-            .range(from, to);
+        const { data, error } = await supabase.rpc('get_filtered_policies', {
+            policy_status: status || 'all',
+            page_offset: from,
+            page_limit: limit,
+        });
 
         if (error) {
-            console.error('Error fetching policies from Supabase:', error);
+            console.error('Error fetching policies from Supabase RPC:', error);
+            if (error.message.includes('function get_filtered_policies does not exist')) {
+                 return { success: false, error: "The database function 'get_filtered_policies' is missing. Please run the SQL provided in the instructions in your Supabase SQL Editor." };
+            }
             if (error.code === '42501') { // RLS error
-                 return { success: false, error: "Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard. You may need to create a policy that allows authenticated users to select data." };
+                 return { success: false, error: "Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table and for the 'get_filtered_policies' function in your Supabase dashboard." };
             }
              if (error.code === '42P01') { // Table does not exist
                 return { success: false, error: "The 'policies' table does not exist. Please create it in your Supabase dashboard to continue."};
@@ -150,7 +144,14 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             throw error; // Re-throw other errors
         }
         
-        return { success: true, data: data || [], count: count || 0 };
+        const count = data && data.length > 0 ? data[0].total_count : 0;
+        
+        const policies = data ? data.map(item => {
+            const { total_count, ...policyData } = item;
+            return policyData as Policy;
+        }) : [];
+
+        return { success: true, data: policies, count: count };
     } catch(e) {
         const error = e as Error;
         console.error('A critical error occurred while trying to load policies:', error.message);
