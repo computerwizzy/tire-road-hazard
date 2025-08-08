@@ -49,6 +49,7 @@ function PolicyManagementComponent() {
     async function loadPolicies(page: number, status: 'all' | 'active' | 'expired' | null = 'all') {
         setIsLoading(true);
         setError(null);
+        setSearchResults(null);
         const response = await getAllPolicies(page, POLICIES_PER_PAGE, status);
         if (response.success && response.data) {
             setPolicies(response.data);
@@ -65,9 +66,9 @@ function PolicyManagementComponent() {
     }, [filterStatus]);
 
     async function onSearch(values: z.infer<typeof SearchSchema>) {
-        if (!values.searchTerm) {
+        if (!values.searchTerm.trim()) {
             setSearchResults(null);
-            loadPolicies(1, filterStatus);
+            loadPolicies(1, filterStatus || 'all');
             return;
         }
         setIsSearching(true);
@@ -76,6 +77,8 @@ function PolicyManagementComponent() {
         const response = await handleSearch(values.searchTerm);
         if (response.success && response.data) {
             setSearchResults(response.data);
+            setPolicies([]); // Clear main policies when showing search results
+            setTotalCount(response.data.results.length);
         } else {
             setError(response.error || 'An unknown error occurred.');
         }
@@ -104,8 +107,11 @@ function PolicyManagementComponent() {
 
     const getDescription = () => {
         if (searchResults) return `Found ${searchResults.results.length} policies matching your search.`;
-        if (filterStatus) return `Showing all ${filterStatus} policies.`;
-        return `Showing page ${currentPage} of ${totalPages}`;
+        if (filterStatus) {
+            const statusText = filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1);
+            return `Showing all ${statusText} policies.`;
+        }
+        return `A list of all registered warranties.`;
     }
     
     const policiesToShow = searchResults ? searchResults.results : policies;
@@ -136,7 +142,17 @@ function PolicyManagementComponent() {
                                     <FormItem>
                                     <FormLabel className="sr-only">Search Term</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Search policies..." {...field} className="pl-10" />
+                                        <Input 
+                                            placeholder="Search policies..." 
+                                            {...field} 
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                if(e.target.value === '') {
+                                                    loadPolicies(1, filterStatus || 'all');
+                                                }
+                                            }}
+                                            className="pl-10" 
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -220,7 +236,7 @@ function PolicyManagementComponent() {
                                 <FileQuestion className="mx-auto h-12 w-12 text-muted-foreground" />
                                 <h3 className="mt-2 text-sm font-semibold text-foreground">No policies found</h3>
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                    {searchResults ? 'Your search did not match any policies.' : 'There are no policies in the system yet.'}
+                                    {searchResults ? 'Your search did not match any policies.' : `There are no ${filterStatus || ''} policies in the system yet.`.trim()}
                                 </p>
                             </div>
                         )
@@ -235,14 +251,14 @@ function PolicyManagementComponent() {
                         <div className="flex gap-2">
                             <Button
                                 variant="outline"
-                                onClick={() => loadPolicies(currentPage - 1, filterStatus)}
+                                onClick={() => loadPolicies(currentPage - 1, filterStatus || 'all')}
                                 disabled={currentPage === 1 || isLoading}
                             >
                                 Previous
                             </Button>
                             <Button
                                 variant="outline"
-                                onClick={() => loadPolicies(currentPage + 1, filterStatus)}
+                                onClick={() => loadPolicies(currentPage + 1, filterStatus || 'all')}
                                 disabled={currentPage === totalPages || isLoading}
                             >
                                 Next
