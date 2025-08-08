@@ -1,6 +1,6 @@
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -18,6 +18,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
+          // If the cookie is set, update the request's cookies.
           request.cookies.set({
             name,
             value,
@@ -28,6 +29,7 @@ export async function middleware(request: NextRequest) {
               headers: request.headers,
             },
           })
+          // Set the cookie on the response.
           response.cookies.set({
             name,
             value,
@@ -35,6 +37,7 @@ export async function middleware(request: NextRequest) {
           })
         },
         remove(name: string, options: CookieOptions) {
+          // If the cookie is removed, update the request's cookies.
           request.cookies.set({
             name,
             value: '',
@@ -45,6 +48,7 @@ export async function middleware(request: NextRequest) {
               headers: request.headers,
             },
           })
+          // Set an empty cookie on the response to remove it.
           response.cookies.set({
             name,
             value: '',
@@ -55,13 +59,13 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // This will refresh the session cookie if it's expired.
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
   
-  // Reroute all non-logged-in users to the login page, except for the login page itself.
+  // If the user is not logged in and is trying to access any page except the login page,
+  // redirect them to the login page.
   if (!user && pathname !== '/login') {
     return NextResponse.redirect(new URL('/login', request.url))
   }
@@ -71,7 +75,7 @@ export async function middleware(request: NextRequest) {
      return NextResponse.redirect(new URL('/admin', request.url))
   }
 
-  // Refresh the session cookie on every request. This is the crucial part.
+  // Return the response with the updated session cookie.
   return response
 }
 
