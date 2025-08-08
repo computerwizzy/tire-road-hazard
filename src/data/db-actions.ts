@@ -130,13 +130,11 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .select('*', { count: 'exact' });
 
         if (status === 'active' || status === 'expired') {
-            // Get today's date in YYYY-MM-DD format for correct 'date' type comparison.
             const today = new Date().toISOString().split('T')[0];
-            
             if (status === 'active') {
-                query = query.gte('warrantyEndDate', today);
+                query = query.filter('warrantyEndDate', 'gte', today);
             } else if (status === 'expired') {
-                query = query.lt('warrantyEndDate', today);
+                query = query.filter('warrantyEndDate', 'lt', today);
             }
         }
         
@@ -187,13 +185,17 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     let activePolicies = 0;
     let expiredPolicies = 0;
     
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     allPolicies.forEach(policy => {
         try {
+            // Dates from DB are string, parse them
             const endDate = parseISO(policy.warrantyEndDate);
-            if (isAfter(new Date(), endDate)) {
-                expiredPolicies++;
-            } else {
+            if (isAfter(endDate, today)) {
                 activePolicies++;
+            } else {
+                expiredPolicies++;
             }
         } catch(e) {
             console.error(`Could not parse date for policy: ${policy.warrantyEndDate}`);
