@@ -129,9 +129,9 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .select('*', { count: 'exact' });
 
         if (status === 'active') {
-            query = query.gte('warrantyEndDate', new Date().toISOString());
+            query = query.gte('warrantyEndDate', new Date().toISOString().split('T')[0]);
         } else if (status === 'expired') {
-            query = query.lt('warrantyEndDate', new Date().toISOString());
+            query = query.lt('warrantyEndDate', new Date().toISOString().split('T')[0]);
         }
 
         const { data, error, count } = await query
@@ -165,30 +165,35 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
 
-    // Fetch all policies with just their expiration date.
-    const { data: policies, error: policiesError } = await supabase
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const { count: activePolicies, error: activeError } = await supabase
         .from('policies')
-        .select('warrantyEndDate, customerEmail');
+        .select('*', { count: 'exact', head: true })
+        .gte('warrantyEndDate', todayStr);
 
-    if (policiesError) throw policiesError;
+    if (activeError) throw activeError;
 
-    let activePolicies = 0;
-    let expiredPolicies = 0;
-    const today = new Date();
-    // Set hours to 0 to compare dates only
-    today.setHours(0, 0, 0, 0);
+    const { count: expiredPolicies, error: expiredError } = await supabase
+        .from('policies')
+        .select('*', { count: 'exact', head: true })
+        .lt('warrantyEndDate', todayStr);
 
-    policies.forEach(policy => {
-        const endDate = new Date(policy.warrantyEndDate);
-        if (endDate < today) {
-            expiredPolicies++;
-        } else {
-            activePolicies++;
-        }
-    });
+    if (expiredError) throw expiredError;
+    
+    const { count: totalPolicies, error: totalError } = await supabase
+        .from('policies')
+        .select('*', { count: 'exact', head: true });
 
-    const totalPolicies = policies.length;
-    const totalCustomers = new Set(policies.map(c => c.customerEmail)).size;
+    if (totalError) throw totalError;
+
+    const { data: customerData, error: customerError } = await supabase
+        .from('policies')
+        .select('customerEmail');
+    
+    if (customerError) throw customerError;
+
+    const totalCustomers = new Set(customerData.map(c => c.customerEmail)).size;
     
     const { count: totalClaims, error: claimsError } = await supabase
         .from('claims')
