@@ -129,18 +129,17 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .from('policies')
             .select('*', { count: 'exact' });
 
-        if (status === 'active' || status === 'expired') {
-            const today = new Date().toISOString().split('T')[0];
-            if (status === 'active') {
-                query = query.filter('warrantyEndDate', 'gte', today);
-            } else if (status === 'expired') {
-                query = query.filter('warrantyEndDate', 'lt', today);
-            }
+        if (status === 'active') {
+            query = query.gte('warrantyEndDate', new Date().toISOString().split('T')[0]);
+        } else if (status === 'expired') {
+            query = query.lt('warrantyEndDate', new Date().toISOString().split('T')[0]);
         }
         
-        const { data, error, count } = await query
+        query = query
             .order('purchaseDate', { ascending: false })
             .range(from, to);
+
+        const { data, error, count } = await query;
 
         if (error) {
             console.error('Error fetching policies from Supabase:', error);
@@ -192,7 +191,7 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
         try {
             // Dates from DB are string, parse them
             const endDate = parseISO(policy.warrantyEndDate);
-            if (isAfter(endDate, today)) {
+            if (isAfter(endDate, today) || endDate.toDateString() === today.toDateString()) {
                 activePolicies++;
             } else {
                 expiredPolicies++;
