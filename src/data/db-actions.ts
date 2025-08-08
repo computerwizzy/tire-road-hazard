@@ -4,6 +4,7 @@
 import type { Policy, Claim } from '@/ai/flows/search-policies';
 import { createClient } from '@/lib/supabase/server';
 import type { DashboardStats } from '@/app/actions';
+import { parseISO } from 'date-fns';
 
 // We are now saving the entire form data blob, which includes all fields from WarrantyClaimSchema.
 // The Policy type from search-policies.ts is now just a subset of the data stored.
@@ -165,35 +166,26 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
 
-    const todayStr = new Date().toISOString().split('T')[0];
-
-    const { count: activePolicies, error: activeError } = await supabase
+    const { data: allPolicies, error: policiesError } = await supabase
         .from('policies')
-        .select('*', { count: 'exact', head: true })
-        .gte('warrantyEndDate', todayStr);
+        .select('warrantyEndDate, customerEmail');
 
-    if (activeError) throw activeError;
+    if (policiesError) throw policiesError;
 
-    const { count: expiredPolicies, error: expiredError } = await supabase
-        .from('policies')
-        .select('*', { count: 'exact', head: true })
-        .lt('warrantyEndDate', todayStr);
-
-    if (expiredError) throw expiredError;
+    let activePolicies = 0;
+    let expiredPolicies = 0;
+    const today = new Date();
     
-    const { count: totalPolicies, error: totalError } = await supabase
-        .from('policies')
-        .select('*', { count: 'exact', head: true });
-
-    if (totalError) throw totalError;
-
-    const { data: customerData, error: customerError } = await supabase
-        .from('policies')
-        .select('customerEmail');
+    allPolicies.forEach(policy => {
+        const endDate = parseISO(policy.warrantyEndDate);
+        if (today > endDate) {
+            expiredPolicies++;
+        } else {
+            activePolicies++;
+        }
+    });
     
-    if (customerError) throw customerError;
-
-    const totalCustomers = new Set(customerData.map(c => c.customerEmail)).size;
+    const totalCustomers = new Set(allPolicies.map(c => c.customerEmail)).size;
     
     const { count: totalClaims, error: claimsError } = await supabase
         .from('claims')
@@ -205,12 +197,12 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     }
 
     return {
-        totalPolicies: totalPolicies ?? 0,
-        activePolicies: activePolicies ?? 0,
-        expiredPolicies: expiredPolicies ?? 0,
-        totalCustomers: totalCustomers ?? 0,
+        totalPolicies: allPolicies.length,
+        activePolicies: activePolicies,
+        expiredPolicies: expiredPolicies,
+        totalCustomers: totalCustomers,
         totalClaims: totalClaims ?? 0,
-    }
+    };
 }
 
 
