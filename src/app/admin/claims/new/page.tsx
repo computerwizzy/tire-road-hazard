@@ -148,7 +148,7 @@ function NewClaimForm() {
                 </CardContent>
                 <CardFooter className="justify-center">
                      <Button asChild>
-                        <Link href="/admin/claims">File Another Claim</Link>
+                        <Link href="/admin/claims/search">File Another Claim</Link>
                     </Button>
                 </CardFooter>
             </Card>

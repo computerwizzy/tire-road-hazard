@@ -194,4 +194,39 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     }
 }
 
+
+export async function getAllClaims(page: number = 1, limit: number = 10): Promise<{
+    success: boolean;
+    data?: (Claim & { policies: { customerName: string } })[];
+    count?: number;
+    error?: string;
+}> {
+    const supabase = createClient();
+    try {
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
+
+        const { data, error, count } = await supabase
+            .from('claims')
+            .select('*, policies(customerName)', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(from, to);
+
+        if (error) {
+            console.error('Error fetching claims from Supabase:', error);
+            if (error.code === '42501') {
+                return { success: false, error: "Permission denied. Check RLS policies on 'claims'." };
+            }
+            if (error.code === '42P01') {
+                return { success: false, error: "The 'claims' table does not exist." };
+            }
+            throw error;
+        }
+        
+        return { success: true, data: data as any, count: count || 0 };
+    } catch (e) {
+        const error = e as Error;
+        return { success: false, error: error.message };
+    }
+}
     
