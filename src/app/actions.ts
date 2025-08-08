@@ -403,7 +403,6 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
 
             if (uploadError) {
                 console.error("Error uploading claim photo to Supabase:", uploadError);
-                // Provide a more specific error message if possible
                 if (uploadError.message.includes("bucket not found")) {
                      throw new Error("Storage bucket 'receipts' not found. Please ensure it exists in your Supabase project.");
                 }
@@ -427,3 +426,5 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
+
+    
