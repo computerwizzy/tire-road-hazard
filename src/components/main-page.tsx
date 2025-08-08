@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import WarrantyForm from '@/components/warranty-form';
-import { Search } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Image from 'next/image';
@@ -12,7 +12,13 @@ export default function MainPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-background">
-       <div className="absolute top-4 right-4">
+       <div className="absolute top-4 right-4 flex items-center gap-2">
+          <Button variant="outline" size="icon" asChild>
+            <Link href="/login">
+              <User className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">Admin Login</span>
+            </Link>
+          </Button>
           <ThemeToggle />
         </div>
       <div className="w-full max-w-4xl mx-auto">
@@ -24,6 +30,7 @@ export default function MainPage() {
                 width={200}
                 height={200}
                 className="mx-auto rounded-lg shadow-md"
+                data-ai-hint="tire tread"
             />
           </div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">
