@@ -389,7 +389,14 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
-    console.log("New Claim Submitted:", values);
+    // Explicitly get the user to ensure the session is attached to the client
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error("Authentication error: User not found. Please log in again.");
+    }
+    
+    console.log("New Claim Submitted for user:", user.id);
 
     for (const [index, photoData] of photosData.entries()) {
         if (photoData) {
@@ -426,5 +433,3 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
-
-    
