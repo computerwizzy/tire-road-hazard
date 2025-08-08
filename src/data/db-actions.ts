@@ -129,9 +129,9 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .select('*', { count: 'exact' });
 
         if (status === 'active') {
-            query = query.gte('warrantyEndDate', 'now()');
+            query = query.gte('warrantyEndDate', new Date().toISOString());
         } else if (status === 'expired') {
-            query = query.lt('warrantyEndDate', 'now()');
+            query = query.lt('warrantyEndDate', new Date().toISOString());
         }
 
         const { data, error, count } = await query
@@ -165,33 +165,30 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
 
-    const { count: totalPolicies, error: totalError } = await supabase
+    // Fetch all policies with just their expiration date.
+    const { data: policies, error: policiesError } = await supabase
         .from('policies')
-        .select('*', { count: 'exact', head: true });
+        .select('warrantyEndDate, customerEmail');
 
-    if (totalError) throw totalError;
+    if (policiesError) throw policiesError;
 
-    const { count: activePolicies, error: activeError } = await supabase
-        .from('policies')
-        .select('*', { count: 'exact', head: true })
-        .gte('warrantyEndDate', 'now()');
-    
-    if (activeError) throw activeError;
+    let activePolicies = 0;
+    let expiredPolicies = 0;
+    const today = new Date();
+    // Set hours to 0 to compare dates only
+    today.setHours(0, 0, 0, 0);
 
-    const { count: expiredPolicies, error: expiredError } = await supabase
-        .from('policies')
-        .select('*', { count: 'exact', head: true })
-        .lt('warrantyEndDate', 'now()');
+    policies.forEach(policy => {
+        const endDate = new Date(policy.warrantyEndDate);
+        if (endDate < today) {
+            expiredPolicies++;
+        } else {
+            activePolicies++;
+        }
+    });
 
-    if (expiredError) throw expiredError;
-    
-    const { data: customers, error: customerError } = await supabase
-        .from('policies')
-        .select('customerEmail');
-
-    if (customerError) throw customerError;
-
-    const totalCustomers = new Set(customers.map(c => c.customerEmail)).size;
+    const totalPolicies = policies.length;
+    const totalCustomers = new Set(policies.map(c => c.customerEmail)).size;
     
     const { count: totalClaims, error: claimsError } = await supabase
         .from('claims')
