@@ -50,7 +50,12 @@ function PolicyManagementComponent() {
         setIsLoading(true);
         setError(null);
         setSearchResults(null); // Clear search results when loading policies by status/page
-        form.reset({ searchTerm: '' }); // Clear search input
+        
+        const currentSearchTerm = form.getValues('searchTerm');
+        if (currentSearchTerm) {
+            form.reset({ searchTerm: '' });
+        }
+        
         const response = await getAllPolicies(page, POLICIES_PER_PAGE, status);
         if (response.success && response.data) {
             setPolicies(response.data);
@@ -96,6 +101,7 @@ function PolicyManagementComponent() {
     
      function getStatus(endDate: string) {
         const today = new Date();
+        today.setHours(0,0,0,0);
         const warrantyEndDate = parseISO(endDate);
         if (today > warrantyEndDate) {
             return <Badge variant="destructive">Expired</Badge>;

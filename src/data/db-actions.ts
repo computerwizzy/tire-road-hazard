@@ -129,17 +129,18 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
             .from('policies')
             .select('*', { count: 'exact' });
 
-        if (status === 'active') {
-            query = query.gte('warrantyEndDate', new Date().toISOString().split('T')[0]);
-        } else if (status === 'expired') {
-            query = query.lt('warrantyEndDate', new Date().toISOString().split('T')[0]);
+        if (status === 'active' || status === 'expired') {
+            const today = new Date().toISOString().split('T')[0];
+            if (status === 'active') {
+                query = query.gte('warrantyEndDate', today);
+            } else if (status === 'expired') {
+                query = query.lt('warrantyEndDate', today);
+            }
         }
         
-        query = query
+        const { data, error, count } = await query
             .order('purchaseDate', { ascending: false })
             .range(from, to);
-
-        const { data, error, count } = await query;
 
         if (error) {
             console.error('Error fetching policies from Supabase:', error);
@@ -169,56 +170,56 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
+    const today = new Date().toISOString().split('T')[0];
 
-    // Fetch all policies to manually count active/expired
-    const { data: allPolicies, error: policiesError } = await supabase
-        .from('policies')
-        .select('warrantyEndDate, customerEmail');
+    try {
+        const { count: totalPolicies, error: totalError } = await supabase
+            .from('policies')
+            .select('*', { count: 'exact', head: true });
 
-    if (policiesError) {
-        console.error("Error fetching policies for stats:", policiesError);
-        // Return zeroed-out stats on critical error
+        if (totalError) throw totalError;
+
+        const { count: activePolicies, error: activeError } = await supabase
+            .from('policies')
+            .select('*', { count: 'exact', head: true })
+            .gte('warrantyEndDate', today);
+            
+        if (activeError) throw activeError;
+
+        const { count: expiredPolicies, error: expiredError } = await supabase
+            .from('policies')
+            .select('*', { count: 'exact', head: true })
+            .lt('warrantyEndDate', today);
+
+        if (expiredError) throw expiredError;
+        
+        // This is not perfectly efficient, but it's reliable for smaller datasets
+        const { data: customerData, error: customerError } = await supabase
+            .from('policies')
+            .select('customerEmail');
+        
+        if (customerError) throw customerError;
+        
+        const totalCustomers = new Set(customerData.map(c => c.customerEmail)).size;
+        
+        const { count: totalClaims, error: claimsError } = await supabase
+            .from('claims')
+            .select('*', { count: 'exact', head: true });
+
+        if (claimsError) throw claimsError;
+
+        return {
+            totalPolicies: totalPolicies ?? 0,
+            activePolicies: activePolicies ?? 0,
+            expiredPolicies: expiredPolicies ?? 0,
+            totalCustomers: totalCustomers,
+            totalClaims: totalClaims ?? 0,
+        };
+    } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        // On error, return zeroed-out stats to prevent crashing the dashboard
         return { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0 };
     }
-
-    let activePolicies = 0;
-    let expiredPolicies = 0;
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    allPolicies.forEach(policy => {
-        try {
-            // Dates from DB are string, parse them
-            const endDate = parseISO(policy.warrantyEndDate);
-            if (isAfter(endDate, today) || endDate.toDateString() === today.toDateString()) {
-                activePolicies++;
-            } else {
-                expiredPolicies++;
-            }
-        } catch(e) {
-            console.error(`Could not parse date for policy: ${policy.warrantyEndDate}`);
-        }
-    });
-    
-    const totalCustomers = new Set(allPolicies.map(c => c.customerEmail)).size;
-    
-    const { count: totalClaims, error: claimsError } = await supabase
-        .from('claims')
-        .select('*', { count: 'exact', head: true });
-    
-    if (claimsError) {
-        console.error('Error fetching total claims:', claimsError);
-        // Don't throw, just return 0 for this stat if it fails
-    }
-
-    return {
-        totalPolicies: allPolicies.length,
-        activePolicies: activePolicies,
-        expiredPolicies: expiredPolicies,
-        totalCustomers: totalCustomers,
-        totalClaims: totalClaims ?? 0,
-    };
 }
 
 
