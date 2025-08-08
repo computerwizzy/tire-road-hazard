@@ -61,17 +61,17 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
   
-  // Reroute all non-logged-in users to the login page
+  // Reroute all non-logged-in users to the login page, except for the login page itself.
   if (!user && pathname !== '/login') {
     return NextResponse.redirect(new URL('/login', request.url))
   }
   
-  // If the user is logged in and they land on the login page, take them to the admin dashboard
+  // If the user is logged in and they land on the login page, take them to the admin dashboard.
   if (user && pathname === '/login') {
      return NextResponse.redirect(new URL('/admin', request.url))
   }
 
-
+  // Refresh the session cookie on every request. This is the crucial part.
   return response
 }
 
