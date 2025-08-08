@@ -11,7 +11,7 @@ export const revalidate = 0; // Disable caching for this page
 export default async function AdminPage() {
     let initialPolicies: Policy[] = [];
     let totalCount = 0;
-    let stats: DashboardStats = { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0 };
+    let stats: DashboardStats = { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0 };
     let error: string | null = null;
 
     try {

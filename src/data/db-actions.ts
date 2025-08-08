@@ -136,7 +136,7 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10)
                  return { success: false, error: "Permission denied. Please check your Row Level Security (RLS) policies on the 'policies' table in your Supabase dashboard. You may need to create a policy that allows authenticated users to select data." };
             }
              if (error.code === '42P01') { // Table does not exist
-                return { success: false, error: "The 'policies' table does not exist. Please create it in your Supabase dashboard."};
+                return { success: false, error: "The 'policies' table does not exist. Please create it in your Supabase dashboard to continue."};
             }
             throw error; // Re-throw other errors
         }
@@ -186,11 +186,21 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
 
     const totalCustomers = new Set(customers.map(c => c.customerEmail)).size;
     
+    const { count: totalClaims, error: claimsError } = await supabase
+        .from('claims')
+        .select('*', { count: 'exact', head: true });
+    
+    if (claimsError) {
+        console.error('Error fetching total claims:', claimsError);
+        // Don't throw, just return 0 for this stat if it fails
+    }
+
     return {
         totalPolicies: totalPolicies ?? 0,
         activePolicies: activePolicies ?? 0,
         expiredPolicies: expiredPolicies ?? 0,
         totalCustomers: totalCustomers ?? 0,
+        totalClaims: totalClaims ?? 0,
     }
 }
 
@@ -208,7 +218,7 @@ export async function getAllClaims(page: number = 1, limit: number = 10): Promis
 
         const { data, error, count } = await supabase
             .from('claims')
-            .select('*, policies(customerName)', { count: 'exact' })
+            .select('*, policies!inner(customerName)', { count: 'exact' })
             .order('created_at', { ascending: false })
             .range(from, to);
 
@@ -229,4 +239,3 @@ export async function getAllClaims(page: number = 1, limit: number = 10): Promis
         return { success: false, error: error.message };
     }
 }
-    

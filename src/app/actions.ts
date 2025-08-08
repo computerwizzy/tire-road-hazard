@@ -347,6 +347,7 @@ export type DashboardStats = {
     activePolicies: number;
     expiredPolicies: number;
     totalCustomers: number;
+    totalClaims: number;
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -383,6 +384,7 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
   try {
     const supabase = createClient();
     
+    // This check is now required because Supabase client is correctly authenticated.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         throw new Error("Authentication error: User not found. Please log in again.");
@@ -441,5 +443,3 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
-
-    
