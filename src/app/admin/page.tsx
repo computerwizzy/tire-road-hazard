@@ -62,8 +62,6 @@ export default async function AdminPage() {
     }
 
     return (
-      <div>
         <AdminDashboard initialPolicies={initialPolicies} totalCount={totalCount} initialStats={stats} />
-      </div>
     );
 }
