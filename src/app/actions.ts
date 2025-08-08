@@ -344,7 +344,7 @@ export async function handleLogout() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   await supabase.auth.signOut();
-  redirect('/login');
+  redirect('/');
 }
 
 export type DashboardStats = {
