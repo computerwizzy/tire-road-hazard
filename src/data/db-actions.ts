@@ -180,12 +180,11 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
 
     let activePolicies = 0;
     let expiredPolicies = 0;
-    const today = new Date();
     
     allPolicies.forEach(policy => {
         try {
             const endDate = parseISO(policy.warrantyEndDate);
-            if (isAfter(today, endDate)) {
+            if (isAfter(new Date(), endDate)) {
                 expiredPolicies++;
             } else {
                 activePolicies++;
