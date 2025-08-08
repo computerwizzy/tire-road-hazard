@@ -123,7 +123,7 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
     try {
         const from = (page - 1) * limit;
         const to = from + limit - 1;
-        const today = new Date().toISOString();
+        const today = new Date().toISOString().split('T')[0];
 
         let query = supabase
             .from('policies')
@@ -165,7 +165,7 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 
 export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     const supabase = createClient();
-    const today = new Date().toISOString();
+    const today = new Date().toISOString().split('T')[0];
 
     const { count: totalPolicies, error: totalError } = await supabase
         .from('policies')
