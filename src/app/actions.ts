@@ -395,7 +395,7 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
         if (photoData) {
             const filePath = `claims/${values.policyNumber}-${index + 1}-${photoData.fileName}`;
             const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('receipts') // You might want a different bucket for claims
+                .from('receipts') // Use the same bucket as receipts for simplicity
                 .upload(filePath, Buffer.from(photoData.buffer, 'base64'), {
                     contentType: photoData.contentType,
                     upsert: true,
@@ -403,6 +403,13 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
 
             if (uploadError) {
                 console.error("Error uploading claim photo to Supabase:", uploadError);
+                // Provide a more specific error message if possible
+                if (uploadError.message.includes("bucket not found")) {
+                     throw new Error("Storage bucket 'receipts' not found. Please ensure it exists in your Supabase project.");
+                }
+                 if (uploadError.message.includes("policy requires authentication")) {
+                     throw new Error("Failed to upload claim photo. The storage bucket has restrictive policies. Please check your Supabase RLS policies for storage.");
+                }
                 throw new Error("Failed to upload claim photo.");
             }
             console.log("Claim photo uploaded:", uploadData.path);

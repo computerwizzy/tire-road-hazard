@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { handleSearch, handleNewClaim } from '@/app/actions';
 import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -81,26 +81,33 @@ function NewClaimForm() {
     async function onSubmit(values: z.infer<typeof NewClaimSchema>) {
         setIsSubmitting(true);
         setError(null);
+        setSubmissionResult(null);
 
-        const photosData: { buffer: string, contentType: string, fileName: string }[] = [];
-        for (const fileInput of fileInputRefs.current) {
-            const photoFile = fileInput?.files?.[0];
-            if (photoFile) {
-                const buffer = await toBase64(photoFile);
-                photosData.push({
-                    buffer,
-                    contentType: photoFile.type,
-                    fileName: photoFile.name
-                });
+        try {
+            const photosData: { buffer: string, contentType: string, fileName: string }[] = [];
+            for (const fileInput of fileInputRefs.current) {
+                if (fileInput?.files?.[0]) {
+                    const photoFile = fileInput.files[0];
+                    const buffer = await toBase64(photoFile);
+                    photosData.push({
+                        buffer,
+                        contentType: photoFile.type,
+                        fileName: photoFile.name
+                    });
+                }
             }
+            
+            const response = await handleNewClaim(values, photosData);
+            setSubmissionResult(response);
+            if(response.error) {
+                setError(response.error);
+            }
+        } catch (e) {
+            const err = e as Error;
+            setError(err.message || "An unexpected error occurred during submission.");
+        } finally {
+            setIsSubmitting(false);
         }
-        
-        const response = await handleNewClaim(values, photosData);
-        setSubmissionResult(response);
-        if(response.error) {
-            setError(response.error);
-        }
-        setIsSubmitting(false);
     }
 
     if (isLoading) {
@@ -111,7 +118,7 @@ function NewClaimForm() {
         );
     }
     
-    if (error && !policy) {
+    if (error && !policy && !submissionResult) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -189,7 +196,8 @@ function NewClaimForm() {
                             )}
                         />
                          <div className="space-y-4">
-                            <FormLabel className="text-base">Upload Photos (Optional, up to 6)</FormLabel>
+                            <FormLabel className="text-base">Upload Photos</FormLabel>
+                            <FormDescription>You can upload up to 6 images as evidence for your claim.</FormDescription>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {Array.from({ length: 6 }).map((_, index) => (
                                     <FormItem key={index}>
@@ -210,11 +218,11 @@ function NewClaimForm() {
                             </div>
                         </div>
                         
-                        {error && (
+                        {(error || submissionResult?.error) && (
                             <Alert variant="destructive">
                                 <AlertCircle className="h-4 w-4" />
                                 <AlertTitle>Submission Error</AlertTitle>
-                                <AlertDescription>{error}</AlertDescription>
+                                <AlertDescription>{error || submissionResult?.error}</AlertDescription>
                             </Alert>
                         )}
                         <CardFooter className="px-0 justify-end gap-4">
