@@ -3,7 +3,6 @@
 
 import type { Policy, Claim } from '@/ai/flows/search-policies';
 import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
 import type { DashboardStats } from '@/app/actions';
 
 // We are now saving the entire form data blob, which includes all fields from WarrantyClaimSchema.
@@ -193,26 +192,6 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
         expiredPolicies: expiredPolicies ?? 0,
         totalCustomers: totalCustomers ?? 0,
     }
-}
-
-export async function saveClaimToDb(claimData: {
-  policy_number: string;
-  incident_description: string;
-  photo_urls: string[];
-}): Promise<number> {
-    const supabase = createClient();
-    const { data, error } = await supabase
-        .from('claims')
-        .insert(claimData)
-        .select('id')
-        .single();
-
-    if (error) {
-        console.error('Error saving claim to Supabase:', error);
-        throw new Error(`Failed to save claim. DB Error: ${error.message}`);
-    }
-
-    return data.id;
 }
 
     

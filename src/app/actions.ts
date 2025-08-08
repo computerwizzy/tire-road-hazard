@@ -5,11 +5,10 @@ import { z } from "zod";
 import fs from 'fs/promises';
 import path from 'path';
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
-import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb, getFullPolicyFromDb, saveClaimToDb } from "@/data/db-actions";
+import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb, getFullPolicyFromDb } from "@/data/db-actions";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import type { Policy } from "@/ai/flows/search-policies";
 
 
@@ -417,13 +416,24 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
         }
     }
     
-    const claimId = await saveClaimToDb({
+    const claimData = {
       policy_number: values.policyNumber,
       incident_description: values.incidentDescription,
       photo_urls: photoUrls,
-    });
+    };
+    
+    const { data: claimResult, error: claimError } = await supabase
+        .from('claims')
+        .insert(claimData)
+        .select('id')
+        .single();
+    
+    if (claimError) {
+        console.error('Error saving claim to Supabase:', claimError);
+        throw new Error(`Failed to save claim. DB Error: ${claimError.message}`);
+    }
 
-    return { success: true, data: { claimId: `CL-${claimId}` } };
+    return { success: true, data: { claimId: `CL-${claimResult.id}` } };
 
   } catch (error) {
     console.error("Error handling new claim:", error);
