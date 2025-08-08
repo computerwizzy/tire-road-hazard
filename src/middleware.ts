@@ -63,14 +63,16 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
   
   const { pathname } = request.nextUrl;
+  
+  const isAuthRoute = pathname === '/login';
 
   // if user is not signed in and trying to access a protected route, redirect to login
-  if (!user && pathname !== '/login') {
+  if (!user && !isAuthRoute) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-   // if user is signed in and the current path is /login, redirect the user to /admin
-  if (user && pathname === '/login') {
+   // if user is signed in and trying to access an auth route like login, redirect to admin
+  if (user && isAuthRoute) {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
 
