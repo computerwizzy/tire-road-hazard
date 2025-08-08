@@ -405,7 +405,7 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
                  if (uploadError.message.includes("bucket not found")) {
                      throw new Error("Storage bucket 'receipts' not found. Please ensure it exists in your Supabase project.");
                 }
-                 if (uploadError.message.includes("could not be found") || uploadError.message.includes("Auth") || uploadError.message.includes("policy")) {
+                 if (uploadError.message.includes("Auth") || uploadError.message.includes("policy")) {
                      throw new Error("Failed to upload claim photo. The storage bucket has restrictive policies. Please check your Supabase RLS policies for storage.");
                 }
                 throw new Error("Failed to upload claim photo.");
