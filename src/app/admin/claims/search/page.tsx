@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Search, AlertCircle, FileQuestion, ShieldCheck } from 'lucide-react';
 
+export const runtime = 'edge';
+
 const SearchSchema = z.object({
   policyNumber: z.string().min(1, { message: 'Please enter a policy number.' }),
 });
@@ -147,3 +149,5 @@ export default function ClaimsSearchPage() {
         </div>
     );
 }
+
+    

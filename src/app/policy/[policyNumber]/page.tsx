@@ -19,6 +19,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
+export const runtime = 'edge';
 
 function PolicyDetail({ label, value, icon: Icon }: { label: string; value: string | number | null | undefined, icon: React.ElementType }) {
     if (!value && typeof value !== 'number') return null;
@@ -248,3 +249,5 @@ export default function PolicyPage() {
         </main>
     );
 }
+
+    

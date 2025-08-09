@@ -18,6 +18,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { FileEdit, Loader2, FileQuestion, Search, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+export const runtime = 'edge';
+
 const SearchSchema = z.object({
   searchTerm: z.string().min(1, { message: 'Please enter a search term.' }),
 });
@@ -287,3 +289,5 @@ export default function PolicyManagementPage() {
         </Suspense>
     )
 }
+
+    

@@ -15,6 +15,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
+export const runtime = 'edge';
+
 type ClaimWithCustomer = Claim & { policies: { customerName: string } };
 
 const CLAIMS_PER_PAGE = 10;
@@ -147,3 +149,5 @@ export default function AllClaimsPage() {
         </div>
     );
 }
+
+    

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, FileEdit, ChevronRight } from 'lucide-react';
 
+export const runtime = 'edge';
+
 export default function SettingsPage() {
     return (
         <div className="max-w-7xl mx-auto flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -44,3 +46,5 @@ export default function SettingsPage() {
         </div>
     );
 }
+
+    

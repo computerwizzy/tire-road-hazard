@@ -2,14 +2,13 @@
 "use server";
 
 import { z } from "zod";
-import fs from 'fs/promises';
-import path from 'path';
 import { sendPolicyEmail, type SendPolicyEmailInput } from "@/ai/flows/send-policy-email";
 import { savePolicy, addUser, deleteUser, getUsers, getAllPoliciesFromDb, getDashboardStatsFromDb, getFullPolicyFromDb } from "@/data/db-actions";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Policy } from "@/ai/flows/search-policies";
+import { policyTemplate } from "@/data/policy-template";
 
 
 const WarrantyClaimSchema = z.object({
@@ -55,8 +54,7 @@ type FullPolicyData = z.infer<typeof FullPolicyDataSchema>;
 
 
 async function generatePolicyDocument(values: FullPolicyData): Promise<{ policyDocument: string }> {
-  const templatePath = path.join(process.cwd(), 'src', 'data', 'policy-template.md');
-  const template = await fs.readFile(templatePath, 'utf-8');
+  const template = policyTemplate;
   
   const allTireDots = [
       values.tireDot1,
@@ -443,3 +441,5 @@ export async function handleNewClaim(values: z.infer<typeof NewClaimSchema>, pho
     return { success: false, error: errorMessage };
   }
 }
+
+    

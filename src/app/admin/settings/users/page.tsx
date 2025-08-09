@@ -57,6 +57,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 
+export const runtime = 'edge';
+
 const AddUserSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   role: z.enum(['admin', 'member'], { required_error: 'Please select a role.' }),
@@ -288,3 +290,5 @@ export default function UserManagementPage() {
     </>
   );
 }
+
+    
