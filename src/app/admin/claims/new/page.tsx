@@ -8,7 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 
-import { handleSearch, handleNewClaim } from '@/app/actions';
+import { handleSearch } from '@/app/actions';
+import { handleNewClaim } from '@/app/ai-actions';
 import type { Policy } from '@/ai/flows/search-policies';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
@@ -250,3 +251,5 @@ export default function NewClaimPage() {
         </div>
     );
 }
+
+    

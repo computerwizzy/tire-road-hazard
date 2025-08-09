@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Mail, Loader2, FileText, Printer, Download } from 'lucide-react';
-import { handleSendEmail, handleDownloadWord } from '@/app/actions';
+import { handleSendEmail, handleDownloadWord } from '@/app/ai-actions';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import rehypeRaw from 'rehype-raw';
@@ -170,3 +170,5 @@ export function WarrantyResult({ result, onReset }: WarrantyResultProps) {
         </div>
     );
 }
+
+    
