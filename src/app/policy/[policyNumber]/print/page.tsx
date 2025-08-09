@@ -1,14 +1,10 @@
 
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
 import ReactMarkdown from 'react-markdown';
 import { notFound } from 'next/navigation';
 import { handleGetPolicyByNumber } from '@/app/actions';
 import rehypeRaw from 'rehype-raw';
-
-export const runtime = 'edge';
 
 export default async function PrintPolicyPage({ params }: { params: { policyNumber: string } }) {
     const policyResult = await handleGetPolicyByNumber(params.policyNumber);

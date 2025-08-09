@@ -1,0 +1,43 @@
+diff --git a/node_modules/@genkit-ai/core/package.json b/node_modules/@genkit-ai/core/package.json
+index 322c1c6..15b6329 100644
+--- a/node_modules/@genkit-ai/core/package.json
++++ b/node_modules/@genkit-ai/core/package.json
+@@ -62,7 +62,6 @@
+     "@opentelemetry/api": "^1.9.0",
+     "@opentelemetry/context-async-hooks": "^1.27.0",
+     "@opentelemetry/instrumentation": "^0.54.0",
+-    "@opentelemetry/sdk-node": "^0.54.0",
+     "@opentelemetry/sdk-trace-base": "^1.27.0",
+     "long": "^5.2.3",
+     "p-limit": "^4.0.0",
+diff --git a/node_modules/@genkit-ai/core/lib/tracing.js b/node_modules/@genkit-ai/core/lib/tracing.js
+index 475225d..512534f 100644
+--- a/node_modules/@genkit-ai/core/lib/tracing.js
++++ b/node_modules/@genkit-ai/core/lib/tracing.js
+@@ -37,7 +37,7 @@ const async_hooks_1 = require("@opentelemetry/context-async-hooks");
+ const api_1 = require("@opentelemetry/api");
+ const sdk_trace_base_1 = require("@opentelemetry/sdk-trace-base");
+ const internal_1 = require("./internal");
+-const sdk_node_1 = require("@opentelemetry/sdk-node");
++// import { NodeSDK } from '@opentelemetry/sdk-node';
+ const instrumentation_1 = require("@opentelemetry/instrumentation");
+ const GENKIT_TELEMETRY_EXPORT_TYPE = 'GENKIT_TELEMETRY_EXPORT_TYPE';
+ const GENKIT_TELEMETRY_EXPORT_CONFIG = 'GENKIT_TELEMETRY_EXPORT_CONFIG';
+@@ -107,7 +107,7 @@ function registerInstrumentation(instrumentations) {
+  * from environment variables.
+  */
+ function configureNodeJs(config) {
+-    const sdk = new sdk_node_1.NodeSDK({
++    const sdk = ({
+         // We do not want to automatically start the SDK.
+         // We will start it manually when tracing is enabled.
+         autoDetectResources: false,
+@@ -118,7 +118,7 @@ function configureNodeJs(config) {
+                 instrumentations: (0, instrumentation_1.getInstrumentations)(),
+             },
+         }),
+-    });
++    });
+     telemetrySdk = sdk;
+ }
+ exports.configureNodeJs = configureNodeJs;
