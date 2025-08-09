@@ -6,7 +6,6 @@ import { AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { DashboardStats } from '@/app/actions';
 
-export const runtime = 'edge';
 export const revalidate = 0; // Disable caching for this page
 
 export default async function AdminPage() {

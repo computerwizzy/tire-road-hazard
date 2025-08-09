@@ -18,8 +18,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { FileEdit, Loader2, FileQuestion, Search, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-export const runtime = 'edge';
-
 const SearchSchema = z.object({
   searchTerm: z.string().min(1, { message: 'Please enter a search term.' }),
 });
@@ -121,7 +119,7 @@ function PolicyManagementComponent() {
     const getDescription = () => {
         if (searchResults) return `Found ${searchResults.results.length} policies matching your search.`;
         const statusText = filterStatus ? filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1) : 'All';
-        const descriptionText = statusText === 'All' ? 'A list of all registered warranties.' : `Showing all ${StatusText} policies.`
+        const descriptionText = statusText === 'All' ? 'A list of all registered warranties.' : `Showing all ${statusText} policies.`
         return descriptionText;
     }
     

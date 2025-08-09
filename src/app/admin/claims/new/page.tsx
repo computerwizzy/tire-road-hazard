@@ -20,8 +20,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle, FileText, User, Car, ShieldAlert, CheckCircle, Upload } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-export const runtime = 'edge';
-
 const NewClaimSchema = z.object({
   policyNumber: z.string(),
   incidentDescription: z.string().min(10, { message: "Please provide a detailed description of the incident." }),
@@ -251,5 +249,3 @@ export default function NewClaimPage() {
         </div>
     );
 }
-
-    
