@@ -121,7 +121,7 @@ function PolicyManagementComponent() {
     const getDescription = () => {
         if (searchResults) return `Found ${searchResults.results.length} policies matching your search.`;
         const statusText = filterStatus ? filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1) : 'All';
-        const descriptionText = statusText === 'All' ? 'A list of all registered warranties.' : `Showing all ${statusText} policies.`
+        const descriptionText = statusText === 'All' ? 'A list of all registered warranties.' : `Showing all ${StatusText} policies.`
         return descriptionText;
     }
     
@@ -289,5 +289,3 @@ export default function PolicyManagementPage() {
         </Suspense>
     )
 }
-
-    

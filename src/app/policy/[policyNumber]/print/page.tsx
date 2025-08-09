@@ -89,5 +89,3 @@ export default async function PrintPolicyPage({ params }: { params: { policyNumb
         </html>
     );
 }
-
-    

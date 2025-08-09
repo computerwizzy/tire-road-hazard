@@ -6,5 +6,3 @@ export const runtime = 'edge';
 export default function RegistrationPage() {
   return <MainPage />;
 }
-
-    
