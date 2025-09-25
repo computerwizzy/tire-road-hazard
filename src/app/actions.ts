@@ -214,13 +214,25 @@ export async function handleSearch(searchTerm: string): Promise<{
   }
 }
 
-export async function getAllPolicies(page: number = 1, limit: number = 10, status: 'all' | 'active' | 'expired' | null = 'all'): Promise<{
+export async function getAllPolicies(
+    page: number = 1, 
+    limit: number = 10, 
+    status: 'all' | 'active' | 'expired' | null = 'all',
+    dateRange?: { from: string, to: string }
+): Promise<{
   success: boolean;
   data?: Policy[];
   count?: number;
   error?: string;
 }> {
-    return getAllPoliciesFromDb(page, limit, status);
+    let range;
+    if (dateRange) {
+        range = {
+            from: new Date(dateRange.from),
+            to: new Date(dateRange.to)
+        }
+    }
+    return getAllPoliciesFromDb(page, limit, status, range);
 }
 
 
@@ -262,8 +274,15 @@ export type DashboardStats = {
     totalSales: number;
 }
 
-export async function getDashboardStats(): Promise<DashboardStats> {
-    return getDashboardStatsFromDb();
+export async function getDashboardStats(dateRange?: { from: string, to: string }): Promise<DashboardStats> {
+    let range;
+    if (dateRange) {
+        range = {
+            from: new Date(dateRange.from),
+            to: new Date(dateRange.to)
+        }
+    }
+    return getDashboardStatsFromDb(range);
 }
 
 export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
@@ -286,6 +305,4 @@ export async function handleGetPolicyByNumber(policyNumber: string): Promise<{
 
 
 export { addUser, deleteUser, getUsers };
-    
 
-    

@@ -4,7 +4,7 @@
 import type { Policy, Claim } from '@/ai/flows/search-policies';
 import { createClient } from '@/lib/supabase/server';
 import type { DashboardStats } from '@/app/actions';
-import { parseISO, isAfter, isBefore, isEqual } from 'date-fns';
+import { parseISO, isAfter, isBefore, isEqual, subDays } from 'date-fns';
 
 // We are now saving the entire form data blob, which includes all fields from WarrantyClaimSchema.
 // The Policy type from search-policies.ts is now just a subset of the data stored.
@@ -114,7 +114,7 @@ export async function deleteUser(id: number): Promise<void> {
     }
 }
 
-export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10, status: 'all' | 'active' | 'expired' | null = 'all'): Promise<{
+export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10, status: 'all' | 'active' | 'expired' | null = 'all', dateRange?: { from: Date, to: Date }): Promise<{
   success: boolean;
   data?: Policy[];
   count?: number;
@@ -135,6 +135,11 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
         } else if (status === 'expired') {
             const todayISO = today.toISOString().split('T')[0];
             query = query.lt('warrantyEndDate', todayISO);
+        }
+        
+        if (dateRange) {
+            query = query.gte('purchaseDate', dateRange.from.toISOString().split('T')[0]);
+            query = query.lte('purchaseDate', dateRange.to.toISOString().split('T')[0]);
         }
 
         const from = (page - 1) * limit;
@@ -170,12 +175,19 @@ export async function getAllPoliciesFromDb(page: number = 1, limit: number = 10,
 }
 
 
-export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
+export async function getDashboardStatsFromDb(dateRange?: { from: Date, to: Date }): Promise<DashboardStats> {
     const supabase = createClient();
     try {
-        const { data: allPolicies, error: totalError } = await supabase
+        let policiesQuery = supabase
             .from('policies')
-            .select('customerEmail, warrantyEndDate, pricePerTire, tireQuantity, roadHazardPrice');
+            .select('customerEmail, warrantyEndDate, pricePerTire, tireQuantity, roadHazardPrice, purchaseDate');
+
+        if (dateRange) {
+            policiesQuery = policiesQuery.gte('purchaseDate', dateRange.from.toISOString().split('T')[0]);
+            policiesQuery = policiesQuery.lte('purchaseDate', dateRange.to.toISOString().split('T')[0]);
+        }
+
+        const { data: allPolicies, error: totalError } = await policiesQuery;
 
         if (totalError) throw totalError;
 
@@ -204,9 +216,16 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
         
         const totalCustomers = new Set(allPolicies.map(c => c.customerEmail)).size;
         
-        const { count: totalClaims, error: claimsError } = await supabase
+        let claimsQuery = supabase
             .from('claims')
             .select('*', { count: 'exact', head: true });
+
+        if (dateRange) {
+            claimsQuery = claimsQuery.gte('created_at', dateRange.from.toISOString());
+            claimsQuery = claimsQuery.lte('created_at', dateRange.to.toISOString());
+        }
+
+        const { count: totalClaims, error: claimsError } = await claimsQuery;
 
         if (claimsError) {
              // If claims table doesn't exist, don't throw, just return 0
