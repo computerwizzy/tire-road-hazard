@@ -55,10 +55,14 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
       if (policiesResponse.count !== undefined) {
         setTotalCount(policiesResponse.count);
       }
+    } else {
+        console.error("Failed to fetch policies:", policiesResponse.error);
     }
 
     if (statsResponse) {
       setStats(statsResponse);
+    } else {
+        console.error("Failed to fetch dashboard stats");
     }
 
     setIsLoading(false);
@@ -88,20 +92,23 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
     const to = new Date();
     let from;
     switch (preset) {
-      case 'today':
-        from = to;
-        break;
-      case '7':
-        from = subDays(to, 6);
-        break;
-      case '30':
-        from = subDays(to, 29);
-        break;
-      case '90':
-        from = subDays(to, 89);
-        break;
-      default:
-        from = undefined;
+        case 'all':
+            handleDateRangeChange(undefined);
+            return;
+        case 'today':
+            from = to;
+            break;
+        case '7':
+            from = subDays(to, 6);
+            break;
+        case '30':
+            from = subDays(to, 29);
+            break;
+        case '90':
+            from = subDays(to, 89);
+            break;
+        default:
+            from = undefined;
     }
     if (from) {
       handleDateRangeChange({ from, to });
@@ -168,12 +175,136 @@ export default function AdminDashboard({ initialPolicies, totalCount: initialTot
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-        {/* Cards */}
-      </div>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">${stats.totalSales.toFixed(2)}</div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Policies</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{stats.totalPolicies}</div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Policies</CardTitle>
+                <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{stats.activePolicies}</div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Expired Policies</CardTitle>
+                <ShieldX className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{stats.expiredPolicies}</div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{stats.totalCustomers}</div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Claims</CardTitle>
+                <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{stats.totalClaims}</div>
+            </CardContent>
+        </Card>
+    </div>
 
       <Card>
-        {/* Table */}
-      </Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+                <FileText className="text-primary" />
+                Warranty Policies
+            </CardTitle>
+            <CardDescription>A list of all registered warranties in the selected date range.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="relative min-h-[460px] overflow-x-auto">
+                {isLoading && (
+                    <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                )}
+                 <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Policy #</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead className="hidden md:table-cell">Tire DOT</TableHead>
+                        <TableHead className="hidden lg:table-cell">Purchase Date</TableHead>
+                        <TableHead>Expires</TableHead>
+                        <TableHead>Status</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {policies.map((policy) => (
+                        <TableRow
+                            key={policy.policyNumber}
+                            onClick={() => handleRowClick(policy.policyNumber)}
+                            className="cursor-pointer"
+                        >
+                        <TableCell className="font-medium">{policy.policyNumber}</TableCell>
+                        <TableCell>{policy.customerName}</TableCell>
+                        <TableCell className="hidden md:table-cell">{policy.tireDot}</TableCell>
+                        <TableCell className="hidden lg:table-cell">{format(parseISO(policy.purchaseDate), 'PPP')}</TableCell>
+                        <TableCell>{format(parseISO(policy.warrantyEndDate), 'PPP')}</TableCell>
+                        <TableCell>{getStatus(policy.warrantyEndDate)}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                 {policies.length === 0 && !isLoading && (
+                    <div className="text-center py-10">
+                        <p className="text-muted-foreground">No policies found for the selected date range.</p>
+                    </div>
+                 )}
+            </div>
+        </CardContent>
+        { totalPages > 1 && (
+             <div className="p-4 border-t flex flex-col sm:flex-row items-center justify-between gap-2">
+                <p className="text-sm text-muted-foreground">
+                    Showing page {currentPage} of {totalPages}
+                </p>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1 || isLoading}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages || isLoading}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
+        )}
+    </Card>
     </div>
   );
 }
