@@ -180,7 +180,7 @@ export async function getDashboardStatsFromDb(dateRange?: { from: Date, to: Date
     try {
         let policiesQuery = supabase
             .from('policies')
-            .select('customerEmail, warrantyEndDate, pricePerTire, tireQuantity, roadHazardPrice, purchaseDate');
+            .select('customerEmail, warrantyEndDate, roadHazardPrice, purchaseDate');
 
         if (dateRange) {
             policiesQuery = policiesQuery.gte('purchaseDate', dateRange.from.toISOString().split('T')[0]);
@@ -211,7 +211,7 @@ export async function getDashboardStatsFromDb(dateRange?: { from: Date, to: Date
             } else {
                 activePolicies++;
             }
-            totalSales += (policy.pricePerTire * policy.tireQuantity) + (policy.roadHazardPrice || 0);
+            totalSales += policy.roadHazardPrice || 0;
         }
         
         const totalCustomers = new Set(allPolicies.map(c => c.customerEmail)).size;
