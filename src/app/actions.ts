@@ -259,6 +259,7 @@ export type DashboardStats = {
     expiredPolicies: number;
     totalCustomers: number;
     totalClaims: number;
+    totalSales: number;
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {

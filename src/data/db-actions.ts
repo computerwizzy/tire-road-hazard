@@ -175,16 +175,17 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
     try {
         const { data: allPolicies, error: totalError } = await supabase
             .from('policies')
-            .select('customerEmail, warrantyEndDate');
+            .select('customerEmail, warrantyEndDate, pricePerTire, tireQuantity, roadHazardPrice');
 
         if (totalError) throw totalError;
 
         if (!allPolicies) {
-             return { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0 };
+             return { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0, totalSales: 0 };
         }
 
         let activePolicies = 0;
         let expiredPolicies = 0;
+        let totalSales = 0;
         
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
@@ -198,6 +199,7 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
             } else {
                 activePolicies++;
             }
+            totalSales += (policy.pricePerTire * policy.tireQuantity) + (policy.roadHazardPrice || 0);
         }
         
         const totalCustomers = new Set(allPolicies.map(c => c.customerEmail)).size;
@@ -219,11 +221,12 @@ export async function getDashboardStatsFromDb(): Promise<DashboardStats> {
             expiredPolicies: expiredPolicies,
             totalCustomers: totalCustomers,
             totalClaims: totalClaims ?? 0,
+            totalSales: totalSales,
         };
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
         // On error, return zeroed-out stats to prevent crashing the dashboard
-        return { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0 };
+        return { totalPolicies: 0, activePolicies: 0, expiredPolicies: 0, totalCustomers: 0, totalClaims: 0, totalSales: 0 };
     }
 }
 
