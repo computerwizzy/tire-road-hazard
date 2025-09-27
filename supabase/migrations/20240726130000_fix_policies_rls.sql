@@ -10,6 +10,8 @@ DROP POLICY IF EXISTS "Allow owner to update policies" ON "public"."policies";
 DROP POLICY IF EXISTS "Allow authenticated users to update policies" ON "public"."policies";
 DROP POLICY IF EXISTS "Allow owner to delete policies" ON "public"."policies";
 DROP POLICY IF EXISTS "Allow authenticated users to delete policies" ON "public"."policies";
+DROP POLICY IF EXISTS "Allow authenticated users to select policies" ON "public"."policies";
+
 
 
 -- Create new, correct policies for the 'policies' table.

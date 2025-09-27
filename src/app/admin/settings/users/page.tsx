@@ -105,7 +105,7 @@ export default function UserManagementPage() {
       setUsers((prev) => [...prev, newUser]);
       toast({
         title: 'User Added',
-        description: `${newUser.email} has been added successfully.`,
+        description: `${newUser.email} has been invited. They will need to confirm their email to gain access.`,
       });
       setIsAddUserOpen(false);
       form.reset();
@@ -118,7 +118,7 @@ export default function UserManagementPage() {
     }
   }
 
-  async function onDeleteUser(id: number) {
+  async function onDeleteUser(id: string) { // Changed id to string
     try {
       await deleteUser(id);
       setUsers((prev) => prev.filter((user) => user.id !== id));
