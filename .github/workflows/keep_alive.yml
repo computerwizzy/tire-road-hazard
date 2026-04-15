@@ -5,23 +5,12 @@ on:
     - cron: '0 0 * * 1,4'
   workflow_dispatch: 
 
-# This tells GitHub exactly what this script is allowed to do
-permissions:
-  contents: write
-  actions: write
-
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Keep Database Active
         run: |
           curl -i -X GET "https://fishmnjzdiqnfpwfmsob.supabase.co/rest/v1/users?select=id&limit=1" \
           -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
           -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"
-
-      - name: Keep Workflow Active
-        uses: gautamkrishnar/keepalive-workflow@v2
