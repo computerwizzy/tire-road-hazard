@@ -1,87 +1,52 @@
 
 'use server';
 
-/**
- * @fileOverview A flow for sending a warranty policy email to a customer.
- *
- * - sendPolicyEmail - A function that generates and sends a policy email using Resend.
- * - SendPolicyEmailInput - The input type for the sendPolicyEmail function.
- * - SendPolicyEmailOutput - The return type for the sendPolicyEmail function.
- */
-
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { z } from 'zod';
 import { Resend } from 'resend';
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
 
 const SendPolicyEmailInputSchema = z.object({
-  customerName: z.string().describe('The name of the customer.'),
-  customerEmail: z.string().describe('The email address of the customer.'),
-  policyUrl: z.string().url().describe('The unique URL to the customer\'s warranty policy page.'),
-  policyDocument: z.string().describe('The full text of the warranty policy document in Markdown format.'),
+  customerName: z.string(),
+  customerEmail: z.string(),
+  policyUrl: z.string().url(),
+  policyDocument: z.string(),
 });
 export type SendPolicyEmailInput = z.infer<typeof SendPolicyEmailInputSchema>;
 
 const SendPolicyEmailOutputSchema = z.object({
-  success: z.boolean().describe("Whether the email was sent successfully."),
+  success: z.boolean(),
 });
 export type SendPolicyEmailOutput = z.infer<typeof SendPolicyEmailOutputSchema>;
 
-
 export async function sendPolicyEmail(input: SendPolicyEmailInput): Promise<SendPolicyEmailOutput> {
-  return sendPolicyEmailFlow(input);
-}
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
-const emailPrompt = ai.definePrompt({
-    name: 'sendPolicyEmailPrompt',
-    input: {schema: SendPolicyEmailInputSchema},
-    // We ask the LLM just for the subject and body, not the full email.
-    output: { schema: z.object({
-        subject: z.string().describe("The subject line for the email."),
-        body: z.string().describe("The body of the email in Markdown format. This should be a friendly message informing the user that their policy document is ready and link to it."),
-    })},
-    prompt: `You are an assistant for a tire warranty company. Your task is to compose a friendly and professional email to a customer, informing them that their new warranty policy document is ready.
+  const subject = `Your TireSafe Warranty Policy is Ready`;
+  const html = `
+    <div style="font-family: sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+      <h2>Hello ${input.customerName},</h2>
+      <p>Your TireSafe road hazard warranty policy document is ready.</p>
+      <p>
+        <a href="${input.policyUrl}" style="background: #1d4ed8; color: #fff; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+          View Your Policy
+        </a>
+      </p>
+      <p>You can also view, download, or print your policy by visiting the link below:</p>
+      <p><a href="${input.policyUrl}">${input.policyUrl}</a></p>
+      <p>Please keep this for your records.</p>
+      <p>Thank you for choosing TireSafe Warranty.</p>
+    </div>
+  `;
 
-    The customer's name is {{customerName}}.
-
-    Generate a suitable subject line and a brief, friendly body for the email. The email MUST include a prominent link to the customer's policy page using the following URL: {{policyUrl}}. Encourage them to view, download, or print it for their records.
-    `,
-});
-
-const sendPolicyEmailFlow = ai.defineFlow(
-  {
-    name: 'sendPolicyEmailFlow',
-    inputSchema: SendPolicyEmailInputSchema,
-    outputSchema: SendPolicyEmailOutputSchema,
-  },
-  async (input) => {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
-    // 1. Generate the email subject and body text.
-    const llmResponse = await emailPrompt(input);
-    const { subject, body } = llmResponse.output!;
-
-    try {
-      // 2. Send the email using Resend.
-      await resend.emails.send({
-        from: 'TireSafe Warranty <onboarding@resend.dev>', // Replace with your desired "from" address
-        to: [input.customerEmail],
-        subject: subject,
-        // Using Markdown directly in the html field. Resend handles conversion.
-        // For more complex templates, you'd use a React component.
-        html: `<div style="font-family: sans-serif; line-height: 1.6;">${new ReactMarkdown({children: body}).props.children}</div>`, 
-        // As an alternative to sending the full markdown, you could attach a generated PDF.
-        // For this implementation, we are sending a link to the printable page.
-      });
-
-      return {
-          success: true,
-      };
-
-    } catch (error) {
-      console.error("Error sending email with Resend:", error);
-      throw new Error(`Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+  try {
+    await resend.emails.send({
+      from: 'TireSafe Warranty <onboarding@resend.dev>',
+      to: [input.customerEmail],
+      subject,
+      html,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email with Resend:', error);
+    throw new Error(`Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-);
+}
