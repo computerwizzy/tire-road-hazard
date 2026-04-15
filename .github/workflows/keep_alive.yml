@@ -2,15 +2,24 @@ name: Supabase Keep-Alive
 
 on:
   schedule:
-    - cron: '0 0 * * 1,4'
-  workflow_dispatch: 
+    - cron: '0 0 * * 1,4' # Runs every Monday and Thursday
+  workflow_dispatch:      # Allows manual testing
+
+permissions:
+  contents: write         # Allows the script to "touch" the repo to stay active
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Keep Database Active
         run: |
           curl -i -X GET "https://fishmnjzdiqnfpwfmsob.supabase.co/rest/v1/users?select=id&limit=1" \
           -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
           -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"
+
+      - name: Keep Workflow Active
+        uses: gautamkrishnar/keepalive-workflow@v2
